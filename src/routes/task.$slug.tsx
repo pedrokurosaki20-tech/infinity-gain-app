@@ -80,7 +80,7 @@ function TaskDetail() {
           Requisitos
         </h3>
         <ul className="glass space-y-2 rounded-2xl p-4">
-          {task.requirements.map((r) => (
+          {task.requirements.map((r: string) => (
             <li key={r} className="flex items-start gap-2 text-sm">
               <CheckCircle2 size={16} className="mt-0.5 shrink-0 text-[color:var(--brand-blue)]" />
               <span className="text-white/90">{r}</span>
