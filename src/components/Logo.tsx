@@ -1,18 +1,16 @@
 import { Link } from "@tanstack/react-router";
+import logoAsset from "@/assets/infinity-gain-logo.png.asset.json";
 
 export function Logo({ size = "md" }: { size?: "sm" | "md" | "lg" }) {
-  const dims = size === "lg" ? "h-14 w-14" : size === "sm" ? "h-8 w-8" : "h-11 w-11";
-  const text = size === "lg" ? "text-2xl" : size === "sm" ? "text-base" : "text-xl";
+  const h = size === "lg" ? "h-16" : size === "sm" ? "h-8" : "h-11";
   return (
-    <Link to="/dashboard" className="inline-flex items-center gap-3">
-      <span
-        className={`${dims} relative grid place-items-center rounded-2xl bg-brand-gradient shadow-glow`}
-      >
-        <span className="text-white font-black text-lg leading-none">∞</span>
-      </span>
-      <span className={`${text} font-extrabold tracking-tight`}>
-        Infinity <span className="text-brand-gradient">Gain</span>
-      </span>
+    <Link to="/dashboard" className="inline-flex items-center" aria-label="Infinity Gain">
+      <img
+        src={logoAsset.url}
+        alt="Infinity Gain"
+        className={`${h} w-auto object-contain select-none`}
+        draggable={false}
+      />
     </Link>
   );
 }
