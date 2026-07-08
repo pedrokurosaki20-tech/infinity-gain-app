@@ -60,37 +60,32 @@ function Dashboard() {
           <h2 className="text-lg font-bold">Tarefas em destaque</h2>
           <button className="text-xs text-muted-foreground">Ver todas</button>
         </div>
-        <div className="space-y-3">
+        <div className="grid grid-cols-1 gap-4">
           {tasks.map((t, i) => (
             <Link
               key={t.slug}
               to="/task/$slug"
               params={{ slug: t.slug }}
-              className="glass block rounded-3xl p-4 shadow-soft transition-transform hover:scale-[1.01] animate-fade-up"
+              className="glass flex h-full min-h-[220px] flex-col rounded-3xl p-5 shadow-soft transition-transform hover:scale-[1.01] animate-fade-up"
               style={{ animationDelay: `${i * 60}ms` }}
             >
-              <div className="flex items-start gap-4">
+              <div className="flex items-center gap-4">
                 <div
                   className="grid h-14 w-14 shrink-0 place-items-center rounded-2xl shadow-glow"
                   style={{ backgroundImage: t.accent }}
                 >
-                  <t.icon size={24} className="text-white" />
+                  <t.icon size={28} strokeWidth={1.8} className="text-white" />
                 </div>
-                <div className="min-w-0 flex-1">
-                  <h3 className="truncate font-semibold">{t.title}</h3>
-                  <p className="mt-0.5 line-clamp-2 text-sm text-muted-foreground">
-                    {t.short}
-                  </p>
-                  <div className="mt-3 flex items-center justify-between">
-                    <span className="text-xs font-medium text-white/70">
-                      {t.earnings}
-                    </span>
-                    <span className="inline-flex items-center gap-1 rounded-full bg-brand-gradient px-3 py-1.5 text-xs font-semibold text-white shadow-glow">
-                      Iniciar Tarefa
-                      <ChevronRight size={14} />
-                    </span>
-                  </div>
-                </div>
+                <h3 className="text-base font-semibold leading-tight">{t.title}</h3>
+              </div>
+              <p className="mt-3 line-clamp-3 min-h-[3.75rem] text-sm leading-relaxed text-muted-foreground">
+                {t.short}
+              </p>
+              <div className="mt-auto pt-4">
+                <span className="flex h-11 w-full items-center justify-center gap-1.5 rounded-2xl bg-brand-gradient text-sm font-semibold text-white shadow-glow">
+                  Iniciar Tarefa
+                  <ChevronRight size={16} />
+                </span>
               </div>
             </Link>
           ))}
