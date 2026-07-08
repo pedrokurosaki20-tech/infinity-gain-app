@@ -1,5 +1,5 @@
 import type { LucideIcon } from "lucide-react";
-import { Bot, Share2, MessagesSquare, UsersRound } from "lucide-react";
+import { Brain, Share2, MessageSquareText, Users } from "lucide-react";
 
 export type TaskSlug = "treinamento-ia" | "rcs" | "compartilhamento" | "indique-ganhe";
 
@@ -18,43 +18,40 @@ export const tasks: Task[] = [
   {
     slug: "treinamento-ia",
     title: "Treinamento de IA",
-    short:
-      "Ajude a treinar a inteligência artificial completando tarefas simples pelo WhatsApp.",
+    short: "Ajude a treinar modelos avaliando respostas curtas.",
     description:
-      "Ajude a treinar a inteligência artificial completando tarefas simples pelo WhatsApp. Ganhe entre R$50 e R$300 por dia.",
-    earnings: "R$ 50 – R$ 300 por dia",
+      "Avalie respostas, classifique conteúdos e contribua para o aprendizado de modelos de inteligência artificial. Tarefas rápidas de 30 a 60 segundos.",
+    earnings: "R$ 2,50 – R$ 8,00 por tarefa",
     requirements: [
-      "WhatsApp ativo",
       "Português fluente",
       "Atenção aos detalhes",
+      "Smartphone ou desktop com internet",
     ],
-    icon: Bot,
-    accent: "linear-gradient(135deg,#1e5eff,#7aa5ff)",
+    icon: Brain,
+    accent: "linear-gradient(135deg,#1e5eff, #7aa5ff)",
   },
   {
     slug: "rcs",
     title: "RCS",
-    short:
-      "Envie e valide mensagens RCS. Gere renda diária a cada tarefa concluída.",
+    short: "Interaja com mensagens RCS e valide entregas.",
     description:
-      "Envie e valide mensagens RCS. Gere renda diária a cada tarefa concluída.",
-    earnings: "Renda diária por tarefa",
+      "Receba, visualize e valide mensagens RCS de marcas parceiras. Simples, seguro e pago por interação concluída.",
+    earnings: "R$ 0,80 – R$ 3,00 por interação",
     requirements: [
       "Chip ativo em smartphone Android",
       "Mensagens RCS habilitadas",
       "Responder em até 24 horas",
     ],
-    icon: MessagesSquare,
+    icon: MessageSquareText,
     accent: "linear-gradient(135deg,#ff66c4,#ffa1dc)",
   },
   {
     slug: "compartilhamento",
     title: "Compartilhamento",
-    short:
-      "Divulgue produtos e serviços nas redes sociais e ganhe por campanha concluída.",
+    short: "Compartilhe conteúdos nas suas redes e ganhe por visualização.",
     description:
-      "Divulgue produtos e serviços nas redes sociais e ganhe recompensas por cada campanha concluída.",
-    earnings: "Recompensa por campanha",
+      "Publique conteúdos aprovados nas suas redes sociais e receba comissão por cada visualização e engajamento gerado.",
+    earnings: "R$ 5,00 – R$ 40,00 por campanha",
     requirements: [
       "Ao menos 200 seguidores",
       "Perfil público",
@@ -66,17 +63,16 @@ export const tasks: Task[] = [
   {
     slug: "indique-ganhe",
     title: "Indique & Ganhe",
-    short:
-      "Convide amigos com seu link e ganhe comissões ilimitadas todos os dias.",
+    short: "Convide amigos e ganhe comissão vitalícia.",
     description:
-      "Convide amigos usando seu link de indicação e ganhe comissões ilimitadas todos os dias.",
-    earnings: "Comissões ilimitadas",
+      "Convide amigos com seu link exclusivo. Você ganha um bônus imediato e 10% de comissão vitalícia sobre os ganhos deles.",
+    earnings: "R$ 10 por indicação + 10% vitalício",
     requirements: [
       "Conta verificada",
       "Compartilhar link pessoal",
       "Amigo completar 1ª tarefa",
     ],
-    icon: UsersRound,
+    icon: Users,
     accent: "linear-gradient(135deg,#1e5eff,#ff66c4)",
   },
 ];
