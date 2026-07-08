@@ -35,10 +35,10 @@ export const tasks: Task[] = [
     slug: "rcs",
     title: "RCS",
     short:
-      "Envie e valide mensagens RCS. Gere renda diária a cada tarefa concluída.",
+      "Interaja com mensagens RCS e ganhe de R$0,30 a R$1,00 por tarefa concluída.",
     description:
-      "Envie e valide mensagens RCS. Gere renda diária a cada tarefa concluída.",
-    earnings: "R$ 0,80 – R$ 3,00 por interação",
+      "Interaja com mensagens RCS e ganhe de R$0,30 a R$1,00 por tarefa concluída.",
+    earnings: "R$ 0,30 – R$ 1,00 por tarefa",
     requirements: [
       "Chip ativo em smartphone Android",
       "Mensagens RCS habilitadas",
@@ -51,10 +51,10 @@ export const tasks: Task[] = [
     slug: "compartilhamento",
     title: "Compartilhamento",
     short:
-      "Divulgue produtos e serviços nas redes sociais e receba recompensas por cada campanha concluída.",
+      "Compartilhe conteúdos e receba de R$0,30 a R$1,00 por tarefa concluída.",
     description:
-      "Divulgue produtos e serviços nas redes sociais e receba recompensas por cada campanha concluída.",
-    earnings: "R$ 5,00 – R$ 40,00 por campanha",
+      "Compartilhe conteúdos e receba de R$0,30 a R$1,00 por tarefa concluída.",
+    earnings: "R$ 0,30 – R$ 1,00 por tarefa",
     requirements: [
       "Ao menos 200 seguidores",
       "Perfil público",
@@ -67,10 +67,10 @@ export const tasks: Task[] = [
     slug: "indique-ganhe",
     title: "Indique & Ganhe",
     short:
-      "Convide amigos usando seu link de indicação e ganhe comissões ilimitadas todos os dias.",
+      "Ganhe R$0,50 por indicação válida + bônus extras conforme sua rede cresce.",
     description:
-      "Convide amigos usando seu link de indicação e ganhe comissões ilimitadas todos os dias.",
-    earnings: "R$ 10 por indicação + 10% vitalício",
+      "Ganhe R$0,50 por indicação válida + bônus extras conforme sua rede cresce.",
+    earnings: "R$ 0,50 por indicação + bônus",
     requirements: [
       "Conta verificada",
       "Compartilhar link pessoal",

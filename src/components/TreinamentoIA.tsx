@@ -14,34 +14,40 @@ import { AppShell } from "@/components/AppShell";
 import { tasks } from "@/lib/tasks";
 import heroAsset from "@/assets/treinamento-ia-hero.png.asset.json";
 
-type Meta = { envios: number; bonus: number };
+type Meta = {
+  envios: number;
+  ganhos: number;
+  bonus: number;
+};
 
 const metasDiarias: Meta[] = [
-  { envios: 200, bonus: 23 },
-  { envios: 400, bonus: 50 },
-  { envios: 600, bonus: 70 },
-  { envios: 800, bonus: 90 },
-  { envios: 900, bonus: 100 },
-  { envios: 1000, bonus: 120 },
-  { envios: 2000, bonus: 240 },
+  { envios: 200, ganhos: 20, bonus: 3 },
+  { envios: 400, ganhos: 40, bonus: 10 },
+  { envios: 600, ganhos: 60, bonus: 10 },
+  { envios: 800, ganhos: 80, bonus: 10 },
+  { envios: 900, ganhos: 90, bonus: 10 },
+  { envios: 1000, ganhos: 100, bonus: 20 },
+  { envios: 2000, ganhos: 200, bonus: 40 },
 ];
 
 const metasSemanais: Meta[] = [
-  { envios: 500, bonus: 5 },
-  { envios: 1000, bonus: 10 },
-  { envios: 1500, bonus: 15 },
-  { envios: 2000, bonus: 20 },
-  { envios: 2500, bonus: 25 },
-  { envios: 3000, bonus: 30 },
+  { envios: 500, ganhos: 5, bonus: 5 },
+  { envios: 1000, ganhos: 10, bonus: 10 },
+  { envios: 1500, ganhos: 15, bonus: 15 },
+  { envios: 2000, ganhos: 20, bonus: 20 },
+  { envios: 2500, ganhos: 25, bonus: 25 },
+  { envios: 3000, ganhos: 30, bonus: 30 },
 ];
 
 const META_DIARIA_MAX = 2000;
 const META_SEMANAL_MAX = 3000;
 
 export function TreinamentoIA() {
-  const [enviosDia] = useState(0);
-  const [enviosSemana] = useState(0);
-  const [resgatados, setResgatados] = useState<Record<number, boolean>>({});
+  const [enviosDia] = useState(200);
+  const [enviosSemana] = useState(1200);
+  const [resgatados, setResgatados] = useState<Record<number, boolean>>({
+    500: true,
+  });
 
   const progressoDia = useMemo(
     () => Math.min(100, (enviosDia / META_DIARIA_MAX) * 100),
@@ -132,7 +138,14 @@ export function TreinamentoIA() {
           </span>
         </div>
         <div className="glass rounded-3xl p-5">
-          <ProgressBar value={progressoDia} />
+          <div className="flex items-center gap-3">
+            <div className="flex-1">
+              <ProgressBar value={progressoDia} />
+            </div>
+            <span className="text-sm font-bold text-white">
+              {Math.round(progressoDia)}%
+            </span>
+          </div>
           <div className="mt-5 grid grid-cols-1 gap-3">
             {metasDiarias.map((m) => {
               const atingida = enviosDia >= m.envios;
@@ -141,6 +154,7 @@ export function TreinamentoIA() {
                 <MetaCard
                   key={m.envios}
                   envios={m.envios}
+                  ganhos={m.ganhos}
                   bonus={m.bonus}
                   atingida={atingida}
                   resgatado={resgatado}
@@ -165,29 +179,30 @@ export function TreinamentoIA() {
           </span>
         </div>
         <div className="glass rounded-3xl p-5">
-          <ProgressBar value={progressoSemana} />
+          <div className="flex items-center gap-3">
+            <div className="flex-1">
+              <ProgressBar value={progressoSemana} />
+            </div>
+            <span className="text-sm font-bold text-white">
+              {Math.round(progressoSemana)}%
+            </span>
+          </div>
           <div className="mt-5 grid grid-cols-2 gap-3">
             {metasSemanais.map((m) => {
               const atingida = enviosSemana >= m.envios;
+              const resgatado = !!resgatados[m.envios];
               return (
-                <div
+                <MetaCard
                   key={m.envios}
-                  className="rounded-2xl bg-white/5 p-3 text-center"
-                >
-                  <div className="mb-1 flex items-center justify-center gap-1 text-[color:var(--brand-pink)]">
-                    <TrendingUp size={14} />
-                    <p className="text-xs text-muted-foreground">
-                      {m.envios} envios
-                    </p>
-                  </div>
-                  <p
-                    className={`text-base font-extrabold ${
-                      atingida ? "text-brand-gradient" : "text-white/90"
-                    }`}
-                  >
-                    +R$ {m.bonus}
-                  </p>
-                </div>
+                  envios={m.envios}
+                  ganhos={m.ganhos}
+                  bonus={m.bonus}
+                  atingida={atingida}
+                  resgatado={resgatado}
+                  onResgatar={() =>
+                    setResgatados((r) => ({ ...r, [m.envios]: true }))
+                  }
+                />
               );
             })}
           </div>
@@ -204,26 +219,31 @@ export function TreinamentoIA() {
             <h3 className="text-base font-bold">Como funciona?</h3>
           </div>
           <ul className="mt-4 space-y-2 text-sm text-white/85">
-            <li>• Cada mensagem enviada vale R$ 0,10.</li>
+            <li>• Cada mensagem enviada gera R$0,10.</li>
+            <li>• Os ganhos são acumulados em tempo real.</li>
             <li>
-              • O bônus diário é liberado automaticamente ao atingir cada meta.
+              • Ao atingir uma meta diária, o bônus correspondente é liberado.
             </li>
             <li>
-              • Após resgatar um bônus diário, o usuário pode continuar enviando
-              mensagens para desbloquear novas metas.
+              • Após resgatar um bônus, você pode continuar enviando mensagens
+              para desbloquear novas recompensas.
             </li>
-            <li>• O bônus semanal acumula durante toda a semana.</li>
             <li>
-              • Os bônus precisam ser resgatados antes do encerramento do prazo.
+              • O progresso semanal acumula automaticamente durante toda a
+              semana.
+            </li>
+            <li>
+              • Resgate seus bônus antes do encerramento do prazo.
             </li>
           </ul>
         </div>
       </section>
 
       {/* CTA */}
-      <section className="mt-8">
-        <button className="flex w-full items-center justify-center gap-2 rounded-2xl bg-brand-gradient px-6 py-4 text-base font-semibold text-white shadow-glow transition-transform active:scale-[0.98] hover:scale-[1.01]">
-          <Play size={18} /> Iniciar Treinamento
+      <section className="mt-8 animate-fade-up">
+        <button className="group relative flex w-full items-center justify-center gap-2 overflow-hidden rounded-2xl bg-brand-gradient px-6 py-4 text-base font-semibold text-white shadow-glow transition-all duration-200 hover:scale-[1.01] hover:shadow-[0_0_30px_rgba(30,94,255,0.45)] active:scale-[0.97]">
+          <span className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/20 to-transparent transition-transform duration-700 group-hover:translate-x-full" />
+          <Play size={18} className="relative" /> Iniciar Treinamento
         </button>
       </section>
 
@@ -269,12 +289,14 @@ function ProgressBar({ value }: { value: number }) {
 
 function MetaCard({
   envios,
+  ganhos,
   bonus,
   atingida,
   resgatado,
   onResgatar,
 }: {
   envios: number;
+  ganhos: number;
   bonus: number;
   atingida: boolean;
   resgatado: boolean;
@@ -284,28 +306,30 @@ function MetaCard({
     <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 rounded-2xl bg-white/5 p-3">
       <div className="min-w-0">
         <p className="text-xs text-muted-foreground">{envios} envios</p>
-        <p className="truncate text-base font-extrabold">R$ {bonus}</p>
+        <p className="truncate text-sm font-medium text-white/90">
+          Ganhos: <span className="text-base font-extrabold text-white">R$ {ganhos},00</span>
+        </p>
       </div>
       {resgatado ? (
         <button
           disabled
-          className="inline-flex h-10 shrink-0 items-center gap-1.5 rounded-xl bg-emerald-500 px-4 text-xs font-semibold text-white shadow-soft"
+          className="inline-flex h-10 shrink-0 items-center gap-1.5 rounded-xl bg-emerald-500 px-3 text-xs font-semibold text-white shadow-soft"
         >
-          <Check size={14} /> Bônus Resgatado
+          <Check size={14} /> +R${bonus} Resgatado
         </button>
       ) : atingida ? (
         <button
           onClick={onResgatar}
-          className="inline-flex h-10 shrink-0 items-center gap-1.5 rounded-xl bg-brand-gradient px-4 text-xs font-semibold text-white shadow-glow transition-transform active:scale-[0.97]"
+          className="inline-flex h-10 shrink-0 items-center gap-1.5 rounded-xl bg-brand-gradient px-3 text-xs font-semibold text-white shadow-glow transition-transform active:scale-[0.97]"
         >
-          <Gift size={14} /> Resgatar Bônus
+          <Gift size={14} /> +R${bonus} Resgatar
         </button>
       ) : (
         <button
           disabled
-          className="inline-flex h-10 shrink-0 items-center gap-1.5 rounded-xl bg-white/10 px-4 text-xs font-semibold text-white/60"
+          className="inline-flex h-10 shrink-0 items-center gap-1.5 rounded-xl bg-white/10 px-3 text-xs font-semibold text-white/60"
         >
-          <Lock size={12} /> Resgatar bônus
+          <Lock size={12} /> +R${bonus}
         </button>
       )}
     </div>
