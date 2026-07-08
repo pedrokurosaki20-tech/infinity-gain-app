@@ -267,7 +267,7 @@ export function TreinamentoIA() {
                 <t.icon size={18} className="text-white" />
               </div>
               <p className="mt-3 text-sm font-semibold">{t.title}</p>
-              <p className="mt-1 text-[11px] text-muted-foreground">{t.earnings}</p>
+              <p className="mt-1 text-[11px] text-muted-foreground line-clamp-2">{t.short}</p>
             </Link>
           ))}
         </div>
