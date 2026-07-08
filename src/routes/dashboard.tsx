@@ -20,31 +20,7 @@ export const Route = createFileRoute("/dashboard")({
   component: Dashboard,
 });
 
-const banners = [
-  {
-    title: "Bônus de boas-vindas",
-    sub: "Ganhe R$ 15 na sua primeira tarefa concluída.",
-    bg: "linear-gradient(135deg,#1e5eff,#7aa5ff)",
-  },
-  {
-    title: "Indique e ganhe 10%",
-    sub: "Comissão vitalícia sobre seus indicados.",
-    bg: "linear-gradient(135deg,#ff66c4,#ff9edb)",
-  },
-  {
-    title: "Missão semanal",
-    sub: "Complete 20 tarefas e ganhe R$ 50 extra.",
-    bg: "linear-gradient(135deg,#1e5eff,#ff66c4)",
-  },
-];
-
 function Dashboard() {
-  const [banner, setBanner] = useState(0);
-  useEffect(() => {
-    const id = setInterval(() => setBanner((b) => (b + 1) % banners.length), 4200);
-    return () => clearInterval(id);
-  }, []);
-
   return (
     <AppShell>
       <header className="flex items-center justify-between">
@@ -65,6 +41,10 @@ function Dashboard() {
       </section>
 
       <section className="mt-5 animate-fade-up">
+        <PromoCarousel />
+      </section>
+
+      <section className="mt-5 animate-fade-up">
         <BalanceCard />
       </section>
 
@@ -74,38 +54,6 @@ function Dashboard() {
         <Shortcut to="/profile" icon={<User size={20} />} label="Perfil" />
       </section>
 
-      <section className="mt-6 animate-fade-up">
-        <div
-          className="relative h-32 overflow-hidden rounded-3xl p-5 shadow-soft transition-all duration-500"
-          style={{ backgroundImage: banners[banner].bg }}
-        >
-          <div className="relative z-10">
-            <p className="text-xs uppercase tracking-widest text-white/80">
-              Destaque
-            </p>
-            <h3 className="mt-1 text-lg font-bold text-white">
-              {banners[banner].title}
-            </h3>
-            <p className="mt-1 text-sm text-white/90">{banners[banner].sub}</p>
-          </div>
-          <div
-            aria-hidden
-            className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-white/20 blur-2xl"
-          />
-        </div>
-        <div className="mt-3 flex justify-center gap-1.5">
-          {banners.map((_, i) => (
-            <button
-              key={i}
-              onClick={() => setBanner(i)}
-              aria-label={`Banner ${i + 1}`}
-              className={`h-1.5 rounded-full transition-all ${
-                banner === i ? "w-6 bg-white" : "w-1.5 bg-white/30"
-              }`}
-            />
-          ))}
-        </div>
-      </section>
 
       <section className="mt-8">
         <div className="mb-3 flex items-center justify-between">
