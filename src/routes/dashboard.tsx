@@ -3,8 +3,9 @@ import { Wallet, ArrowDownToLine, User, Bell, ChevronRight } from "lucide-react"
 import { AppShell } from "@/components/AppShell";
 import { BalanceCard } from "@/components/BalanceCard";
 import { Logo } from "@/components/Logo";
+import { PromoCarousel } from "@/components/PromoCarousel";
 import { tasks } from "@/lib/tasks";
-import { useEffect, useState } from "react";
+
 
 export const Route = createFileRoute("/dashboard")({
   head: () => ({
