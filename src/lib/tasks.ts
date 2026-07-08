@@ -1,5 +1,5 @@
 import type { LucideIcon } from "lucide-react";
-import { Brain, Share2, MessageSquareText, Users } from "lucide-react";
+import { Bot, Share2, MessagesSquare, UsersRound } from "lucide-react";
 
 export type TaskSlug = "treinamento-ia" | "rcs" | "compartilhamento" | "indique-ganhe";
 
