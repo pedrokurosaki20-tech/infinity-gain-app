@@ -41,11 +41,11 @@ function Dashboard() {
       </section>
 
       <section className="mt-5 animate-fade-up">
-        <PromoCarousel />
+        <BalanceCard />
       </section>
 
       <section className="mt-5 animate-fade-up">
-        <BalanceCard />
+        <PromoCarousel />
       </section>
 
       <section className="mt-5 grid grid-cols-3 gap-3 animate-fade-up">
