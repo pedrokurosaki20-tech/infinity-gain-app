@@ -2,6 +2,7 @@ import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { ArrowLeft, CheckCircle2, Coins, Play } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { getTask, tasks } from "@/lib/tasks";
+import { TreinamentoIA } from "@/components/TreinamentoIA";
 
 export const Route = createFileRoute("/task/$slug")({
   loader: ({ params }) => {
