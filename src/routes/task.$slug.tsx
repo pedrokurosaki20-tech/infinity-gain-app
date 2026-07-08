@@ -26,6 +26,9 @@ function TaskDetail() {
   const { task } = Route.useLoaderData();
   const Icon = task.icon;
 
+  if (task.slug === "treinamento-ia") return <TreinamentoIA />;
+
+
   return (
     <AppShell>
       <header className="flex items-center justify-between">
