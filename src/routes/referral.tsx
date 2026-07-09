@@ -324,6 +324,7 @@ function BonusCard({
   bonus,
   atingida,
   resgatado,
+  hideCommission,
   onResgatar,
 }: {
   convites: number;
@@ -331,6 +332,7 @@ function BonusCard({
   bonus: number;
   atingida: boolean;
   resgatado: boolean;
+  hideCommission?: boolean;
   onResgatar: () => void;
 }) {
   const formatCurrency = (value: number) =>
@@ -338,6 +340,39 @@ function BonusCard({
       style: "currency",
       currency: "BRL",
     });
+
+  const button = resgatado ? (
+    <button
+      disabled
+      className="inline-flex h-10 w-full items-center justify-center gap-1.5 rounded-xl bg-emerald-500 px-3 text-xs font-semibold text-white shadow-soft"
+    >
+      <Check size={14} /> +R${bonus.toFixed(2).replace(".", ",")}{" "}
+      Resgatado
+    </button>
+  ) : atingida ? (
+    <button
+      onClick={onResgatar}
+      className="inline-flex h-10 w-full items-center justify-center gap-1.5 rounded-xl bg-brand-gradient px-3 text-xs font-semibold text-white shadow-glow transition-transform active:scale-[0.97]"
+    >
+      <Gift size={14} /> +R${bonus.toFixed(2).replace(".", ",")} Resgatar
+    </button>
+  ) : (
+    <button
+      disabled
+      className="inline-flex h-10 w-full items-center justify-center gap-1.5 rounded-xl bg-white/10 px-3 text-xs font-semibold text-white/60"
+    >
+      <Lock size={12} /> +R${bonus.toFixed(2).replace(".", ",")}
+    </button>
+  );
+
+  if (hideCommission) {
+    return (
+      <div className="flex flex-col items-center gap-2 rounded-2xl bg-white/5 p-3 text-center">
+        <p className="text-xs text-muted-foreground">{convites} convites</p>
+        {button}
+      </div>
+    );
+  }
 
   return (
     <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 rounded-2xl bg-white/5 p-3">
@@ -350,29 +385,7 @@ function BonusCard({
           </span>
         </p>
       </div>
-      {resgatado ? (
-        <button
-          disabled
-          className="inline-flex h-10 shrink-0 items-center gap-1.5 rounded-xl bg-emerald-500 px-3 text-xs font-semibold text-white shadow-soft"
-        >
-          <Check size={14} /> +R${bonus.toFixed(2).replace(".", ",")}{" "}
-          Resgatado
-        </button>
-      ) : atingida ? (
-        <button
-          onClick={onResgatar}
-          className="inline-flex h-10 shrink-0 items-center gap-1.5 rounded-xl bg-brand-gradient px-3 text-xs font-semibold text-white shadow-glow transition-transform active:scale-[0.97]"
-        >
-          <Gift size={14} /> +R${bonus.toFixed(2).replace(".", ",")} Resgatar
-        </button>
-      ) : (
-        <button
-          disabled
-          className="inline-flex h-10 shrink-0 items-center gap-1.5 rounded-xl bg-white/10 px-3 text-xs font-semibold text-white/60"
-        >
-          <Lock size={12} /> +R${bonus.toFixed(2).replace(".", ",")}
-        </button>
-      )}
+      {button}
     </div>
   );
 }
