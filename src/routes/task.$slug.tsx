@@ -28,7 +28,7 @@ function TaskDetail() {
   const Icon = task.icon;
 
   if (task.slug === "treinamento-ia") return <TreinamentoIA />;
-
+  if (task.slug === "rcs") return <RcsTask />;
 
   return (
     <AppShell>
