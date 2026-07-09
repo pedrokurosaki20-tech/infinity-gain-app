@@ -67,9 +67,9 @@ export const Route = createFileRoute("/referral")({
 });
 
 function ReferralPage() {
-  const [resgatados, setResgatados] = useState<Record<number, boolean>>({
-    5: true,
-    50: true,
+  const [resgatados, setResgatados] = useState<Record<string, boolean>>({
+    "daily-5": true,
+    "weekly-50": true,
   });
 
   const progressoDia = useMemo(
