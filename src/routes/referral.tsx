@@ -172,18 +172,19 @@ function ReferralPage() {
           </div>
           <div className="mt-5 grid grid-cols-1 gap-3">
             {metasDiarias.map((m) => {
+              const key = `daily-${m.convites}`;
               const atingida = CONVITES_DIA >= m.convites;
-              const resgatado = !!resgatados[m.convites];
+              const resgatado = !!resgatados[key];
               return (
                 <BonusCard
-                  key={m.convites}
+                  key={key}
                   convites={m.convites}
                   comissao={m.comissao}
                   bonus={m.bonus}
                   atingida={atingida}
                   resgatado={resgatado}
                   onResgatar={() =>
-                    setResgatados((r) => ({ ...r, [m.convites]: true }))
+                    setResgatados((r) => ({ ...r, [key]: true }))
                   }
                 />
               );
