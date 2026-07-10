@@ -48,11 +48,6 @@ function Dashboard() {
         <PromoCarousel />
       </section>
 
-      <section className="mt-5 grid grid-cols-3 gap-3 animate-fade-up">
-        <Shortcut to="/wallet" icon={<Wallet size={20} />} label="Carteira" />
-        <Shortcut to="/withdraw" icon={<ArrowDownToLine size={20} />} label="Saque" />
-        <Shortcut to="/profile" icon={<User size={20} />} label="Perfil" />
-      </section>
 
 
       <section className="mt-8">
