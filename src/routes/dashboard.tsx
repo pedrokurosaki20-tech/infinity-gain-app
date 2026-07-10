@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Wallet, ArrowDownToLine, User, Bell, ChevronRight } from "lucide-react";
+import { Bell, ChevronRight } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { BalanceCard } from "@/components/BalanceCard";
 import { Logo } from "@/components/Logo";
