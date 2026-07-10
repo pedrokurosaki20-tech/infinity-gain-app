@@ -4,6 +4,7 @@ import { AppShell } from "@/components/AppShell";
 import { getTask, tasks } from "@/lib/tasks";
 import { TreinamentoIA } from "@/components/TreinamentoIA";
 import { RcsTask } from "@/components/RcsTask";
+import { CompartilhamentoTask } from "@/components/CompartilhamentoTask";
 
 export const Route = createFileRoute("/task/$slug")({
   loader: ({ params }) => {
@@ -29,6 +30,7 @@ function TaskDetail() {
 
   if (task.slug === "treinamento-ia") return <TreinamentoIA />;
   if (task.slug === "rcs") return <RcsTask />;
+  if (task.slug === "compartilhamento") return <CompartilhamentoTask />;
 
   return (
     <AppShell>
