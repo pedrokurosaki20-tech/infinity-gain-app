@@ -11,7 +11,7 @@ import {
 import { useMemo, useState } from "react";
 import { AppShell } from "@/components/AppShell";
 import { tasks } from "@/lib/tasks";
-import heroAsset from "@/assets/banner-indique-ganhe.png.asset.json";
+import heroAsset from "@/assets/banner-indique-ganhe-novo.png.asset.json";
 
 type Meta = {
   convites: number;
