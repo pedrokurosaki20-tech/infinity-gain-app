@@ -8,6 +8,7 @@ import {
   Play,
   AlertTriangle,
   Timer,
+  Upload,
 } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { tasks } from "@/lib/tasks";
@@ -186,10 +187,14 @@ export function RcsTask() {
       </section>
 
       {/* CTA */}
-      <section className="mt-8 animate-fade-up">
+      <section className="mt-8 animate-fade-up space-y-3">
         <button className="group relative flex w-full items-center justify-center gap-2 overflow-hidden rounded-2xl bg-brand-gradient px-6 py-4 text-base font-semibold text-white shadow-glow transition-all duration-200 hover:scale-[1.01] hover:shadow-[0_0_30px_rgba(30,94,255,0.45)] active:scale-[0.97]">
           <span className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/20 to-transparent transition-transform duration-700 group-hover:translate-x-full" />
           <Play size={18} className="relative" /> Iniciar Tarefa
+        </button>
+        <button className="group relative flex w-full items-center justify-center gap-2 overflow-hidden rounded-2xl border border-white/10 bg-white/5 px-6 py-4 text-base font-semibold text-white transition-all duration-200 hover:scale-[1.01] hover:bg-white/10 active:scale-[0.97]">
+          <span className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/10 to-transparent transition-transform duration-700 group-hover:translate-x-full" />
+          <Upload size={18} className="relative" /> Validar Tarefa
         </button>
       </section>
 
