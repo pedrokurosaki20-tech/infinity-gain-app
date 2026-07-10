@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Wallet, ArrowDownToLine, User, Bell, ChevronRight } from "lucide-react";
+import { Bell, ChevronRight } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { BalanceCard } from "@/components/BalanceCard";
 import { Logo } from "@/components/Logo";
@@ -48,11 +48,6 @@ function Dashboard() {
         <PromoCarousel />
       </section>
 
-      <section className="mt-5 grid grid-cols-3 gap-3 animate-fade-up">
-        <Shortcut to="/wallet" icon={<Wallet size={20} />} label="Carteira" />
-        <Shortcut to="/withdraw" icon={<ArrowDownToLine size={20} />} label="Saque" />
-        <Shortcut to="/profile" icon={<User size={20} />} label="Perfil" />
-      </section>
 
 
       <section className="mt-8">
@@ -61,58 +56,54 @@ function Dashboard() {
           <button className="text-xs text-muted-foreground">Ver todas</button>
         </div>
         <div className="grid grid-cols-1 gap-4">
-          {tasks.map((t, i) => (
-            <Link
-              key={t.slug}
-              to="/task/$slug"
-              params={{ slug: t.slug }}
-              className="glass flex h-full min-h-[220px] flex-col rounded-3xl p-5 shadow-soft transition-transform hover:scale-[1.01] animate-fade-up"
-              style={{ animationDelay: `${i * 60}ms` }}
-            >
-              <div className="flex items-center gap-4">
-                <div
-                  className="grid h-14 w-14 shrink-0 place-items-center rounded-2xl shadow-glow"
-                  style={{ backgroundImage: t.accent }}
-                >
-                  <t.icon size={28} strokeWidth={1.8} className="text-white" />
+          {tasks.map((t, i) => {
+            const inner = (
+              <>
+                <div className="flex items-center gap-4">
+                  <div
+                    className="grid h-14 w-14 shrink-0 place-items-center rounded-2xl shadow-glow"
+                    style={{ backgroundImage: t.accent }}
+                  >
+                    <t.icon size={28} strokeWidth={1.8} className="text-white" />
+                  </div>
+                  <h3 className="text-base font-semibold leading-tight">{t.title}</h3>
                 </div>
-                <h3 className="text-base font-semibold leading-tight">{t.title}</h3>
-              </div>
-              <p className="mt-3 line-clamp-3 min-h-[3.75rem] text-sm leading-relaxed text-muted-foreground">
-                {t.short}
-              </p>
-              <div className="mt-auto pt-4">
-                <span className="flex h-11 w-full items-center justify-center gap-1.5 rounded-2xl bg-brand-gradient text-sm font-semibold text-white shadow-glow">
-                  Iniciar Tarefa
-                  <ChevronRight size={16} />
-                </span>
-              </div>
-            </Link>
-          ))}
+                <p className="mt-3 line-clamp-3 min-h-[3.75rem] text-sm leading-relaxed text-muted-foreground">
+                  {t.short}
+                </p>
+                <div className="mt-auto pt-4">
+                  <span className="flex h-11 w-full items-center justify-center gap-1.5 rounded-2xl bg-brand-gradient text-sm font-semibold text-white shadow-glow">
+                    Iniciar Tarefa
+                    <ChevronRight size={16} />
+                  </span>
+                </div>
+              </>
+            );
+            const className =
+              "glass flex h-full min-h-[220px] flex-col rounded-3xl p-5 shadow-soft transition-transform hover:scale-[1.01] animate-fade-up";
+            const style = { animationDelay: `${i * 60}ms` };
+            if (t.slug === "indique-ganhe") {
+              return (
+                <Link key={t.slug} to="/referral" className={className} style={style}>
+                  {inner}
+                </Link>
+              );
+            }
+            return (
+              <Link
+                key={t.slug}
+                to="/task/$slug"
+                params={{ slug: t.slug }}
+                className={className}
+                style={style}
+              >
+                {inner}
+              </Link>
+            );
+          })}
         </div>
       </section>
     </AppShell>
   );
 }
 
-function Shortcut({
-  to,
-  icon,
-  label,
-}: {
-  to: "/wallet" | "/withdraw" | "/profile";
-  icon: React.ReactNode;
-  label: string;
-}) {
-  return (
-    <Link
-      to={to}
-      className="glass flex flex-col items-center justify-center gap-2 rounded-2xl px-3 py-4 transition-transform hover:scale-[1.02]"
-    >
-      <span className="grid h-10 w-10 place-items-center rounded-xl bg-brand-gradient-soft text-white">
-        {icon}
-      </span>
-      <span className="text-xs font-medium text-white/90">{label}</span>
-    </Link>
-  );
-}
