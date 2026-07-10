@@ -77,7 +77,7 @@ export function RcsTask() {
               <p className="text-[11px] uppercase tracking-widest text-muted-foreground">
                 Valor por tarefa
               </p>
-              <h3 className="text-base font-bold">R$ 0,50 por envio</h3>
+              <h3 className="text-base font-bold">R$ 0,30 por envio concluído</h3>
             </div>
           </div>
           <div className="mt-4 grid grid-cols-2 gap-3">
@@ -105,12 +105,17 @@ export function RcsTask() {
         </div>
         <div className="glass rounded-3xl p-5">
           <ul className="space-y-2 text-sm text-white/85">
-            <li>• Clique em "Iniciar Tarefa".</li>
-            <li>• O texto será copiado automaticamente.</li>
-            <li>• Você será direcionado para enviar a mensagem via RCS.</li>
-            <li>• Após concluir o envio, retorne para a plataforma.</li>
-            <li>• O envio será validado automaticamente.</li>
-            <li>• Cada envio válido gera R$ 0,50.</li>
+            <li>1. Clique em Iniciar Tarefa.</li>
+            <li>2. O sistema copiará automaticamente o texto da campanha.</li>
+            <li>3. Salve a imagem da campanha.</li>
+            <li>4. Você será direcionado automaticamente para o aplicativo Mensagens (RCS).</li>
+            <li>5. Envie a mensagem normalmente.</li>
+            <li>6. Após concluir o envio, tire um print da conversa enviada.</li>
+            <li>7. Retorne para a plataforma.</li>
+            <li>8. Clique em Validar Tarefa.</li>
+            <li>9. Envie o print solicitado.</li>
+            <li>10. Nossa equipe analisará sua tarefa.</li>
+            <li>11. Se aprovada, a recompensa será creditada em até 24 horas.</li>
           </ul>
         </div>
       </section>
@@ -197,13 +202,13 @@ export function RcsTask() {
             </span>
             <div>
               <h3 className="text-sm font-bold">Importante</h3>
-              <p className="mt-1 text-sm leading-relaxed text-white/80">
-                Caso o envio não seja concluído corretamente, a recompensa não
-                será contabilizada.
-              </p>
-              <p className="mt-1 text-sm leading-relaxed text-white/80">
-                Sempre aguarde a confirmação antes de fechar a conversa.
-              </p>
+              <ul className="mt-2 space-y-1 text-sm leading-relaxed text-white/80">
+                <li>• O envio deve ser realizado corretamente.</li>
+                <li>• Tire um print após concluir o envio.</li>
+                <li>• O print deve mostrar claramente que a mensagem foi enviada.</li>
+                <li>• Tarefas incompletas ou com comprovantes inválidos poderão ser recusadas.</li>
+                <li>• Após aprovação da equipe, o valor será creditado em até 24 horas.</li>
+              </ul>
             </div>
           </div>
         </div>
