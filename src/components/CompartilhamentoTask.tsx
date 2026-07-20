@@ -249,10 +249,10 @@ export function CompartilhamentoTask() {
               >
                 <div className="flex items-center gap-3">
                   <span
-                    className="grid h-12 w-12 place-items-center rounded-2xl text-2xl shadow-glow"
+                    className="grid h-12 w-12 place-items-center rounded-2xl shadow-glow"
                     style={{ backgroundImage: c.accent }}
                   >
-                    <span className="drop-shadow">{c.emoji}</span>
+                    {c.logo}
                   </span>
                   <div className="min-w-0 flex-1">
                     <h4 className="text-base font-bold">{c.name}</h4>
