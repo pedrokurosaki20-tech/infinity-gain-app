@@ -6,6 +6,7 @@ import {
   Coins,
   Info,
   Lock,
+  Mail,
   Play,
   Sparkles,
 } from "lucide-react";
@@ -44,10 +45,11 @@ const howItWorks = [
 ];
 
 const requirements = [
-  "Conta Google disponível",
-  "Aplicativo Telegram instalado",
-  "Acesso diário à internet",
-  "Atenção aos detalhes",
+  "Contas Gmail recém-criadas.",
+  "Criar utilizando nossa senha padrão gerada pelo bot.",
+  "Remover o email do seu telefone após concluir a venda.",
+  "Não adicionar telefone de recuperação nem autenticação em duas etapas.",
+  "Enviar apenas contas limpas, sem qualquer informação pessoal.",
 ];
 
 export function SistemaEmailTask() {
@@ -89,33 +91,28 @@ export function SistemaEmailTask() {
 
       {/* Title + subtitle */}
       <section className="mt-6 animate-fade-up">
-        <h2 className="text-2xl font-extrabold tracking-tight">
-          Sistema de <span className="text-brand-gradient">E-mail</span>
+        <h2 className="text-2xl font-extrabold tracking-tight text-white">
+          Sistema de E-mail
         </h2>
         <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-          Ganhe de 0,50 centavos por e-mail + bônus extras ilimitados, podendo
-          facilmente chegar de R$30 a R$100 por dia criando contas de e-mail e
-          enviando para nossa equipe através do Bot oficial no Telegram.
-          Trabalhe no seu ritmo, conclua tarefas simples e desbloqueie bônus
-          semanais conforme sua produtividade.
+          Ganhe R$0,50 por cada conta Gmail aprovada. Complete tarefas simples e
+          desbloqueie bônus semanais, podendo alcançar ganhos de R$30 a R$100 por
+          dia conforme sua produtividade.
         </p>
       </section>
 
       {/* Earnings card */}
       <section className="mt-5 glass rounded-2xl p-4 animate-fade-up">
-        <div className="flex items-center gap-3">
+        <div className="flex items-center justify-center gap-3">
           <span className="grid h-11 w-11 place-items-center rounded-xl bg-brand-gradient text-white shadow-glow">
             <Coins size={20} />
           </span>
-          <div className="min-w-0">
+          <div className="text-center">
             <p className="text-[11px] uppercase tracking-widest text-muted-foreground">
               Ganho estimado
             </p>
-            <p className="truncate text-base font-bold">R$ 30 – R$ 100 por dia</p>
+            <p className="text-base font-bold">R$30 – R$100 por dia</p>
           </div>
-          <span className="ml-auto rounded-full bg-white/5 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-widest text-white/80">
-            + R$ 0,50 / e-mail
-          </span>
         </div>
       </section>
 
@@ -181,9 +178,9 @@ export function SistemaEmailTask() {
         </div>
 
         {/* Meta cards */}
-        <div className="mt-4 space-y-2.5">
+        <div className="mt-4 grid grid-cols-2 gap-3">
           {metas.map((m) => (
-            <MetaRow key={m.goal} meta={m} />
+            <MetaCard key={m.goal} meta={m} />
           ))}
         </div>
       </section>
@@ -267,38 +264,41 @@ export function SistemaEmailTask() {
   );
 }
 
-function MetaRow({ meta }: { meta: Meta }) {
+function MetaCard({ meta }: { meta: Meta }) {
   const { goal, reward, state } = meta;
   return (
-    <div className="glass flex items-center gap-3 rounded-2xl p-3.5">
+    <div className="glass flex flex-col items-center rounded-2xl p-4 text-center">
       <div
-        className={`grid h-11 w-11 shrink-0 place-items-center rounded-xl text-white ${
+        className={`grid h-12 w-12 place-items-center rounded-xl text-white ${
           state === "locked" ? "bg-white/5" : "bg-brand-gradient shadow-glow"
         }`}
       >
         {state === "locked" ? (
-          <Lock size={16} className="text-white/60" />
+          <Lock size={18} className="text-white/60" />
         ) : (
-          <Sparkles size={16} />
+          <Mail size={18} />
         )}
       </div>
-      <div className="min-w-0 flex-1">
-        <p className="text-sm font-semibold">{goal} e-mails</p>
-        <p className="text-[11px] text-muted-foreground">+Bônus {reward}</p>
-      </div>
+      <p className="mt-3 text-sm font-semibold">{goal} E-mails</p>
+      <p className="text-[11px] text-muted-foreground">+ Bônus {reward}</p>
       {state === "available" ? (
-        <button className="shrink-0 rounded-xl bg-brand-gradient px-3.5 py-2 text-xs font-bold text-white shadow-glow transition-transform hover:scale-[1.02]">
+        <button className="mt-3 w-full rounded-xl bg-brand-gradient px-3.5 py-2 text-xs font-bold text-white shadow-glow transition-transform hover:scale-[1.02]">
           Resgatar
         </button>
       ) : state === "claimed" ? (
-        <span className="inline-flex shrink-0 items-center gap-1 rounded-xl bg-white/5 px-3 py-2 text-xs font-semibold text-white/70">
-          <CheckCircle2 size={12} className="text-[color:var(--brand-pink)]" />
+        <button
+          disabled
+          className="mt-3 w-full rounded-xl bg-white/5 px-3.5 py-2 text-xs font-bold text-white/70"
+        >
           Resgatado
-        </span>
+        </button>
       ) : (
-        <span className="inline-flex shrink-0 items-center gap-1 rounded-xl bg-white/5 px-3 py-2 text-xs font-semibold text-white/50">
-          <Lock size={12} /> Bloqueado
-        </span>
+        <button
+          disabled
+          className="mt-3 w-full rounded-xl bg-white/5 px-3.5 py-2 text-xs font-bold text-white/50"
+        >
+          Bloqueado
+        </button>
       )}
     </div>
   );
