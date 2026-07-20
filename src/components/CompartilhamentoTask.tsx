@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { Link } from "@tanstack/react-router";
 import {
   ArrowLeft,
@@ -20,7 +20,7 @@ import heroAsset from "@/assets/compartilhamento-hero.png.asset.json";
 type Campaign = {
   id: string;
   name: string;
-  logo: JSX.Element;
+  logo: ReactNode;
   accent: string;
   // seconds until next renewal; 0 = available now
   nextInSeconds: number;
