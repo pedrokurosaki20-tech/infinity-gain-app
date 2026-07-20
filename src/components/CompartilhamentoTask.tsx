@@ -14,6 +14,7 @@ import {
   ShieldCheck,
 } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
+import { SafetyNotice } from "@/components/SafetyNotice";
 import { tasks } from "@/lib/tasks";
 import heroAsset from "@/assets/compartilhamento-hero.png.asset.json";
 
@@ -336,6 +337,8 @@ export function CompartilhamentoTask() {
           </button>
         </div>
       </section>
+
+      <SafetyNotice />
 
       {/* Outras tarefas */}
       <section className="mt-8">

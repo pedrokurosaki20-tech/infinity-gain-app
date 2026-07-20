@@ -11,6 +11,7 @@ import {
   Info,
 } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
+import { SafetyNotice } from "@/components/SafetyNotice";
 import { tasks } from "@/lib/tasks";
 import heroAsset from "@/assets/treinamento-ia-hero.png.asset.json";
 
@@ -246,6 +247,8 @@ export function TreinamentoIA() {
           <Play size={18} className="relative" /> Iniciar Treinamento
         </button>
       </section>
+
+      <SafetyNotice />
 
       {/* Outras tarefas */}
       <section className="mt-8">

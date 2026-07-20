@@ -1,6 +1,7 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { ArrowLeft, CheckCircle2, Coins, Play } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
+import { SafetyNotice } from "@/components/SafetyNotice";
 import { getTask, tasks } from "@/lib/tasks";
 import { TreinamentoIA } from "@/components/TreinamentoIA";
 import { RcsTask } from "@/components/RcsTask";
@@ -103,6 +104,9 @@ function TaskDetail() {
           <Play size={18} /> Iniciar Tarefa
         </button>
       </section>
+
+
+      <SafetyNotice />
 
       <section className="mt-8">
         <h3 className="mb-3 text-sm font-semibold uppercase tracking-widest text-muted-foreground">
