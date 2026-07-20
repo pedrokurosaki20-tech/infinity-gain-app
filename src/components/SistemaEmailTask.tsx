@@ -264,38 +264,41 @@ export function SistemaEmailTask() {
   );
 }
 
-function MetaRow({ meta }: { meta: Meta }) {
+function MetaCard({ meta }: { meta: Meta }) {
   const { goal, reward, state } = meta;
   return (
-    <div className="glass flex items-center gap-3 rounded-2xl p-3.5">
+    <div className="glass flex flex-col items-center rounded-2xl p-4 text-center">
       <div
-        className={`grid h-11 w-11 shrink-0 place-items-center rounded-xl text-white ${
+        className={`grid h-12 w-12 place-items-center rounded-xl text-white ${
           state === "locked" ? "bg-white/5" : "bg-brand-gradient shadow-glow"
         }`}
       >
         {state === "locked" ? (
-          <Lock size={16} className="text-white/60" />
+          <Lock size={18} className="text-white/60" />
         ) : (
-          <Sparkles size={16} />
+          <Mail size={18} />
         )}
       </div>
-      <div className="min-w-0 flex-1">
-        <p className="text-sm font-semibold">{goal} e-mails</p>
-        <p className="text-[11px] text-muted-foreground">+Bônus {reward}</p>
-      </div>
+      <p className="mt-3 text-sm font-semibold">{goal} E-mails</p>
+      <p className="text-[11px] text-muted-foreground">+ Bônus {reward}</p>
       {state === "available" ? (
-        <button className="shrink-0 rounded-xl bg-brand-gradient px-3.5 py-2 text-xs font-bold text-white shadow-glow transition-transform hover:scale-[1.02]">
+        <button className="mt-3 w-full rounded-xl bg-brand-gradient px-3.5 py-2 text-xs font-bold text-white shadow-glow transition-transform hover:scale-[1.02]">
           Resgatar
         </button>
       ) : state === "claimed" ? (
-        <span className="inline-flex shrink-0 items-center gap-1 rounded-xl bg-white/5 px-3 py-2 text-xs font-semibold text-white/70">
-          <CheckCircle2 size={12} className="text-[color:var(--brand-pink)]" />
+        <button
+          disabled
+          className="mt-3 w-full rounded-xl bg-white/5 px-3.5 py-2 text-xs font-bold text-white/70"
+        >
           Resgatado
-        </span>
+        </button>
       ) : (
-        <span className="inline-flex shrink-0 items-center gap-1 rounded-xl bg-white/5 px-3 py-2 text-xs font-semibold text-white/50">
-          <Lock size={12} /> Bloqueado
-        </span>
+        <button
+          disabled
+          className="mt-3 w-full rounded-xl bg-white/5 px-3.5 py-2 text-xs font-bold text-white/50"
+        >
+          Bloqueado
+        </button>
       )}
     </div>
   );
