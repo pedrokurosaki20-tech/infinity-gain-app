@@ -123,11 +123,29 @@ function WithdrawPage() {
           </ul>
         </div>
 
+        <div className="glass flex items-start gap-3 rounded-2xl p-4">
+          <Info size={18} className="mt-0.5 shrink-0 text-[color:var(--brand-blue)]" />
+          <p className="text-xs leading-relaxed text-muted-foreground">
+            A taxa de 5% é descontada automaticamente apenas no momento do saque. Nenhuma outra taxa é cobrada pela plataforma.
+          </p>
+        </div>
+
         <section className="rounded-2xl border border-white/10 bg-white/[0.03] p-3">
-          <h3 className="mb-2 text-[10px] font-bold uppercase tracking-widest text-white/70">
+          <h3 className="mb-3 text-[10px] font-bold uppercase tracking-widest text-white/70">
             Exemplos
           </h3>
-          <div className="space-y-2">
+          <div className="grid grid-cols-3 gap-2 text-center text-[10px]">
+            <span className="font-semibold uppercase tracking-wider text-white/70">
+              Solicitação
+            </span>
+            <span className="font-semibold uppercase tracking-wider text-white/70">
+              Taxa (5%)
+            </span>
+            <span className="font-semibold uppercase tracking-wider text-[color:var(--brand-blue)]">
+              Você recebe
+            </span>
+          </div>
+          <div className="mt-2 space-y-0">
             <Example request={10} />
             <div className="h-px bg-white/10" />
             <Example request={50} />
@@ -135,13 +153,6 @@ function WithdrawPage() {
             <Example request={100} />
           </div>
         </section>
-
-        <div className="glass flex items-start gap-3 rounded-2xl p-4">
-          <Info size={18} className="mt-0.5 shrink-0 text-[color:var(--brand-blue)]" />
-          <p className="text-xs leading-relaxed text-muted-foreground">
-            A taxa de 5% é descontada automaticamente apenas no momento do saque. Nenhuma outra taxa é cobrada pela plataforma.
-          </p>
-        </div>
 
         <button
           type="submit"
@@ -175,28 +186,24 @@ function Example({ request }: { request: number }) {
   const fee = request * 0.05;
   const net = request - fee;
   return (
-    <div className="flex items-center justify-between text-xs">
+    <div className="grid grid-cols-3 gap-2 py-2 text-center text-xs">
       <span className="text-white/90">
         {request.toLocaleString("pt-BR", {
           style: "currency",
           currency: "BRL",
         })}
       </span>
-      <span className="text-muted-foreground">
-        -{" "}
+      <span className="text-white/90">
         {fee.toLocaleString("pt-BR", {
           style: "currency",
           currency: "BRL",
         })}
       </span>
-      <span className="text-[color:var(--brand-blue)]">
-        ={" "}
-        <strong>
-          {net.toLocaleString("pt-BR", {
-            style: "currency",
-            currency: "BRL",
-          })}
-        </strong>
+      <span className="font-semibold text-[color:var(--brand-blue)]">
+        {net.toLocaleString("pt-BR", {
+          style: "currency",
+          currency: "BRL",
+        })}
       </span>
     </div>
   );
