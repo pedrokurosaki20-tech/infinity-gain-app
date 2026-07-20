@@ -90,15 +90,13 @@ export function SistemaEmailTask() {
 
       {/* Title + subtitle */}
       <section className="mt-6 animate-fade-up">
-        <h2 className="text-2xl font-extrabold tracking-tight">
-          Sistema de <span className="text-brand-gradient">E-mail</span>
+        <h2 className="text-2xl font-extrabold tracking-tight text-white">
+          Sistema de E-mail
         </h2>
         <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-          Ganhe de 0,50 centavos por e-mail + bônus extras ilimitados, podendo
-          facilmente chegar de R$30 a R$100 por dia criando contas de e-mail e
-          enviando para nossa equipe através do Bot oficial no Telegram.
-          Trabalhe no seu ritmo, conclua tarefas simples e desbloqueie bônus
-          semanais conforme sua produtividade.
+          Ganhe R$0,50 por cada conta Gmail aprovada. Complete tarefas simples e
+          desbloqueie bônus semanais, podendo alcançar ganhos de R$30 a R$100 por
+          dia conforme sua produtividade.
         </p>
       </section>
 
