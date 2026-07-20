@@ -11,6 +11,7 @@ import {
   Sparkles,
 } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
+import { SafetyNotice } from "@/components/SafetyNotice";
 import { tasks } from "@/lib/tasks";
 import heroAsset from "@/assets/sistema-email-hero.png.asset.json";
 
@@ -230,6 +231,8 @@ export function SistemaEmailTask() {
           <Play size={18} /> Iniciar Tarefa
         </a>
       </section>
+
+      <SafetyNotice />
 
       {/* Outras tarefas */}
       <section className="mt-8">

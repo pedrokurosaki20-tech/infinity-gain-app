@@ -1,5 +1,18 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { ArrowLeft, Pencil, KeyRound, LogOut, Mail, Phone, Gift, ChevronRight } from "lucide-react";
+import {
+  ArrowLeft,
+  Pencil,
+  KeyRound,
+  LogOut,
+  Mail,
+  Phone,
+  Gift,
+  ChevronRight,
+  HelpCircle,
+  Send,
+  Megaphone,
+  Instagram,
+} from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 
 export const Route = createFileRoute("/profile")({
@@ -56,6 +69,46 @@ function ProfilePage() {
       <section className="mt-5 space-y-3">
         <Action icon={<Pencil size={18} />} label="Editar Perfil" />
         <Action icon={<KeyRound size={18} />} label="Alterar Senha" />
+      </section>
+
+      {/* Suporte e Comunidade */}
+      <section className="mt-8">
+        <h3 className="mb-3 text-sm font-semibold uppercase tracking-widest text-muted-foreground">
+          Suporte e Comunidade
+        </h3>
+        <div className="space-y-3">
+          <CommunityCard
+            icon={<Send size={20} />}
+            title="Grupo de Suporte"
+            description="Tire dúvidas, receba ajuda da equipe e acompanhe informações importantes."
+            cta="Entrar no Grupo"
+            href="https://t.me/"
+          />
+          <CommunityCard
+            icon={<Megaphone size={20} />}
+            title="Canal Oficial"
+            description="Receba comunicados oficiais, novidades, eventos e anúncios da Infinity Gain."
+            cta="Abrir Canal"
+            href="https://t.me/"
+          />
+          <CommunityCard
+            icon={<Instagram size={20} />}
+            title="Instagram Oficial"
+            description="Acompanhe novidades, dicas, atualizações e conteúdos exclusivos."
+            cta="Seguir Instagram"
+            href="https://instagram.com/"
+          />
+          <CommunityCard
+            icon={<HelpCircle size={20} />}
+            title="Central de Ajuda (FAQ)"
+            description="Encontre respostas para as dúvidas mais frequentes sobre tarefas, pagamentos, saques, indicações e utilização da plataforma."
+            cta="Abrir Central de Ajuda"
+            to="/help"
+          />
+        </div>
+      </section>
+
+      <section className="mt-6">
         <button
           onClick={() => navigate({ to: "/" })}
           className="flex w-full items-center justify-between rounded-2xl border border-white/10 bg-white/[0.02] px-4 py-4 text-left transition hover:bg-white/[0.05]"
@@ -114,5 +167,61 @@ function Action({ icon, label }: { icon: React.ReactNode; label: string }) {
       </span>
       <ChevronRight size={18} className="text-muted-foreground" />
     </button>
+  );
+}
+
+function CommunityCard({
+  icon,
+  title,
+  description,
+  cta,
+  href,
+  to,
+}: {
+  icon: React.ReactNode;
+  title: string;
+  description: string;
+  cta: string;
+  href?: string;
+  to?: string;
+}) {
+  const button = (
+    <span className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-brand-gradient px-4 py-3 text-sm font-semibold text-white shadow-glow transition-transform hover:scale-[1.01]">
+      {cta}
+    </span>
+  );
+  const content = (
+    <>
+      <div className="flex items-start gap-3">
+        <span className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-brand-gradient text-white shadow-glow">
+          {icon}
+        </span>
+        <div className="min-w-0">
+          <h4 className="text-base font-bold">{title}</h4>
+          <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
+            {description}
+          </p>
+        </div>
+      </div>
+      {button}
+    </>
+  );
+
+  if (to) {
+    return (
+      <Link to={to} className="glass block rounded-3xl p-5 transition hover:bg-white/[0.05]">
+        {content}
+      </Link>
+    );
+  }
+  return (
+    <a
+      href={href}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="glass block rounded-3xl p-5 transition hover:bg-white/[0.05]"
+    >
+      {content}
+    </a>
   );
 }
