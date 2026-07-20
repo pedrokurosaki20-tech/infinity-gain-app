@@ -178,9 +178,9 @@ export function SistemaEmailTask() {
         </div>
 
         {/* Meta cards */}
-        <div className="mt-4 space-y-2.5">
+        <div className="mt-4 grid grid-cols-2 gap-3">
           {metas.map((m) => (
-            <MetaRow key={m.goal} meta={m} />
+            <MetaCard key={m.goal} meta={m} />
           ))}
         </div>
       </section>
