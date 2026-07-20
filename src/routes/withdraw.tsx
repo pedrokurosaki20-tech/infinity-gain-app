@@ -96,10 +96,50 @@ function WithdrawPage() {
           </div>
         </FieldBlock>
 
+        <div className="glass rounded-2xl p-5">
+          <div className="mb-4 flex items-center gap-2">
+            <span className="text-lg">📌</span>
+            <h2 className="text-sm font-bold text-white">
+              Informações sobre Saques
+            </h2>
+          </div>
+          <ul className="space-y-3 text-sm text-white/90">
+            <li className="flex items-start gap-2">
+              <span className="mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-[color:var(--brand-blue)]" />
+              <span>Saque mínimo: <strong className="text-white">R$ 10,00</strong></span>
+            </li>
+            <li className="flex items-start gap-2">
+              <span className="mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-[color:var(--brand-pink)]" />
+              <span>Taxa de processamento: <strong className="text-white">5%</strong></span>
+            </li>
+            <li className="flex items-start gap-2">
+              <span className="mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-[color:var(--brand-blue)]" />
+              <span>Os pagamentos são processados em até <strong className="text-white">24 horas úteis</strong>.</span>
+            </li>
+            <li className="flex items-start gap-2">
+              <span className="mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-[color:var(--brand-pink)]" />
+              <span>O valor líquido já será enviado diretamente para a chave PIX cadastrada.</span>
+            </li>
+          </ul>
+        </div>
+
+        <section className="rounded-2xl border border-white/10 bg-white/[0.03] p-4">
+          <h3 className="mb-3 text-xs font-bold uppercase tracking-widest text-white/70">
+            Exemplos
+          </h3>
+          <div className="space-y-3">
+            <Example request={10} />
+            <div className="h-px bg-white/10" />
+            <Example request={50} />
+            <div className="h-px bg-white/10" />
+            <Example request={100} />
+          </div>
+        </section>
+
         <div className="glass flex items-start gap-3 rounded-2xl p-4">
-          <Info size={16} className="mt-0.5 shrink-0 text-[color:var(--brand-blue)]" />
-          <p className="text-xs text-muted-foreground">
-            Os saques são processados em até 24 horas úteis diretamente na sua chave PIX.
+          <Info size={18} className="mt-0.5 shrink-0 text-[color:var(--brand-blue)]" />
+          <p className="text-xs leading-relaxed text-muted-foreground">
+            A taxa de 5% é descontada automaticamente apenas no momento do saque. Nenhuma outra taxa é cobrada pela plataforma.
           </p>
         </div>
 
@@ -127,6 +167,40 @@ function FieldBlock({
         {label}
       </label>
       <div className="glass rounded-2xl px-4 py-3.5">{children}</div>
+    </div>
+  );
+}
+
+function Example({ request }: { request: number }) {
+  const fee = request * 0.05;
+  const net = request - fee;
+  return (
+    <div className="space-y-1 text-sm">
+      <p className="text-white/90">
+        • Solicitação: {" "}
+        <strong className="text-white">
+          {request.toLocaleString("pt-BR", {
+            style: "currency",
+            currency: "BRL",
+          })}
+        </strong>
+      </p>
+      <p className="pl-2 text-muted-foreground">
+        Taxa (5%): {" "}
+        {fee.toLocaleString("pt-BR", {
+          style: "currency",
+          currency: "BRL",
+        })}
+      </p>
+      <p className="pl-2 text-[color:var(--brand-blue)]">
+        Você recebe: {" "}
+        <strong>
+          {net.toLocaleString("pt-BR", {
+            style: "currency",
+            currency: "BRL",
+          })}
+        </strong>
+      </p>
     </div>
   );
 }
