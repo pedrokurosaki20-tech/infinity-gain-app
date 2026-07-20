@@ -1,7 +1,12 @@
 import type { LucideIcon } from "lucide-react";
-import { Bot, MessageCircle, Globe2, UsersRound } from "lucide-react";
+import { Bot, MessageCircle, Globe2, UsersRound, Mail } from "lucide-react";
 
-export type TaskSlug = "treinamento-ia" | "rcs" | "compartilhamento" | "indique-ganhe";
+export type TaskSlug =
+  | "treinamento-ia"
+  | "rcs"
+  | "compartilhamento"
+  | "indique-ganhe"
+  | "sistema-email";
 
 export type Task = {
   slug: TaskSlug;
@@ -77,6 +82,22 @@ export const tasks: Task[] = [
       "Amigo completar 1ª tarefa",
     ],
     icon: UsersRound,
+    accent: "linear-gradient(135deg,#1e5eff,#ff66c4)",
+  },
+  {
+    slug: "sistema-email",
+    title: "Sistema de E-mail",
+    short:
+      "Ganhe de R$30 a R$100 por dia utilizando nosso Sistema de E-mail. Execute tarefas simples e aumente seus ganhos diariamente.",
+    description:
+      "Ganhe de R$30 a R$100 por dia utilizando nosso Sistema de E-mail. Execute tarefas simples e aumente seus ganhos diariamente.",
+    earnings: "R$ 30 – R$ 100 por dia",
+    requirements: [
+      "Conta de e-mail ativa",
+      "Acesso diário à plataforma",
+      "Atenção aos detalhes",
+    ],
+    icon: Mail,
     accent: "linear-gradient(135deg,#1e5eff,#ff66c4)",
   },
 ];

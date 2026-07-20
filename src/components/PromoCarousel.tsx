@@ -1,12 +1,27 @@
 import { useEffect, useState } from "react";
+import { Link } from "@tanstack/react-router";
 import useEmblaCarousel from "embla-carousel-react";
 import Autoplay from "embla-carousel-autoplay";
 import banner1 from "@/assets/banner-indique-ganhe.png.asset.json";
 import banner2 from "@/assets/banner-treinamento-ia.png.asset.json";
+import banner3 from "@/assets/banner-sistema-email.png.asset.json";
 
-const banners = [
+type Banner = {
+  src: string;
+  alt: string;
+  to?: string;
+  params?: Record<string, string>;
+};
+
+const banners: Banner[] = [
   { src: banner1.url, alt: "Indique e ganhe — Infinity Gain" },
   { src: banner2.url, alt: "Treinamento de IA — Infinity Gain" },
+  {
+    src: banner3.url,
+    alt: "Sistema de E-mail — Infinity Gain",
+    to: "/task/$slug",
+    params: { slug: "sistema-email" },
+  },
 ];
 
 export function PromoCarousel() {
@@ -35,19 +50,32 @@ export function PromoCarousel() {
         className="overflow-hidden rounded-[20px] shadow-soft"
       >
         <div className="flex touch-pan-y">
-          {banners.map((b, i) => (
-            <div
-              key={i}
-              className="relative min-w-0 flex-[0_0_100%]"
-            >
+          {banners.map((b, i) => {
+            const img = (
               <img
                 src={b.src}
                 alt={b.alt}
                 className="block h-auto w-full select-none"
                 draggable={false}
               />
-            </div>
-          ))}
+            );
+            return (
+              <div key={i} className="relative min-w-0 flex-[0_0_100%]">
+                {b.to ? (
+                  <Link
+                    to={b.to}
+                    params={b.params as never}
+                    className="block"
+                    aria-label={b.alt}
+                  >
+                    {img}
+                  </Link>
+                ) : (
+                  img
+                )}
+              </div>
+            );
+          })}
         </div>
       </div>
       <div className="mt-3 flex justify-center gap-1.5">
