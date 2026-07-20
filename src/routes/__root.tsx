@@ -72,20 +72,24 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1, viewport-fit=cover" },
       { name: "theme-color", content: "#000000" },
-      { title: "Infinity Gain — Ganhe dinheiro com tarefas online" },
+      { title: "Entrar — Infinity Gain" },
       {
         name: "description",
         content:
-          "Infinity Gain é a plataforma premium para ganhar dinheiro concluindo tarefas online. Cadastre-se, execute e saque via PIX em até 24h.",
+          "Entre na sua conta Infinity Gain e continue ganhando com tarefas online.",
       },
-      { property: "og:title", content: "Infinity Gain — Ganhe com tarefas online" },
+      { property: "og:title", content: "Entrar — Infinity Gain" },
       {
         property: "og:description",
         content:
-          "Plataforma premium para ganhar dinheiro concluindo tarefas online. Saque via PIX rápido e seguro.",
+          "Entre na sua conta Infinity Gain e continue ganhando com tarefas online.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:title", content: "Entrar — Infinity Gain" },
+      { name: "twitter:description", content: "Entre na sua conta Infinity Gain e continue ganhando com tarefas online." },
+      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/f18a5739-f9ad-4f0a-b0a7-c42537beec68/id-preview-80ac66d8--486f4e4a-1710-4932-baee-59a1429fe272.lovable.app-1784584846123.png" },
+      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/f18a5739-f9ad-4f0a-b0a7-c42537beec68/id-preview-80ac66d8--486f4e4a-1710-4932-baee-59a1429fe272.lovable.app-1784584846123.png" },
     ],
     links: [
       { rel: "stylesheet", href: appCss },
