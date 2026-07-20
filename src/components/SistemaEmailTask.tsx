@@ -45,10 +45,11 @@ const howItWorks = [
 ];
 
 const requirements = [
-  "Conta Google disponível",
-  "Aplicativo Telegram instalado",
-  "Acesso diário à internet",
-  "Atenção aos detalhes",
+  "Contas Gmail recém-criadas.",
+  "Criar utilizando nossa senha padrão gerada pelo bot.",
+  "Remover o email do seu telefone após concluir a venda.",
+  "Não adicionar telefone de recuperação nem autenticação em duas etapas.",
+  "Enviar apenas contas limpas, sem qualquer informação pessoal.",
 ];
 
 export function SistemaEmailTask() {
