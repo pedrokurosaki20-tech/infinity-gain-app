@@ -102,19 +102,16 @@ export function SistemaEmailTask() {
 
       {/* Earnings card */}
       <section className="mt-5 glass rounded-2xl p-4 animate-fade-up">
-        <div className="flex items-center gap-3">
+        <div className="flex items-center justify-center gap-3">
           <span className="grid h-11 w-11 place-items-center rounded-xl bg-brand-gradient text-white shadow-glow">
             <Coins size={20} />
           </span>
-          <div className="min-w-0">
+          <div className="text-center">
             <p className="text-[11px] uppercase tracking-widest text-muted-foreground">
               Ganho estimado
             </p>
-            <p className="truncate text-base font-bold">R$ 30 – R$ 100 por dia</p>
+            <p className="text-base font-bold">R$30 – R$100 por dia</p>
           </div>
-          <span className="ml-auto rounded-full bg-white/5 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-widest text-white/80">
-            + R$ 0,50 / e-mail
-          </span>
         </div>
       </section>
 
