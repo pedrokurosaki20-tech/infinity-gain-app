@@ -11,6 +11,7 @@ import {
   Upload,
 } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
+import { SafetyNotice } from "@/components/SafetyNotice";
 import { tasks } from "@/lib/tasks";
 import rcsHeroAsset from "@/assets/rcs-hero.png.asset.json";
 
@@ -218,6 +219,8 @@ export function RcsTask() {
           </div>
         </div>
       </section>
+
+      <SafetyNotice />
 
       {/* Outras tarefas */}
       <section className="mt-8">
