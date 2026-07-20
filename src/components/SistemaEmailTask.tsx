@@ -6,8 +6,8 @@ import {
   Coins,
   Info,
   Lock,
+  Mail,
   Play,
-  Sparkles,
 } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { tasks } from "@/lib/tasks";
