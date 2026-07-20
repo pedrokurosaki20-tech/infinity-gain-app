@@ -16,7 +16,7 @@ export const Route = createFileRoute("/withdraw")({
   component: WithdrawPage,
 });
 
-const pixTypes = ["CPF", "E-mail", "Telefone", "Aleatória"] as const;
+const pixTypes = ["CPF", "Telefone"] as const;
 
 function WithdrawPage() {
   const navigate = useNavigate();
@@ -56,7 +56,7 @@ function WithdrawPage() {
           <label className="mb-2 block text-xs font-medium uppercase tracking-widest text-muted-foreground">
             Tipo de chave PIX
           </label>
-          <div className="grid grid-cols-4 gap-2">
+          <div className="grid grid-cols-2 gap-2">
             {pixTypes.map((t) => (
               <button
                 key={t}
@@ -123,11 +123,11 @@ function WithdrawPage() {
           </ul>
         </div>
 
-        <section className="rounded-2xl border border-white/10 bg-white/[0.03] p-4">
-          <h3 className="mb-3 text-xs font-bold uppercase tracking-widest text-white/70">
+        <section className="rounded-2xl border border-white/10 bg-white/[0.03] p-3">
+          <h3 className="mb-2 text-[10px] font-bold uppercase tracking-widest text-white/70">
             Exemplos
           </h3>
-          <div className="space-y-3">
+          <div className="space-y-2">
             <Example request={10} />
             <div className="h-px bg-white/10" />
             <Example request={50} />
@@ -175,32 +175,29 @@ function Example({ request }: { request: number }) {
   const fee = request * 0.05;
   const net = request - fee;
   return (
-    <div className="space-y-1 text-sm">
-      <p className="text-white/90">
-        • Solicitação: {" "}
-        <strong className="text-white">
-          {request.toLocaleString("pt-BR", {
-            style: "currency",
-            currency: "BRL",
-          })}
-        </strong>
-      </p>
-      <p className="pl-2 text-muted-foreground">
-        Taxa (5%): {" "}
+    <div className="flex items-center justify-between text-xs">
+      <span className="text-white/90">
+        {request.toLocaleString("pt-BR", {
+          style: "currency",
+          currency: "BRL",
+        })}
+      </span>
+      <span className="text-muted-foreground">
+        -{" "}
         {fee.toLocaleString("pt-BR", {
           style: "currency",
           currency: "BRL",
         })}
-      </p>
-      <p className="pl-2 text-[color:var(--brand-blue)]">
-        Você recebe: {" "}
+      </span>
+      <span className="text-[color:var(--brand-blue)]">
+        ={" "}
         <strong>
           {net.toLocaleString("pt-BR", {
             style: "currency",
             currency: "BRL",
           })}
         </strong>
-      </p>
+      </span>
     </div>
   );
 }
