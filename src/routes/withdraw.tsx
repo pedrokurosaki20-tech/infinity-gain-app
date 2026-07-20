@@ -170,3 +170,37 @@ function FieldBlock({
     </div>
   );
 }
+
+function Example({ request }: { request: number }) {
+  const fee = request * 0.05;
+  const net = request - fee;
+  return (
+    <div className="space-y-1 text-sm">
+      <p className="text-white/90">
+        • Solicitação: {" "}
+        <strong className="text-white">
+          {request.toLocaleString("pt-BR", {
+            style: "currency",
+            currency: "BRL",
+          })}
+        </strong>
+      </p>
+      <p className="pl-2 text-muted-foreground">
+        Taxa (5%): {" "}
+        {fee.toLocaleString("pt-BR", {
+          style: "currency",
+          currency: "BRL",
+        })}
+      </p>
+      <p className="pl-2 text-[color:var(--brand-blue)]">
+        Você recebe: {" "}
+        <strong>
+          {net.toLocaleString("pt-BR", {
+            style: "currency",
+            currency: "BRL",
+          })}
+        </strong>
+      </p>
+    </div>
+  );
+}
