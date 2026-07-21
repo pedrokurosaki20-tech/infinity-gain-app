@@ -17,6 +17,7 @@ import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as HelpRouteImport } from './routes/help'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as WithdrawIdRouteImport } from './routes/withdraw.$id'
 import { Route as TaskSlugRouteImport } from './routes/task.$slug'
 
 const WithdrawRoute = WithdrawRouteImport.update({
@@ -59,6 +60,11 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const WithdrawIdRoute = WithdrawIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => WithdrawRoute,
+} as any)
 const TaskSlugRoute = TaskSlugRouteImport.update({
   id: '/task/$slug',
   path: '/task/$slug',
@@ -73,8 +79,9 @@ export interface FileRoutesByFullPath {
   '/referral': typeof ReferralRoute
   '/register': typeof RegisterRoute
   '/wallet': typeof WalletRoute
-  '/withdraw': typeof WithdrawRoute
+  '/withdraw': typeof WithdrawRouteWithChildren
   '/task/$slug': typeof TaskSlugRoute
+  '/withdraw/$id': typeof WithdrawIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -84,8 +91,9 @@ export interface FileRoutesByTo {
   '/referral': typeof ReferralRoute
   '/register': typeof RegisterRoute
   '/wallet': typeof WalletRoute
-  '/withdraw': typeof WithdrawRoute
+  '/withdraw': typeof WithdrawRouteWithChildren
   '/task/$slug': typeof TaskSlugRoute
+  '/withdraw/$id': typeof WithdrawIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -96,8 +104,9 @@ export interface FileRoutesById {
   '/referral': typeof ReferralRoute
   '/register': typeof RegisterRoute
   '/wallet': typeof WalletRoute
-  '/withdraw': typeof WithdrawRoute
+  '/withdraw': typeof WithdrawRouteWithChildren
   '/task/$slug': typeof TaskSlugRoute
+  '/withdraw/$id': typeof WithdrawIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -111,6 +120,7 @@ export interface FileRouteTypes {
     | '/wallet'
     | '/withdraw'
     | '/task/$slug'
+    | '/withdraw/$id'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -122,6 +132,7 @@ export interface FileRouteTypes {
     | '/wallet'
     | '/withdraw'
     | '/task/$slug'
+    | '/withdraw/$id'
   id:
     | '__root__'
     | '/'
@@ -133,6 +144,7 @@ export interface FileRouteTypes {
     | '/wallet'
     | '/withdraw'
     | '/task/$slug'
+    | '/withdraw/$id'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -143,7 +155,7 @@ export interface RootRouteChildren {
   ReferralRoute: typeof ReferralRoute
   RegisterRoute: typeof RegisterRoute
   WalletRoute: typeof WalletRoute
-  WithdrawRoute: typeof WithdrawRoute
+  WithdrawRoute: typeof WithdrawRouteWithChildren
   TaskSlugRoute: typeof TaskSlugRoute
 }
 
@@ -205,6 +217,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/withdraw/$id': {
+      id: '/withdraw/$id'
+      path: '/$id'
+      fullPath: '/withdraw/$id'
+      preLoaderRoute: typeof WithdrawIdRouteImport
+      parentRoute: typeof WithdrawRoute
+    }
     '/task/$slug': {
       id: '/task/$slug'
       path: '/task/$slug'
@@ -215,6 +234,18 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface WithdrawRouteChildren {
+  WithdrawIdRoute: typeof WithdrawIdRoute
+}
+
+const WithdrawRouteChildren: WithdrawRouteChildren = {
+  WithdrawIdRoute: WithdrawIdRoute,
+}
+
+const WithdrawRouteWithChildren = WithdrawRoute._addFileChildren(
+  WithdrawRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   DashboardRoute: DashboardRoute,
@@ -223,7 +254,7 @@ const rootRouteChildren: RootRouteChildren = {
   ReferralRoute: ReferralRoute,
   RegisterRoute: RegisterRoute,
   WalletRoute: WalletRoute,
-  WithdrawRoute: WithdrawRoute,
+  WithdrawRoute: WithdrawRouteWithChildren,
   TaskSlugRoute: TaskSlugRoute,
 }
 export const routeTree = rootRouteImport

@@ -49,21 +49,26 @@ function WithdrawPage() {
     }
     const fee = Number((value * 0.05).toFixed(2));
     const net = Number((value - fee).toFixed(2));
-    const { error: insertError } = await supabase.from("withdrawals").insert({
-      user_id: userData.user.id,
-      amount: value,
-      fee,
-      net_amount: net,
-      pix_key: key.trim(),
-      pix_type: type,
-    });
+    const { data: inserted, error: insertError } = await supabase
+      .from("withdrawals")
+      .insert({
+        user_id: userData.user.id,
+        amount: value,
+        fee,
+        net_amount: net,
+        pix_key: key.trim(),
+        pix_type: type,
+      })
+      .select("id")
+      .single();
     setSubmitting(false);
-    if (insertError) {
+    if (insertError || !inserted) {
       setError("Não foi possível registrar seu saque. Tente novamente.");
       return;
     }
-    navigate({ to: "/wallet" });
+    navigate({ to: "/withdraw/$id", params: { id: inserted.id } });
   }
+
 
 
   return (
