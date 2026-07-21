@@ -98,13 +98,7 @@ function RegisterPage() {
           </p>
         </div>
 
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            navigate({ to: "/dashboard" });
-          }}
-          className="mt-6 space-y-3.5 animate-fade-up"
-        >
+        <form onSubmit={handleSubmit} className="mt-6 space-y-3.5 animate-fade-up">
           <Field icon={<User size={18} />} placeholder="Nome completo" value={form.name} onChange={set("name")} />
           <Field icon={<Phone size={18} />} type="tel" placeholder="Telefone" value={form.phone} onChange={set("phone")} />
           <Field icon={<Mail size={18} />} type="email" placeholder="E-mail" value={form.email} onChange={set("email")} />
@@ -112,13 +106,22 @@ function RegisterPage() {
           <Field icon={<Lock size={18} />} type="password" placeholder="Confirmar senha" value={form.confirm} onChange={set("confirm")} />
           <Field icon={<Gift size={18} />} placeholder="Código de convite (opcional)" value={form.invite} onChange={set("invite")} />
 
+          {error && (
+            <p className="rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-300">
+              {error}
+            </p>
+          )}
+
           <div className="pt-3">
             <button
               type="submit"
-              className="group flex w-full items-center justify-center gap-2 rounded-2xl bg-brand-gradient px-6 py-4 text-base font-semibold text-white shadow-glow transition-transform hover:scale-[1.01] active:scale-[0.99]"
+              disabled={loading}
+              className="group flex w-full items-center justify-center gap-2 rounded-2xl bg-brand-gradient px-6 py-4 text-base font-semibold text-white shadow-glow transition-transform hover:scale-[1.01] active:scale-[0.99] disabled:opacity-60"
             >
-              Criar Conta
-              <ArrowRight size={18} className="transition-transform group-hover:translate-x-0.5" />
+              {loading ? <Loader2 size={18} className="animate-spin" /> : "Criar Conta"}
+              {!loading && (
+                <ArrowRight size={18} className="transition-transform group-hover:translate-x-0.5" />
+              )}
             </button>
           </div>
 
