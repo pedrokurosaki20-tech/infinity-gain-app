@@ -194,12 +194,17 @@ function WithdrawPage() {
           </div>
         </section>
 
+        {error && (
+          <p className="text-center text-xs font-medium text-red-400">{error}</p>
+        )}
         <button
           type="submit"
-          className="mt-2 flex w-full items-center justify-center gap-2 rounded-2xl bg-brand-gradient px-6 py-4 text-base font-semibold text-white shadow-glow transition-transform hover:scale-[1.01]"
+          disabled={submitting}
+          className="mt-2 flex w-full items-center justify-center gap-2 rounded-2xl bg-brand-gradient px-6 py-4 text-base font-semibold text-white shadow-glow transition-transform hover:scale-[1.01] disabled:opacity-60"
         >
-          Solicitar Saque
+          {submitting ? "Enviando…" : "Solicitar Saque"}
         </button>
+
       </form>
     </AppShell>
   );
