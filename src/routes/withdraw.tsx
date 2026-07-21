@@ -2,6 +2,8 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { ArrowLeft, Info } from "lucide-react";
 import { useState } from "react";
 import { AppShell } from "@/components/AppShell";
+import { supabase } from "@/integrations/supabase/client";
+
 
 export const Route = createFileRoute("/withdraw")({
   head: () => ({
@@ -23,6 +25,46 @@ function WithdrawPage() {
   const [type, setType] = useState<(typeof pixTypes)[number]>("CPF");
   const [key, setKey] = useState("");
   const [amount, setAmount] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setError(null);
+    const value = Number(amount.replace(",", "."));
+    if (!Number.isFinite(value) || value < 10) {
+      setError("O valor mínimo de saque é R$ 10,00.");
+      return;
+    }
+    if (!key.trim()) {
+      setError("Informe sua chave PIX.");
+      return;
+    }
+    setSubmitting(true);
+    const { data: userData } = await supabase.auth.getUser();
+    if (!userData.user) {
+      setSubmitting(false);
+      setError("Você precisa estar autenticado.");
+      return;
+    }
+    const fee = Number((value * 0.05).toFixed(2));
+    const net = Number((value - fee).toFixed(2));
+    const { error: insertError } = await supabase.from("withdrawals").insert({
+      user_id: userData.user.id,
+      amount: value,
+      fee,
+      net_amount: net,
+      pix_key: key.trim(),
+      pix_type: type,
+    });
+    setSubmitting(false);
+    if (insertError) {
+      setError("Não foi possível registrar seu saque. Tente novamente.");
+      return;
+    }
+    navigate({ to: "/wallet" });
+  }
+
 
   return (
     <AppShell>
@@ -46,12 +88,10 @@ function WithdrawPage() {
       </section>
 
       <form
-        onSubmit={(e) => {
-          e.preventDefault();
-          navigate({ to: "/wallet" });
-        }}
+        onSubmit={handleSubmit}
         className="mt-6 space-y-4 animate-fade-up"
       >
+
         <div>
           <label className="mb-2 block text-xs font-medium uppercase tracking-widest text-muted-foreground">
             Tipo de chave PIX
@@ -154,12 +194,17 @@ function WithdrawPage() {
           </div>
         </section>
 
+        {error && (
+          <p className="text-center text-xs font-medium text-red-400">{error}</p>
+        )}
         <button
           type="submit"
-          className="mt-2 flex w-full items-center justify-center gap-2 rounded-2xl bg-brand-gradient px-6 py-4 text-base font-semibold text-white shadow-glow transition-transform hover:scale-[1.01]"
+          disabled={submitting}
+          className="mt-2 flex w-full items-center justify-center gap-2 rounded-2xl bg-brand-gradient px-6 py-4 text-base font-semibold text-white shadow-glow transition-transform hover:scale-[1.01] disabled:opacity-60"
         >
-          Solicitar Saque
+          {submitting ? "Enviando…" : "Solicitar Saque"}
         </button>
+
       </form>
     </AppShell>
   );
