@@ -14,7 +14,45 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      profiles: {
+        Row: {
+          balance: number
+          created_at: string
+          id: string
+          invite_code: string | null
+          name: string | null
+          phone: string | null
+          pix_key: string | null
+          pix_type: string | null
+          referred_by: string | null
+          updated_at: string
+        }
+        Insert: {
+          balance?: number
+          created_at?: string
+          id: string
+          invite_code?: string | null
+          name?: string | null
+          phone?: string | null
+          pix_key?: string | null
+          pix_type?: string | null
+          referred_by?: string | null
+          updated_at?: string
+        }
+        Update: {
+          balance?: number
+          created_at?: string
+          id?: string
+          invite_code?: string | null
+          name?: string | null
+          phone?: string | null
+          pix_key?: string | null
+          pix_type?: string | null
+          referred_by?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
