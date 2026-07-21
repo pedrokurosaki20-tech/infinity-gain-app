@@ -88,12 +88,10 @@ function WithdrawPage() {
       </section>
 
       <form
-        onSubmit={(e) => {
-          e.preventDefault();
-          navigate({ to: "/wallet" });
-        }}
+        onSubmit={handleSubmit}
         className="mt-6 space-y-4 animate-fade-up"
       >
+
         <div>
           <label className="mb-2 block text-xs font-medium uppercase tracking-widest text-muted-foreground">
             Tipo de chave PIX
