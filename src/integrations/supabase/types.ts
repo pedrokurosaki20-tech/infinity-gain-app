@@ -25,6 +25,7 @@ export type Database = {
           pix_key: string | null
           pix_type: string | null
           referred_by: string | null
+          total_earnings: number
           updated_at: string
         }
         Insert: {
@@ -37,6 +38,7 @@ export type Database = {
           pix_key?: string | null
           pix_type?: string | null
           referred_by?: string | null
+          total_earnings?: number
           updated_at?: string
         }
         Update: {
@@ -49,6 +51,7 @@ export type Database = {
           pix_key?: string | null
           pix_type?: string | null
           referred_by?: string | null
+          total_earnings?: number
           updated_at?: string
         }
         Relationships: []
