@@ -29,6 +29,44 @@ function RegisterPage() {
   });
   const set = (k: keyof typeof form) => (v: string) =>
     setForm((f) => ({ ...f, [k]: v }));
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setError(null);
+    if (form.password.length < 6) {
+      setError("A senha precisa ter no mínimo 6 caracteres.");
+      return;
+    }
+    if (form.password !== form.confirm) {
+      setError("As senhas não coincidem.");
+      return;
+    }
+    setLoading(true);
+    const { error } = await supabase.auth.signUp({
+      email: form.email,
+      password: form.password,
+      options: {
+        emailRedirectTo: `${window.location.origin}/dashboard`,
+        data: {
+          name: form.name,
+          phone: form.phone,
+          invite: form.invite || null,
+        },
+      },
+    });
+    setLoading(false);
+    if (error) {
+      setError(
+        error.message.includes("registered")
+          ? "Este e-mail já está cadastrado."
+          : error.message,
+      );
+      return;
+    }
+    navigate({ to: "/dashboard" });
+  }
 
   return (
     <div className="relative min-h-screen bg-background">
