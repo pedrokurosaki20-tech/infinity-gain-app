@@ -21,6 +21,25 @@ function LoginPage() {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setError(null);
+    setLoading(true);
+    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    setLoading(false);
+    if (error) {
+      setError(
+        error.message === "Invalid login credentials"
+          ? "E-mail ou senha incorretos."
+          : error.message,
+      );
+      return;
+    }
+    navigate({ to: "/dashboard" });
+  }
 
   return (
     <div className="relative min-h-screen bg-background">
@@ -46,13 +65,7 @@ function LoginPage() {
           </p>
         </div>
 
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            navigate({ to: "/dashboard" });
-          }}
-          className="mt-8 space-y-4 animate-fade-up"
-        >
+        <form onSubmit={handleSubmit} className="mt-8 space-y-4 animate-fade-up">
           <Field
             icon={<Mail size={18} />}
             type="email"
@@ -68,13 +81,22 @@ function LoginPage() {
             onChange={setPassword}
           />
 
+          {error && (
+            <p className="rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-300">
+              {error}
+            </p>
+          )}
+
           <div className="pt-2">
             <button
               type="submit"
-              className="group flex w-full items-center justify-center gap-2 rounded-2xl bg-brand-gradient px-6 py-4 text-base font-semibold text-white shadow-glow transition-transform hover:scale-[1.01] active:scale-[0.99]"
+              disabled={loading}
+              className="group flex w-full items-center justify-center gap-2 rounded-2xl bg-brand-gradient px-6 py-4 text-base font-semibold text-white shadow-glow transition-transform hover:scale-[1.01] active:scale-[0.99] disabled:opacity-60"
             >
-              Entrar
-              <ArrowRight size={18} className="transition-transform group-hover:translate-x-0.5" />
+              {loading ? <Loader2 size={18} className="animate-spin" /> : "Entrar"}
+              {!loading && (
+                <ArrowRight size={18} className="transition-transform group-hover:translate-x-0.5" />
+              )}
             </button>
           </div>
 
