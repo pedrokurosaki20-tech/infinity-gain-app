@@ -25,6 +25,46 @@ function WithdrawPage() {
   const [type, setType] = useState<(typeof pixTypes)[number]>("CPF");
   const [key, setKey] = useState("");
   const [amount, setAmount] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setError(null);
+    const value = Number(amount.replace(",", "."));
+    if (!Number.isFinite(value) || value < 10) {
+      setError("O valor mínimo de saque é R$ 10,00.");
+      return;
+    }
+    if (!key.trim()) {
+      setError("Informe sua chave PIX.");
+      return;
+    }
+    setSubmitting(true);
+    const { data: userData } = await supabase.auth.getUser();
+    if (!userData.user) {
+      setSubmitting(false);
+      setError("Você precisa estar autenticado.");
+      return;
+    }
+    const fee = Number((value * 0.05).toFixed(2));
+    const net = Number((value - fee).toFixed(2));
+    const { error: insertError } = await supabase.from("withdrawals").insert({
+      user_id: userData.user.id,
+      amount: value,
+      fee,
+      net_amount: net,
+      pix_key: key.trim(),
+      pix_type: type,
+    });
+    setSubmitting(false);
+    if (insertError) {
+      setError("Não foi possível registrar seu saque. Tente novamente.");
+      return;
+    }
+    navigate({ to: "/wallet" });
+  }
+
 
   return (
     <AppShell>
