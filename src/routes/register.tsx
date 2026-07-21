@@ -1,7 +1,8 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
-import { Mail, Lock, User, Phone, Gift, ArrowRight, ArrowLeft } from "lucide-react";
+import { Mail, Lock, User, Phone, Gift, ArrowRight, ArrowLeft, Loader2 } from "lucide-react";
 import { Logo } from "@/components/Logo";
+import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/register")({
   head: () => ({
@@ -28,6 +29,44 @@ function RegisterPage() {
   });
   const set = (k: keyof typeof form) => (v: string) =>
     setForm((f) => ({ ...f, [k]: v }));
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setError(null);
+    if (form.password.length < 6) {
+      setError("A senha precisa ter no mínimo 6 caracteres.");
+      return;
+    }
+    if (form.password !== form.confirm) {
+      setError("As senhas não coincidem.");
+      return;
+    }
+    setLoading(true);
+    const { error } = await supabase.auth.signUp({
+      email: form.email,
+      password: form.password,
+      options: {
+        emailRedirectTo: `${window.location.origin}/dashboard`,
+        data: {
+          name: form.name,
+          phone: form.phone,
+          invite: form.invite || null,
+        },
+      },
+    });
+    setLoading(false);
+    if (error) {
+      setError(
+        error.message.includes("registered")
+          ? "Este e-mail já está cadastrado."
+          : error.message,
+      );
+      return;
+    }
+    navigate({ to: "/dashboard" });
+  }
 
   return (
     <div className="relative min-h-screen bg-background">
@@ -59,13 +98,7 @@ function RegisterPage() {
           </p>
         </div>
 
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            navigate({ to: "/dashboard" });
-          }}
-          className="mt-6 space-y-3.5 animate-fade-up"
-        >
+        <form onSubmit={handleSubmit} className="mt-6 space-y-3.5 animate-fade-up">
           <Field icon={<User size={18} />} placeholder="Nome completo" value={form.name} onChange={set("name")} />
           <Field icon={<Phone size={18} />} type="tel" placeholder="Telefone" value={form.phone} onChange={set("phone")} />
           <Field icon={<Mail size={18} />} type="email" placeholder="E-mail" value={form.email} onChange={set("email")} />
@@ -73,13 +106,22 @@ function RegisterPage() {
           <Field icon={<Lock size={18} />} type="password" placeholder="Confirmar senha" value={form.confirm} onChange={set("confirm")} />
           <Field icon={<Gift size={18} />} placeholder="Código de convite (opcional)" value={form.invite} onChange={set("invite")} />
 
+          {error && (
+            <p className="rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-300">
+              {error}
+            </p>
+          )}
+
           <div className="pt-3">
             <button
               type="submit"
-              className="group flex w-full items-center justify-center gap-2 rounded-2xl bg-brand-gradient px-6 py-4 text-base font-semibold text-white shadow-glow transition-transform hover:scale-[1.01] active:scale-[0.99]"
+              disabled={loading}
+              className="group flex w-full items-center justify-center gap-2 rounded-2xl bg-brand-gradient px-6 py-4 text-base font-semibold text-white shadow-glow transition-transform hover:scale-[1.01] active:scale-[0.99] disabled:opacity-60"
             >
-              Criar Conta
-              <ArrowRight size={18} className="transition-transform group-hover:translate-x-0.5" />
+              {loading ? <Loader2 size={18} className="animate-spin" /> : "Criar Conta"}
+              {!loading && (
+                <ArrowRight size={18} className="transition-transform group-hover:translate-x-0.5" />
+              )}
             </button>
           </div>
 
