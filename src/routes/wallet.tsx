@@ -142,7 +142,12 @@ function WalletPage() {
               const meta = statusMeta[t.status];
               const Icon = meta.Icon;
               return (
-                <div key={t.id} className="flex items-center gap-3 px-4 py-3.5">
+                <Link
+                  key={t.id}
+                  to="/withdraw/$id"
+                  params={{ id: t.id }}
+                  className="flex items-center gap-3 px-4 py-3.5 transition hover:bg-white/[0.03]"
+                >
                   <div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-[color:var(--brand-pink)]/15 text-[color:var(--brand-pink)]">
                     <ArrowUpRight size={18} />
                   </div>
@@ -170,7 +175,8 @@ function WalletPage() {
                       Líquido {formatBRL(Number(t.net_amount))}
                     </p>
                   </div>
-                </div>
+                </Link>
+
               );
             })}
           </div>
