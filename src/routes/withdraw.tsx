@@ -2,6 +2,8 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { ArrowLeft, Info } from "lucide-react";
 import { useState } from "react";
 import { AppShell } from "@/components/AppShell";
+import { supabase } from "@/integrations/supabase/client";
+
 
 export const Route = createFileRoute("/withdraw")({
   head: () => ({
