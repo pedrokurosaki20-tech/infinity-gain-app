@@ -12,8 +12,11 @@ import {
   Send,
   Megaphone,
   Instagram,
+  ShieldCheck,
 } from "lucide-react";
+import { useEffect, useState } from "react";
 import { AppShell } from "@/components/AppShell";
+import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/profile")({
   head: () => ({
