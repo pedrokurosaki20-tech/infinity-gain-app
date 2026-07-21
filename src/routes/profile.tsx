@@ -127,6 +127,25 @@ function ProfilePage() {
         </div>
       </section>
 
+      {isAdmin && (
+        <section className="mt-6">
+          <Link
+            to="/admin"
+            className="glass flex w-full items-center justify-between rounded-2xl px-4 py-4 text-left transition hover:bg-white/[0.06]"
+          >
+            <span className="flex items-center gap-3">
+              <span className="grid h-9 w-9 place-items-center rounded-xl bg-brand-gradient text-white shadow-glow">
+                <ShieldCheck size={18} />
+              </span>
+              <span className="font-semibold">Painel Admin</span>
+            </span>
+            <ChevronRight size={18} className="text-muted-foreground" />
+          </Link>
+        </section>
+      )}
+
+
+
       <section className="mt-6">
         <button
           onClick={() => navigate({ to: "/" })}
