@@ -12,8 +12,11 @@ import {
   Send,
   Megaphone,
   Instagram,
+  ShieldCheck,
 } from "lucide-react";
+import { useEffect, useState } from "react";
 import { AppShell } from "@/components/AppShell";
+import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/profile")({
   head: () => ({
@@ -27,6 +30,22 @@ export const Route = createFileRoute("/profile")({
 
 function ProfilePage() {
   const navigate = useNavigate();
+  const [isAdmin, setIsAdmin] = useState(false);
+
+  useEffect(() => {
+    (async () => {
+      const { data: userData } = await supabase.auth.getUser();
+      if (!userData.user) return;
+      const { data } = await supabase
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", userData.user.id)
+        .eq("role", "admin")
+        .maybeSingle();
+      setIsAdmin(!!data);
+    })();
+  }, []);
+
   return (
     <AppShell>
       <header className="flex items-center justify-between">
@@ -107,6 +126,25 @@ function ProfilePage() {
           />
         </div>
       </section>
+
+      {isAdmin && (
+        <section className="mt-6">
+          <Link
+            to="/admin"
+            className="glass flex w-full items-center justify-between rounded-2xl px-4 py-4 text-left transition hover:bg-white/[0.06]"
+          >
+            <span className="flex items-center gap-3">
+              <span className="grid h-9 w-9 place-items-center rounded-xl bg-brand-gradient text-white shadow-glow">
+                <ShieldCheck size={18} />
+              </span>
+              <span className="font-semibold">Painel Admin</span>
+            </span>
+            <ChevronRight size={18} className="text-muted-foreground" />
+          </Link>
+        </section>
+      )}
+
+
 
       <section className="mt-6">
         <button
