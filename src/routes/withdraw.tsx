@@ -41,32 +41,17 @@ function WithdrawPage() {
       return;
     }
     setSubmitting(true);
-    const { data: userData } = await supabase.auth.getUser();
-    if (!userData.user) {
-      setSubmitting(false);
-      setError("Você precisa estar autenticado.");
-      return;
-    }
-    const fee = Number((value * 0.05).toFixed(2));
-    const net = Number((value - fee).toFixed(2));
-    const { data: inserted, error: insertError } = await supabase
-      .from("withdrawals")
-      .insert({
-        user_id: userData.user.id,
-        amount: value,
-        fee,
-        net_amount: net,
-        pix_key: key.trim(),
-        pix_type: type,
-      })
-      .select("id")
-      .single();
+    const { data: newId, error: rpcError } = await supabase.rpc("request_withdrawal", {
+      _amount: value,
+      _pix_key: key.trim(),
+      _pix_type: type,
+    });
     setSubmitting(false);
-    if (insertError || !inserted) {
-      setError("Não foi possível registrar seu saque. Tente novamente.");
+    if (rpcError || !newId) {
+      setError(rpcError?.message || "Não foi possível registrar seu saque. Tente novamente.");
       return;
     }
-    navigate({ to: "/withdraw/$id", params: { id: inserted.id } });
+    navigate({ to: "/withdraw/$id", params: { id: newId as string } });
   }
 
 

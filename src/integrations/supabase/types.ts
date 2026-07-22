@@ -128,6 +128,10 @@ export type Database = {
         }
         Returns: boolean
       }
+      request_withdrawal: {
+        Args: { _amount: number; _pix_key: string; _pix_type: string }
+        Returns: string
+      }
     }
     Enums: {
       app_role: "admin" | "user"
