@@ -358,17 +358,39 @@ export function CompartilhamentoTask() {
           </p>
 
           <div className="mt-4 space-y-3">
+            <div>
+              <p className="mb-2 text-[11px] uppercase tracking-widest text-muted-foreground">Plataforma</p>
+              <div className="grid grid-cols-5 gap-2">
+                {["facebook","instagram","x","tiktok","kwai"].map((p) => (
+                  <button
+                    key={p}
+                    type="button"
+                    onClick={() => setPlatform(p)}
+                    className={`rounded-xl px-2 py-2 text-[11px] font-semibold capitalize transition ${platform === p ? "bg-brand-gradient text-white shadow-glow" : "bg-white/5 text-white/80 hover:bg-white/10"}`}
+                  >
+                    {p}
+                  </button>
+                ))}
+              </div>
+            </div>
+
             <label className="flex cursor-pointer flex-col items-center justify-center gap-2 rounded-2xl border border-dashed border-white/15 bg-white/5 px-4 py-6 text-center transition-colors hover:bg-white/10">
               <span className="grid h-10 w-10 place-items-center rounded-xl bg-brand-gradient text-white shadow-glow">
                 <Upload size={18} />
               </span>
               <span className="text-sm font-semibold text-white">
-                Upload do print da publicação
+                {file ? file.name : "Upload do print da publicação"}
               </span>
               <span className="text-[11px] text-muted-foreground">
                 PNG ou JPG até 5MB
               </span>
-              <input type="file" accept="image/*" className="hidden" />
+              <input
+                ref={fileRef}
+                type="file"
+                accept="image/png,image/jpeg,image/webp"
+                className="hidden"
+                onChange={(e) => setFile(e.target.files?.[0] ?? null)}
+              />
             </label>
 
             <div className="relative">
@@ -378,18 +400,35 @@ export function CompartilhamentoTask() {
               />
               <input
                 type="url"
+                value={link}
+                onChange={(e) => setLink(e.target.value)}
                 placeholder="Cole aqui o link da publicação"
                 className="w-full rounded-2xl border border-white/10 bg-white/5 px-9 py-3 text-sm text-white placeholder:text-muted-foreground focus:border-brand-blue focus:outline-none"
               />
             </div>
           </div>
 
-          <button className="group relative mt-5 flex w-full items-center justify-center gap-2 overflow-hidden rounded-2xl bg-brand-gradient px-6 py-4 text-base font-semibold text-white shadow-glow transition-all duration-200 hover:scale-[1.01] active:scale-[0.97]">
+          {lastStatus && (
+            <div className="mt-4">
+              <StatusBadge status={lastStatus} />
+            </div>
+          )}
+          {message && (
+            <p className="mt-3 text-center text-xs text-white/80">{message}</p>
+          )}
+
+          <button
+            onClick={handleSubmit}
+            disabled={submitting}
+            className="group relative mt-5 flex w-full items-center justify-center gap-2 overflow-hidden rounded-2xl bg-brand-gradient px-6 py-4 text-base font-semibold text-white shadow-glow transition-all duration-200 hover:scale-[1.01] active:scale-[0.97] disabled:opacity-60"
+          >
             <span className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/20 to-transparent transition-transform duration-700 group-hover:translate-x-full" />
-            <ShieldCheck size={18} className="relative" /> Validar Tarefa
+            {submitting ? <Loader2 size={18} className="relative animate-spin" /> : <ShieldCheck size={18} className="relative" />}
+            {submitting ? "Enviando…" : "Validar Tarefa"}
           </button>
         </div>
       </section>
+
 
       <SafetyNotice />
 
