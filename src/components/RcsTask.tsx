@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import {
   ArrowLeft,
@@ -9,20 +9,30 @@ import {
   AlertTriangle,
   Timer,
   Upload,
+  Loader2,
+  Clock,
+  XCircle,
 } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { SafetyNotice } from "@/components/SafetyNotice";
 import { tasks } from "@/lib/tasks";
+import { submitTaskProof } from "@/lib/task-submission";
+import { supabase } from "@/integrations/supabase/client";
 import rcsHeroAsset from "@/assets/rcs-hero.png.asset.json";
 
 const TOTAL_ENVIOS = 10;
 const CONCLUIDOS = 3;
 const PROGRESSO = Math.round((CONCLUIDOS / TOTAL_ENVIOS) * 100);
 
+type LastStatus = "pending" | "approved" | "rejected" | null;
+
 export function RcsTask() {
   const outras = tasks.filter((t) => t.slug !== "rcs");
+  const fileRef = useRef<HTMLInputElement>(null);
+  const [submitting, setSubmitting] = useState(false);
+  const [lastStatus, setLastStatus] = useState<LastStatus>(null);
+  const [message, setMessage] = useState<string | null>(null);
 
-  // Countdown target: 23h 17m from mount (for layout demonstration)
   const target = useMemo(
     () => new Date(Date.now() + 23 * 60 * 60 * 1000 + 17 * 60 * 1000),
     []
@@ -33,6 +43,38 @@ export function RcsTask() {
     const id = setInterval(() => setTimeLeft(getTimeLeft(target)), 1000);
     return () => clearInterval(id);
   }, [target]);
+
+  useEffect(() => {
+    (async () => {
+      const { data: u } = await supabase.auth.getUser();
+      if (!u.user) return;
+      const { data } = await supabase
+        .from("task_submissions")
+        .select("status")
+        .eq("user_id", u.user.id)
+        .eq("task_type", "rcs")
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+      if (data) setLastStatus(data.status as LastStatus);
+    })();
+  }, [submitting]);
+
+  async function handleFile(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    e.target.value = "";
+    if (!file) return;
+    setSubmitting(true);
+    setMessage(null);
+    try {
+      await submitTaskProof({ taskType: "rcs", file });
+      setMessage("Comprovante enviado! Aguarde a análise da equipe.");
+    } catch (err: any) {
+      setMessage(err?.message || "Falha ao enviar comprovante.");
+    } finally {
+      setSubmitting(false);
+    }
+  }
 
   return (
     <AppShell>
@@ -48,7 +90,6 @@ export function RcsTask() {
         <span className="w-10" />
       </header>
 
-      {/* Hero banner */}
       <section className="mt-6 animate-fade-up">
         <div className="relative overflow-hidden rounded-3xl shadow-glow">
           <img
@@ -59,7 +100,6 @@ export function RcsTask() {
         </div>
       </section>
 
-      {/* Título + subtítulo */}
       <section className="mt-6 animate-fade-up">
         <h2 className="text-2xl font-extrabold tracking-tight">RCS</h2>
         <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
@@ -68,7 +108,6 @@ export function RcsTask() {
         </p>
       </section>
 
-      {/* Recompensa + limite */}
       <section className="mt-6 animate-fade-up">
         <div className="glass rounded-3xl p-5">
           <div className="flex items-center gap-3">
@@ -97,7 +136,6 @@ export function RcsTask() {
         </div>
       </section>
 
-      {/* Como funciona */}
       <section className="mt-6 animate-fade-up">
         <div className="mb-3 flex items-center gap-2">
           <Info size={16} className="text-brand-blue" />
@@ -122,7 +160,6 @@ export function RcsTask() {
         </div>
       </section>
 
-      {/* Requisitos */}
       <section className="mt-6 animate-fade-up">
         <div className="mb-3 flex items-center gap-2">
           <CheckCircle2 size={16} className="text-brand-blue" />
@@ -148,7 +185,6 @@ export function RcsTask() {
         </ul>
       </section>
 
-      {/* Progresso */}
       <section className="mt-6 animate-fade-up">
         <div className="mb-3 flex items-center justify-between">
           <h3 className="text-sm font-semibold uppercase tracking-widest text-muted-foreground">
@@ -169,7 +205,6 @@ export function RcsTask() {
         </div>
       </section>
 
-      {/* Próxima renovação */}
       <section className="mt-6 animate-fade-up">
         <div className="mb-3 flex items-center gap-2">
           <Timer size={16} className="text-brand-pink" />
@@ -187,19 +222,42 @@ export function RcsTask() {
         </div>
       </section>
 
-      {/* CTA */}
+      {lastStatus && (
+        <section className="mt-6 animate-fade-up">
+          <StatusBadge status={lastStatus} />
+        </section>
+      )}
+      {message && (
+        <p className="mt-3 text-center text-xs text-white/80">{message}</p>
+      )}
+
       <section className="mt-8 animate-fade-up space-y-3">
         <button className="group relative flex w-full items-center justify-center gap-2 overflow-hidden rounded-2xl bg-brand-gradient px-6 py-4 text-base font-semibold text-white shadow-glow transition-all duration-200 hover:scale-[1.01] hover:shadow-[0_0_30px_rgba(30,94,255,0.45)] active:scale-[0.97]">
           <span className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/20 to-transparent transition-transform duration-700 group-hover:translate-x-full" />
           <Play size={18} className="relative" /> Iniciar Tarefa
         </button>
-        <button className="group relative flex w-full items-center justify-center gap-2 overflow-hidden rounded-2xl border border-white/10 bg-white/5 px-6 py-4 text-base font-semibold text-white transition-all duration-200 hover:scale-[1.01] hover:bg-white/10 active:scale-[0.97]">
+        <button
+          onClick={() => fileRef.current?.click()}
+          disabled={submitting}
+          className="group relative flex w-full items-center justify-center gap-2 overflow-hidden rounded-2xl border border-white/10 bg-white/5 px-6 py-4 text-base font-semibold text-white transition-all duration-200 hover:scale-[1.01] hover:bg-white/10 active:scale-[0.97] disabled:opacity-60"
+        >
           <span className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/10 to-transparent transition-transform duration-700 group-hover:translate-x-full" />
-          <Upload size={18} className="relative" /> Validar Tarefa
+          {submitting ? (
+            <Loader2 size={18} className="relative animate-spin" />
+          ) : (
+            <Upload size={18} className="relative" />
+          )}
+          {submitting ? "Enviando…" : "Validar Tarefa"}
         </button>
+        <input
+          ref={fileRef}
+          type="file"
+          accept="image/png,image/jpeg,image/webp"
+          className="hidden"
+          onChange={handleFile}
+        />
       </section>
 
-      {/* Aviso */}
       <section className="mt-6 animate-fade-up">
         <div className="glass rounded-3xl p-5">
           <div className="flex items-start gap-3">
@@ -222,7 +280,6 @@ export function RcsTask() {
 
       <SafetyNotice />
 
-      {/* Outras tarefas */}
       <section className="mt-8">
         <h3 className="mb-3 text-sm font-semibold uppercase tracking-widest text-muted-foreground">
           Outras tarefas
@@ -250,6 +307,20 @@ export function RcsTask() {
         </div>
       </section>
     </AppShell>
+  );
+}
+
+function StatusBadge({ status }: { status: "pending" | "approved" | "rejected" }) {
+  const meta = {
+    pending: { Icon: Clock, label: "Última validação em análise", cls: "text-[color:var(--brand-blue)] bg-[color:var(--brand-blue)]/15" },
+    approved: { Icon: CheckCircle2, label: "Última validação aprovada", cls: "text-emerald-400 bg-emerald-500/15" },
+    rejected: { Icon: XCircle, label: "Última validação rejeitada", cls: "text-red-400 bg-red-500/15" },
+  }[status];
+  return (
+    <div className={`glass flex items-center justify-center gap-2 rounded-2xl px-4 py-3 text-sm font-semibold ${meta.cls}`}>
+      <meta.Icon size={16} />
+      {meta.label}
+    </div>
   );
 }
 
