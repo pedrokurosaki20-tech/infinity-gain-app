@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, type ReactNode } from "react";
+import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { Link } from "@tanstack/react-router";
 import {
   ArrowLeft,
@@ -12,10 +12,15 @@ import {
   Upload,
   Link2,
   ShieldCheck,
+  Loader2,
+  Clock,
+  XCircle,
 } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { SafetyNotice } from "@/components/SafetyNotice";
 import { tasks } from "@/lib/tasks";
+import { submitTaskProof } from "@/lib/task-submission";
+import { supabase } from "@/integrations/supabase/client";
 import heroAsset from "@/assets/compartilhamento-hero.png.asset.json";
 
 type Campaign = {
