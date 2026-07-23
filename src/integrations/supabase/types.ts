@@ -56,6 +56,54 @@ export type Database = {
         }
         Relationships: []
       }
+      task_submissions: {
+        Row: {
+          created_at: string
+          id: string
+          link: string | null
+          platform: string | null
+          proof_path: string
+          rejection_reason: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          reward_amount: number
+          status: Database["public"]["Enums"]["submission_status"]
+          task_type: Database["public"]["Enums"]["task_type"]
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          link?: string | null
+          platform?: string | null
+          proof_path: string
+          rejection_reason?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          reward_amount?: number
+          status?: Database["public"]["Enums"]["submission_status"]
+          task_type: Database["public"]["Enums"]["task_type"]
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          link?: string | null
+          platform?: string | null
+          proof_path?: string
+          rejection_reason?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          reward_amount?: number
+          status?: Database["public"]["Enums"]["submission_status"]
+          task_type?: Database["public"]["Enums"]["task_type"]
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string
@@ -132,9 +180,24 @@ export type Database = {
         Args: { _amount: number; _pix_key: string; _pix_type: string }
         Returns: string
       }
+      review_task_submission: {
+        Args: { _approve: boolean; _id: string; _reason?: string }
+        Returns: undefined
+      }
+      submit_task_proof: {
+        Args: {
+          _link?: string
+          _platform?: string
+          _proof_path: string
+          _task_type: Database["public"]["Enums"]["task_type"]
+        }
+        Returns: string
+      }
     }
     Enums: {
       app_role: "admin" | "user"
+      submission_status: "pending" | "approved" | "rejected"
+      task_type: "rcs" | "compartilhamento"
       withdrawal_status: "processing" | "completed" | "rejected"
     }
     CompositeTypes: {
@@ -264,6 +327,8 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin", "user"],
+      submission_status: ["pending", "approved", "rejected"],
+      task_type: ["rcs", "compartilhamento"],
       withdrawal_status: ["processing", "completed", "rejected"],
     },
   },
