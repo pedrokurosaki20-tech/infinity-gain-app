@@ -489,6 +489,20 @@ function CampaignAction({
   );
 }
 
+function StatusBadge({ status }: { status: "pending" | "approved" | "rejected" }) {
+  const meta = {
+    pending: { Icon: Clock, label: "Última validação em análise", cls: "text-[color:var(--brand-blue)] bg-[color:var(--brand-blue)]/15" },
+    approved: { Icon: CheckCircle2, label: "Última validação aprovada", cls: "text-emerald-400 bg-emerald-500/15" },
+    rejected: { Icon: XCircle, label: "Última validação rejeitada", cls: "text-red-400 bg-red-500/15" },
+  }[status];
+  return (
+    <div className={`flex items-center justify-center gap-2 rounded-2xl px-4 py-3 text-sm font-semibold ${meta.cls}`}>
+      <meta.Icon size={16} />
+      {meta.label}
+    </div>
+  );
+
+
 function formatHMS(total: number) {
   const h = Math.floor(total / 3600);
   const m = Math.floor((total % 3600) / 60);
