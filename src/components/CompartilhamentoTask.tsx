@@ -128,10 +128,58 @@ export function CompartilhamentoTask() {
 
   const start = useMemo(() => Date.now(), []);
   const [now, setNow] = useState(Date.now());
+  const [platform, setPlatform] = useState<string>("facebook");
+  const [link, setLink] = useState("");
+  const [file, setFile] = useState<File | null>(null);
+  const [submitting, setSubmitting] = useState(false);
+  const [message, setMessage] = useState<string | null>(null);
+  const [lastStatus, setLastStatus] = useState<"pending" | "approved" | "rejected" | null>(null);
+  const fileRef = useRef<HTMLInputElement>(null);
+
   useEffect(() => {
     const id = setInterval(() => setNow(Date.now()), 1000);
     return () => clearInterval(id);
   }, []);
+
+  useEffect(() => {
+    (async () => {
+      const { data: u } = await supabase.auth.getUser();
+      if (!u.user) return;
+      const { data } = await supabase
+        .from("task_submissions")
+        .select("status")
+        .eq("user_id", u.user.id)
+        .eq("task_type", "compartilhamento")
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+      if (data) setLastStatus(data.status as any);
+    })();
+  }, [submitting]);
+
+  async function handleSubmit() {
+    if (!file) {
+      setMessage("Selecione o print da publicação.");
+      return;
+    }
+    if (!link.trim()) {
+      setMessage("Cole o link da publicação.");
+      return;
+    }
+    setSubmitting(true);
+    setMessage(null);
+    try {
+      await submitTaskProof({ taskType: "compartilhamento", file, link, platform });
+      setMessage("Comprovante enviado! Aguarde a análise da equipe.");
+      setLink("");
+      setFile(null);
+    } catch (err: any) {
+      setMessage(err?.message || "Falha ao enviar comprovante.");
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
 
   return (
     <AppShell>
