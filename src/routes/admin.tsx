@@ -201,6 +201,14 @@ function AdminPage() {
         </button>
       </header>
 
+      <nav className="mt-5 flex gap-2 overflow-x-auto pb-1">
+        <span className="shrink-0 rounded-full bg-brand-gradient px-3.5 py-1.5 text-xs font-semibold text-white shadow-glow">Saques</span>
+        <Link to="/admin/tasks/$type" params={{ type: "rcs" }} className="glass shrink-0 rounded-full px-3.5 py-1.5 text-xs font-semibold text-muted-foreground">Tarefas RCS</Link>
+        <Link to="/admin/tasks/$type" params={{ type: "compartilhamento" }} className="glass shrink-0 rounded-full px-3.5 py-1.5 text-xs font-semibold text-muted-foreground">Compartilhamento</Link>
+        <Link to="/admin/referrals" className="glass shrink-0 rounded-full px-3.5 py-1.5 text-xs font-semibold text-muted-foreground">Indicados</Link>
+      </nav>
+
+
       <section className="mt-5 grid grid-cols-2 gap-3">
         <StatBox label="Pendentes" value={String(counts.processing)} tone="blue" />
         <StatBox label="Valor pendente" value={BRL(counts.pendingAmount)} tone="pink" />
