@@ -16,6 +16,7 @@ import { Route as ReferralRouteImport } from './routes/referral'
 import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as HelpRouteImport } from './routes/help'
 import { Route as DashboardRouteImport } from './routes/dashboard'
+import { Route as AdminRouteRouteImport } from './routes/admin.route'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
 import { Route as WithdrawIdRouteImport } from './routes/withdraw.$id'
@@ -58,15 +59,20 @@ const DashboardRoute = DashboardRouteImport.update({
   path: '/dashboard',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminRouteRoute = AdminRouteRouteImport.update({
+  id: '/admin',
+  path: '/admin',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AdminIndexRoute = AdminIndexRouteImport.update({
-  id: '/admin/',
-  path: '/admin/',
-  getParentRoute: () => rootRouteImport,
+  id: '/',
+  path: '/',
+  getParentRoute: () => AdminRouteRoute,
 } as any)
 const WithdrawIdRoute = WithdrawIdRouteImport.update({
   id: '/$id',
@@ -79,18 +85,19 @@ const TaskSlugRoute = TaskSlugRouteImport.update({
   getParentRoute: () => rootRouteImport,
 } as any)
 const AdminReferralsRoute = AdminReferralsRouteImport.update({
-  id: '/admin/referrals',
-  path: '/admin/referrals',
-  getParentRoute: () => rootRouteImport,
+  id: '/referrals',
+  path: '/referrals',
+  getParentRoute: () => AdminRouteRoute,
 } as any)
 const AdminTasksTypeRoute = AdminTasksTypeRouteImport.update({
-  id: '/admin/tasks/$type',
-  path: '/admin/tasks/$type',
-  getParentRoute: () => rootRouteImport,
+  id: '/tasks/$type',
+  path: '/tasks/$type',
+  getParentRoute: () => AdminRouteRoute,
 } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/admin': typeof AdminRouteRouteWithChildren
   '/dashboard': typeof DashboardRoute
   '/help': typeof HelpRoute
   '/profile': typeof ProfileRoute
@@ -122,6 +129,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/admin': typeof AdminRouteRouteWithChildren
   '/dashboard': typeof DashboardRoute
   '/help': typeof HelpRoute
   '/profile': typeof ProfileRoute
@@ -139,6 +147,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/admin'
     | '/dashboard'
     | '/help'
     | '/profile'
@@ -169,6 +178,7 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/admin'
     | '/dashboard'
     | '/help'
     | '/profile'
@@ -185,6 +195,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AdminRouteRoute: typeof AdminRouteRouteWithChildren
   DashboardRoute: typeof DashboardRoute
   HelpRoute: typeof HelpRoute
   ProfileRoute: typeof ProfileRoute
@@ -192,10 +203,7 @@ export interface RootRouteChildren {
   RegisterRoute: typeof RegisterRoute
   WalletRoute: typeof WalletRoute
   WithdrawRoute: typeof WithdrawRouteWithChildren
-  AdminReferralsRoute: typeof AdminReferralsRoute
   TaskSlugRoute: typeof TaskSlugRoute
-  AdminIndexRoute: typeof AdminIndexRoute
-  AdminTasksTypeRoute: typeof AdminTasksTypeRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -249,6 +257,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin': {
+      id: '/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AdminRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -258,10 +273,10 @@ declare module '@tanstack/react-router' {
     }
     '/admin/': {
       id: '/admin/'
-      path: '/admin'
+      path: '/'
       fullPath: '/admin/'
       preLoaderRoute: typeof AdminIndexRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof AdminRouteRoute
     }
     '/withdraw/$id': {
       id: '/withdraw/$id'
@@ -279,20 +294,36 @@ declare module '@tanstack/react-router' {
     }
     '/admin/referrals': {
       id: '/admin/referrals'
-      path: '/admin/referrals'
+      path: '/referrals'
       fullPath: '/admin/referrals'
       preLoaderRoute: typeof AdminReferralsRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof AdminRouteRoute
     }
     '/admin/tasks/$type': {
       id: '/admin/tasks/$type'
-      path: '/admin/tasks/$type'
+      path: '/tasks/$type'
       fullPath: '/admin/tasks/$type'
       preLoaderRoute: typeof AdminTasksTypeRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof AdminRouteRoute
     }
   }
 }
+
+interface AdminRouteRouteChildren {
+  AdminReferralsRoute: typeof AdminReferralsRoute
+  AdminIndexRoute: typeof AdminIndexRoute
+  AdminTasksTypeRoute: typeof AdminTasksTypeRoute
+}
+
+const AdminRouteRouteChildren: AdminRouteRouteChildren = {
+  AdminReferralsRoute: AdminReferralsRoute,
+  AdminIndexRoute: AdminIndexRoute,
+  AdminTasksTypeRoute: AdminTasksTypeRoute,
+}
+
+const AdminRouteRouteWithChildren = AdminRouteRoute._addFileChildren(
+  AdminRouteRouteChildren,
+)
 
 interface WithdrawRouteChildren {
   WithdrawIdRoute: typeof WithdrawIdRoute
@@ -308,6 +339,7 @@ const WithdrawRouteWithChildren = WithdrawRoute._addFileChildren(
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AdminRouteRoute: AdminRouteRouteWithChildren,
   DashboardRoute: DashboardRoute,
   HelpRoute: HelpRoute,
   ProfileRoute: ProfileRoute,
@@ -315,10 +347,7 @@ const rootRouteChildren: RootRouteChildren = {
   RegisterRoute: RegisterRoute,
   WalletRoute: WalletRoute,
   WithdrawRoute: WithdrawRouteWithChildren,
-  AdminReferralsRoute: AdminReferralsRoute,
   TaskSlugRoute: TaskSlugRoute,
-  AdminIndexRoute: AdminIndexRoute,
-  AdminTasksTypeRoute: AdminTasksTypeRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
