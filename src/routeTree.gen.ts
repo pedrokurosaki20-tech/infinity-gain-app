@@ -16,8 +16,9 @@ import { Route as ReferralRouteImport } from './routes/referral'
 import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as HelpRouteImport } from './routes/help'
 import { Route as DashboardRouteImport } from './routes/dashboard'
-import { Route as AdminRouteImport } from './routes/admin'
+import { Route as AdminRouteRouteImport } from './routes/admin.route'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AdminIndexRouteImport } from './routes/admin.index'
 import { Route as WithdrawIdRouteImport } from './routes/withdraw.$id'
 import { Route as TaskSlugRouteImport } from './routes/task.$slug'
 import { Route as AdminReferralsRouteImport } from './routes/admin.referrals'
@@ -58,7 +59,7 @@ const DashboardRoute = DashboardRouteImport.update({
   path: '/dashboard',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AdminRoute = AdminRouteImport.update({
+const AdminRouteRoute = AdminRouteRouteImport.update({
   id: '/admin',
   path: '/admin',
   getParentRoute: () => rootRouteImport,
@@ -67,6 +68,11 @@ const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
+} as any)
+const AdminIndexRoute = AdminIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AdminRouteRoute,
 } as any)
 const WithdrawIdRoute = WithdrawIdRouteImport.update({
   id: '/$id',
@@ -81,17 +87,17 @@ const TaskSlugRoute = TaskSlugRouteImport.update({
 const AdminReferralsRoute = AdminReferralsRouteImport.update({
   id: '/referrals',
   path: '/referrals',
-  getParentRoute: () => AdminRoute,
+  getParentRoute: () => AdminRouteRoute,
 } as any)
 const AdminTasksTypeRoute = AdminTasksTypeRouteImport.update({
   id: '/tasks/$type',
   path: '/tasks/$type',
-  getParentRoute: () => AdminRoute,
+  getParentRoute: () => AdminRouteRoute,
 } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/admin': typeof AdminRouteWithChildren
+  '/admin': typeof AdminRouteRouteWithChildren
   '/dashboard': typeof DashboardRoute
   '/help': typeof HelpRoute
   '/profile': typeof ProfileRoute
@@ -102,11 +108,11 @@ export interface FileRoutesByFullPath {
   '/admin/referrals': typeof AdminReferralsRoute
   '/task/$slug': typeof TaskSlugRoute
   '/withdraw/$id': typeof WithdrawIdRoute
+  '/admin/': typeof AdminIndexRoute
   '/admin/tasks/$type': typeof AdminTasksTypeRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/admin': typeof AdminRouteWithChildren
   '/dashboard': typeof DashboardRoute
   '/help': typeof HelpRoute
   '/profile': typeof ProfileRoute
@@ -117,12 +123,13 @@ export interface FileRoutesByTo {
   '/admin/referrals': typeof AdminReferralsRoute
   '/task/$slug': typeof TaskSlugRoute
   '/withdraw/$id': typeof WithdrawIdRoute
+  '/admin': typeof AdminIndexRoute
   '/admin/tasks/$type': typeof AdminTasksTypeRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/admin': typeof AdminRouteWithChildren
+  '/admin': typeof AdminRouteRouteWithChildren
   '/dashboard': typeof DashboardRoute
   '/help': typeof HelpRoute
   '/profile': typeof ProfileRoute
@@ -133,6 +140,7 @@ export interface FileRoutesById {
   '/admin/referrals': typeof AdminReferralsRoute
   '/task/$slug': typeof TaskSlugRoute
   '/withdraw/$id': typeof WithdrawIdRoute
+  '/admin/': typeof AdminIndexRoute
   '/admin/tasks/$type': typeof AdminTasksTypeRoute
 }
 export interface FileRouteTypes {
@@ -150,11 +158,11 @@ export interface FileRouteTypes {
     | '/admin/referrals'
     | '/task/$slug'
     | '/withdraw/$id'
+    | '/admin/'
     | '/admin/tasks/$type'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
-    | '/admin'
     | '/dashboard'
     | '/help'
     | '/profile'
@@ -165,6 +173,7 @@ export interface FileRouteTypes {
     | '/admin/referrals'
     | '/task/$slug'
     | '/withdraw/$id'
+    | '/admin'
     | '/admin/tasks/$type'
   id:
     | '__root__'
@@ -180,12 +189,13 @@ export interface FileRouteTypes {
     | '/admin/referrals'
     | '/task/$slug'
     | '/withdraw/$id'
+    | '/admin/'
     | '/admin/tasks/$type'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  AdminRoute: typeof AdminRouteWithChildren
+  AdminRouteRoute: typeof AdminRouteRouteWithChildren
   DashboardRoute: typeof DashboardRoute
   HelpRoute: typeof HelpRoute
   ProfileRoute: typeof ProfileRoute
@@ -251,7 +261,7 @@ declare module '@tanstack/react-router' {
       id: '/admin'
       path: '/admin'
       fullPath: '/admin'
-      preLoaderRoute: typeof AdminRouteImport
+      preLoaderRoute: typeof AdminRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -260,6 +270,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/admin/': {
+      id: '/admin/'
+      path: '/'
+      fullPath: '/admin/'
+      preLoaderRoute: typeof AdminIndexRouteImport
+      parentRoute: typeof AdminRouteRoute
     }
     '/withdraw/$id': {
       id: '/withdraw/$id'
@@ -280,29 +297,33 @@ declare module '@tanstack/react-router' {
       path: '/referrals'
       fullPath: '/admin/referrals'
       preLoaderRoute: typeof AdminReferralsRouteImport
-      parentRoute: typeof AdminRoute
+      parentRoute: typeof AdminRouteRoute
     }
     '/admin/tasks/$type': {
       id: '/admin/tasks/$type'
       path: '/tasks/$type'
       fullPath: '/admin/tasks/$type'
       preLoaderRoute: typeof AdminTasksTypeRouteImport
-      parentRoute: typeof AdminRoute
+      parentRoute: typeof AdminRouteRoute
     }
   }
 }
 
-interface AdminRouteChildren {
+interface AdminRouteRouteChildren {
   AdminReferralsRoute: typeof AdminReferralsRoute
+  AdminIndexRoute: typeof AdminIndexRoute
   AdminTasksTypeRoute: typeof AdminTasksTypeRoute
 }
 
-const AdminRouteChildren: AdminRouteChildren = {
+const AdminRouteRouteChildren: AdminRouteRouteChildren = {
   AdminReferralsRoute: AdminReferralsRoute,
+  AdminIndexRoute: AdminIndexRoute,
   AdminTasksTypeRoute: AdminTasksTypeRoute,
 }
 
-const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
+const AdminRouteRouteWithChildren = AdminRouteRoute._addFileChildren(
+  AdminRouteRouteChildren,
+)
 
 interface WithdrawRouteChildren {
   WithdrawIdRoute: typeof WithdrawIdRoute
@@ -318,7 +339,7 @@ const WithdrawRouteWithChildren = WithdrawRoute._addFileChildren(
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  AdminRoute: AdminRouteWithChildren,
+  AdminRouteRoute: AdminRouteRouteWithChildren,
   DashboardRoute: DashboardRoute,
   HelpRoute: HelpRoute,
   ProfileRoute: ProfileRoute,
@@ -331,13 +352,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
