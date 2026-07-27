@@ -5,15 +5,20 @@ import {
   Coins,
   Lock,
   Check,
-  Play,
   Gift,
-  TrendingUp,
   Info,
+  Smartphone,
+  Loader2,
+  KeyRound,
+  CheckCircle2,
+  Send,
+  WifiOff,
 } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { SafetyNotice } from "@/components/SafetyNotice";
 import { tasks } from "@/lib/tasks";
 import heroAsset from "@/assets/treinamento-ia-hero.png.asset.json";
+import { useWhatsapp } from "@/hooks/use-whatsapp";
 
 type Meta = {
   envios: number;
@@ -43,12 +48,27 @@ const metasSemanais: Meta[] = [
 const META_DIARIA_MAX = 2000;
 const META_SEMANAL_MAX = 3000;
 
+// Formata número BR: 11 dígitos → (XX) XXXXX-XXXX
+function formatPhone(raw: string) {
+  const d = raw.replace(/\D/g, "").slice(0, 11);
+  if (d.length <= 2) return d;
+  if (d.length <= 7) return `(${d.slice(0, 2)}) ${d.slice(2)}`;
+  return `(${d.slice(0, 2)}) ${d.slice(2, 7)}-${d.slice(7)}`;
+}
+
 export function TreinamentoIA() {
-  const [enviosDia] = useState(200);
-  const [enviosSemana] = useState(1200);
+  const { phase, error, openPhoneInput, cancelPhoneInput, connect, disconnect } =
+    useWhatsapp();
+
+  const [phone, setPhone] = useState("");
   const [resgatados, setResgatados] = useState<Record<number, boolean>>({
     500: true,
   });
+
+  // Contadores reais quando enviando, simulados caso contrário
+  const enviosDia = phase.kind === "sending" ? phase.sent : 0;
+  const enviosSemana = phase.kind === "sending" ? phase.sent : 0;
+  const ganhoEstimado = (enviosDia * 0.1).toFixed(2).replace(".", ",");
 
   const progressoDia = useMemo(
     () => Math.min(100, (enviosDia / META_DIARIA_MAX) * 100),
@@ -60,6 +80,16 @@ export function TreinamentoIA() {
   );
 
   const outras = tasks.filter((t) => t.slug !== "treinamento-ia");
+
+  function handlePhoneChange(e: React.ChangeEvent<HTMLInputElement>) {
+    setPhone(formatPhone(e.target.value));
+  }
+
+  function handleConnect() {
+    const digits = phone.replace(/\D/g, "");
+    if (digits.length < 10) return;
+    connect("55" + digits);
+  }
 
   return (
     <AppShell>
@@ -113,7 +143,10 @@ export function TreinamentoIA() {
           </div>
           <p className="mt-4 text-sm text-white/90">
             Cada mensagem enviada e validada gera{" "}
-            <span className="font-semibold text-brand-gradient">R$ 0,10</span>.
+            <span className="font-semibold" style={{ color: "var(--brand-blue)" }}>
+              R$ 0,10
+            </span>
+            .
           </p>
           <div className="mt-3 grid grid-cols-2 gap-3">
             <div className="rounded-2xl bg-white/5 p-3 text-center">
@@ -128,7 +161,243 @@ export function TreinamentoIA() {
         </div>
       </section>
 
-      {/* Progresso Diário */}
+      {/* ═══════════════════════════════════════════════
+          BLOCO DO WHATSAPP — fluxo de conexão e envio
+          ═══════════════════════════════════════════════ */}
+
+      {/* ── IDLE: botão inicial ── */}
+      {phase.kind === "idle" && (
+        <section className="mt-8 animate-fade-up">
+          <button
+            onClick={openPhoneInput}
+            className="group relative flex w-full items-center justify-center gap-2 overflow-hidden rounded-2xl bg-brand-gradient px-6 py-4 text-base font-semibold text-white shadow-glow transition-all duration-200 hover:scale-[1.01] hover:shadow-[0_0_30px_rgba(30,94,255,0.45)] active:scale-[0.97]"
+          >
+            <span className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/20 to-transparent transition-transform duration-700 group-hover:translate-x-full" />
+            <Smartphone size={18} className="relative" /> Iniciar Treinamento
+          </button>
+        </section>
+      )}
+
+      {/* ── PHONE-INPUT: digitar número ── */}
+      {phase.kind === "phone-input" && (
+        <section className="mt-8 animate-fade-up">
+          <div className="glass rounded-3xl p-5">
+            <div className="flex items-center gap-3">
+              <span className="grid h-11 w-11 place-items-center rounded-2xl bg-brand-gradient text-white shadow-glow">
+                <Smartphone size={20} />
+              </span>
+              <div>
+                <p className="text-[11px] uppercase tracking-widest text-muted-foreground">
+                  Passo 1
+                </p>
+                <h3 className="text-base font-bold">Conectar WhatsApp</h3>
+              </div>
+            </div>
+
+            <p className="mt-4 text-sm text-white/80">
+              Digite seu número com DDD. Vamos enviar um código de pareamento para
+              o seu WhatsApp.
+            </p>
+
+            <div className="mt-4 flex items-center gap-2 rounded-2xl bg-white/5 px-4 py-3">
+              <span className="text-sm font-medium text-white/50">🇧🇷 +55</span>
+              <input
+                type="tel"
+                placeholder="(00) 00000-0000"
+                value={phone}
+                onChange={handlePhoneChange}
+                className="flex-1 bg-transparent text-sm text-white placeholder:text-white/30 focus:outline-none"
+                autoFocus
+              />
+            </div>
+
+            {error && (
+              <p className="mt-3 rounded-xl bg-destructive/20 px-3 py-2 text-xs text-destructive-foreground">
+                {error}
+              </p>
+            )}
+
+            <div className="mt-4 flex gap-2">
+              <button
+                onClick={cancelPhoneInput}
+                className="flex h-12 flex-1 items-center justify-center rounded-2xl bg-white/5 text-sm font-semibold text-white/70 transition-transform active:scale-[0.97]"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={handleConnect}
+                disabled={phone.replace(/\D/g, "").length < 10}
+                className="flex h-12 flex-[2] items-center justify-center gap-2 rounded-2xl bg-brand-gradient text-sm font-semibold text-white shadow-glow transition-all active:scale-[0.97] disabled:opacity-50"
+              >
+                <KeyRound size={15} /> Gerar Código
+              </button>
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* ── CONNECTING: aguardando resposta da API ── */}
+      {phase.kind === "connecting" && (
+        <section className="mt-8 animate-fade-up">
+          <div className="glass rounded-3xl p-6 text-center">
+            <Loader2 size={32} className="mx-auto animate-spin text-white/60" />
+            <p className="mt-4 text-sm font-medium text-white/80">
+              Conectando ao WhatsApp...
+            </p>
+            <p className="mt-1 text-xs text-muted-foreground">
+              Gerando código de pareamento para {phase.phone}
+            </p>
+          </div>
+        </section>
+      )}
+
+      {/* ── PAIRING: exibir código ── */}
+      {phase.kind === "pairing" && (
+        <section className="mt-8 animate-fade-up">
+          <div className="glass rounded-3xl p-5">
+            <div className="flex items-center gap-3">
+              <span className="grid h-11 w-11 place-items-center rounded-2xl bg-brand-gradient text-white shadow-glow">
+                <KeyRound size={20} />
+              </span>
+              <div>
+                <p className="text-[11px] uppercase tracking-widest text-muted-foreground">
+                  Passo 2
+                </p>
+                <h3 className="text-base font-bold">Código de Pareamento</h3>
+              </div>
+            </div>
+
+            {/* Código em destaque */}
+            <div className="mt-5 flex justify-center">
+              <span className="rounded-2xl bg-white/10 px-6 py-4 font-mono text-3xl font-extrabold tracking-[0.3em] text-white shadow-glow">
+                {phase.code}
+              </span>
+            </div>
+
+            <ol className="mt-5 space-y-2 text-sm text-white/80">
+              <li className="flex gap-2">
+                <span className="shrink-0 font-bold text-white">1.</span>
+                Abra o <strong>WhatsApp</strong> no seu celular.
+              </li>
+              <li className="flex gap-2">
+                <span className="shrink-0 font-bold text-white">2.</span>
+                Toque em <strong>Aparelhos Conectados</strong>.
+              </li>
+              <li className="flex gap-2">
+                <span className="shrink-0 font-bold text-white">3.</span>
+                Selecione <strong>Conectar com número de telefone</strong>.
+              </li>
+              <li className="flex gap-2">
+                <span className="shrink-0 font-bold text-white">4.</span>
+                Digite o código acima.
+              </li>
+            </ol>
+
+            <div className="mt-5 flex items-center justify-center gap-2 text-xs text-muted-foreground">
+              <Loader2 size={13} className="animate-spin" />
+              Aguardando confirmação no WhatsApp…
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* ── CONNECTED: carregando contatos (transição rápida) ── */}
+      {phase.kind === "connected" && (
+        <section className="mt-8 animate-fade-up">
+          <div className="glass rounded-3xl p-6 text-center">
+            <CheckCircle2 size={32} className="mx-auto text-emerald-400" />
+            <p className="mt-3 text-sm font-semibold text-white">
+              WhatsApp conectado com sucesso!
+            </p>
+            <p className="mt-1 text-xs text-muted-foreground">
+              Carregando contatos do banco de dados…
+            </p>
+            <Loader2 size={18} className="mx-auto mt-3 animate-spin text-white/40" />
+          </div>
+        </section>
+      )}
+
+      {/* ── SENDING: painel de progresso ── */}
+      {phase.kind === "sending" && (
+        <section className="mt-8 animate-fade-up">
+          <div className="glass rounded-3xl p-5">
+            <div className="flex items-center gap-3">
+              <span className="grid h-11 w-11 place-items-center rounded-2xl bg-emerald-500 text-white shadow-glow">
+                <Send size={18} />
+              </span>
+              <div>
+                <p className="text-[11px] uppercase tracking-widest text-emerald-400">
+                  Em execução
+                </p>
+                <h3 className="text-base font-bold">Enviando Mensagens</h3>
+              </div>
+            </div>
+
+            {/* Contadores */}
+            <div className="mt-5 grid grid-cols-2 gap-3">
+              <div className="rounded-2xl bg-white/5 p-4 text-center">
+                <p className="text-xs text-muted-foreground">Enviados</p>
+                <p className="mt-1 text-2xl font-extrabold text-white">
+                  {phase.sent.toLocaleString("pt-BR")}
+                </p>
+                <p className="text-[10px] text-muted-foreground">
+                  de {phase.total.toLocaleString("pt-BR")}
+                </p>
+              </div>
+              <div className="rounded-2xl bg-white/5 p-4 text-center">
+                <p className="text-xs text-muted-foreground">Ganhos estimados</p>
+                <p className="mt-1 text-2xl font-extrabold text-white">
+                  R$ {ganhoEstimado}
+                </p>
+                <p className="text-[10px] text-muted-foreground">R$ 0,10 / envio</p>
+              </div>
+            </div>
+
+            {/* Barra de progresso geral */}
+            <div className="mt-4">
+              <div className="mb-1 flex justify-between text-[11px] text-muted-foreground">
+                <span>Progresso</span>
+                <span>
+                  {phase.total > 0
+                    ? Math.round((phase.sent / phase.total) * 100)
+                    : 0}
+                  %
+                </span>
+              </div>
+              <div className="h-2 overflow-hidden rounded-full bg-white/10">
+                <div
+                  className="h-full rounded-full bg-emerald-500 transition-[width] duration-700 ease-out"
+                  style={{
+                    width: `${phase.total > 0 ? (phase.sent / phase.total) * 100 : 0}%`,
+                  }}
+                />
+              </div>
+            </div>
+
+            <p className="mt-3 text-center text-[11px] text-muted-foreground">
+              Intervalo antiban ativo — 30 a 45 segundos entre mensagens
+            </p>
+
+            <button
+              onClick={disconnect}
+              className="mt-4 flex w-full items-center justify-center gap-2 rounded-2xl bg-white/5 py-3 text-sm font-semibold text-white/70 transition-transform active:scale-[0.97]"
+            >
+              <WifiOff size={15} /> Desconectar
+            </button>
+          </div>
+        </section>
+      )}
+
+      {/* Erro genérico fora dos painéis */}
+      {error && phase.kind === "idle" && (
+        <p className="mt-3 rounded-xl bg-destructive/20 px-4 py-2 text-xs text-destructive-foreground">
+          {error}
+        </p>
+      )}
+
+      {/* ═══════════════════════════════════════════
+          PROGRESSO DIÁRIO (mostra envios reais quando enviando)
+          ═══════════════════════════════════════════ */}
       <section className="mt-6 animate-fade-up">
         <div className="mb-3 flex items-center justify-between">
           <h3 className="text-sm font-semibold uppercase tracking-widest text-muted-foreground">
@@ -233,19 +502,9 @@ export function TreinamentoIA() {
               • O progresso semanal acumula automaticamente durante toda a
               semana.
             </li>
-            <li>
-              • Resgate seus bônus antes do encerramento do prazo.
-            </li>
+            <li>• Resgate seus bônus antes do encerramento do prazo.</li>
           </ul>
         </div>
-      </section>
-
-      {/* CTA */}
-      <section className="mt-8 animate-fade-up">
-        <button className="group relative flex w-full items-center justify-center gap-2 overflow-hidden rounded-2xl bg-brand-gradient px-6 py-4 text-base font-semibold text-white shadow-glow transition-all duration-200 hover:scale-[1.01] hover:shadow-[0_0_30px_rgba(30,94,255,0.45)] active:scale-[0.97]">
-          <span className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/20 to-transparent transition-transform duration-700 group-hover:translate-x-full" />
-          <Play size={18} className="relative" /> Iniciar Treinamento
-        </button>
       </section>
 
       <SafetyNotice />
@@ -270,7 +529,9 @@ export function TreinamentoIA() {
                 <t.icon size={18} className="text-white" />
               </div>
               <p className="mt-3 text-sm font-semibold">{t.title}</p>
-              <p className="mt-1 text-[11px] text-muted-foreground line-clamp-2">{t.short}</p>
+              <p className="mt-1 text-[11px] text-muted-foreground line-clamp-2">
+                {t.short}
+              </p>
             </Link>
           ))}
         </div>
@@ -310,7 +571,10 @@ function MetaCard({
       <div className="min-w-0">
         <p className="text-xs text-muted-foreground">{envios} envios</p>
         <p className="truncate text-sm font-medium text-white/90">
-          Ganhos: <span className="text-base font-extrabold text-white">R$ {ganhos},00</span>
+          Ganhos:{" "}
+          <span className="text-base font-extrabold text-white">
+            R$ {ganhos},00
+          </span>
         </p>
       </div>
       {resgatado ? (

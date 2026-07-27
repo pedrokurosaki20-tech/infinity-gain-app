@@ -12,4 +12,21 @@ export default defineConfig({
     // nitro/vite builds from this
     server: { entry: "server" },
   },
+  vite: {
+    server: {
+      host: "0.0.0.0",
+      port: 5000,
+      strictPort: true,
+      allowedHosts: true,
+      // Proxy /api/wa/* → WhatsApp Express server (localhost:3000)
+      // The rewrite strips /api/wa prefix so /api/wa/connect → /api/connect
+      proxy: {
+        "/api/wa": {
+          target: "http://localhost:3000",
+          changeOrigin: true,
+          rewrite: (path) => path.replace(/^\/api\/wa/, "/api"),
+        },
+      },
+    },
+  },
 });
