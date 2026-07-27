@@ -11,32 +11,32 @@ export type WaPhase =
   | { kind: "sending"; total: number; sent: number; startedAt: number };
 
 async function waFetch(path: string, opts?: RequestInit) {
-  let res: Response;
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 45000); // 45s timeout
+
   try {
-    res = await fetch(`/api/wa${path}`, {
+    const res = await fetch(`/api${path}`, {
       headers: { "Content-Type": "application/json" },
+      signal: controller.signal,
       ...opts,
     });
+
     const contentType = res.headers.get("content-type") ?? "";
     if (!contentType.includes("application/json")) {
-      // Tenta rota /api de fallback
-      res = await fetch(`/api${path}`, {
-        headers: { "Content-Type": "application/json" },
-        ...opts,
-      });
+      throw new Error(`Erro no servidor (${res.status}). Tente novamente.`);
     }
-  } catch {
-    throw new Error("Falha ao conectar com o servidor. Tente novamente.");
-  }
 
-  const contentType = res.headers.get("content-type") ?? "";
-  if (!contentType.includes("application/json")) {
-    throw new Error(`Resposta do servidor indisponível (${res.status}).`);
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error ?? "Erro desconhecido");
+    return data;
+  } catch (err: any) {
+    if (err.name === 'AbortError') {
+      throw new Error("O servidor demorou muito para responder. Tente novamente em instantes.");
+    }
+    throw err;
+  } finally {
+    clearTimeout(timeoutId);
   }
-
-  const data = await res.json();
-  if (!res.ok) throw new Error(data.error ?? "Erro desconhecido");
-  return data;
 }
 
 export function useWhatsapp() {

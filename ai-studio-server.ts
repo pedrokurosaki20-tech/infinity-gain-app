@@ -130,21 +130,21 @@ async function handleConnectService(phone: string) {
   }
 
   connectionStatus = "connecting";
-  await connectToWhatsApp();
+  
+  // Inicia conexão
+  const socket = await connectToWhatsApp();
 
-  // Espera o socket estar pronto com mais tolerância
+  // Espera ativa com timeout curto mas agressivo
   let attempts = 0;
-  while (!sock?.ws || sock.ws.readyState !== 1) {
-    if (attempts > 30) { // Aumentado para 30 segundos de espera
-       console.log("Estado atual do socket:", sock?.ws?.readyState);
-       throw new Error("O servidor do WhatsApp está demorando a responder à sua rede. Por favor, tente novamente em alguns instantes.");
-    }
-    await delay(1000);
+  while (!socket.ws || socket.ws.readyState !== 1) {
+    if (attempts > 15) throw new Error("Falha na rede. Tente novamente.");
+    await new Promise(r => setTimeout(r, 500));
     attempts++;
   }
 
   try {
-    const code = await sock.requestPairingCode(cleanPhone);
+    // Solicita o código IMEDIATAMENTE após o socket abrir
+    const code = await socket.requestPairingCode(cleanPhone);
     if (!code) throw new Error("WhatsApp não retornou código");
     
     pairingCode = code;
