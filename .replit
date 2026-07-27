@@ -5,3 +5,37 @@ channel = "stable-25_05"
 
 [agent]
 expertMode = true
+
+[userenv]
+
+[userenv.shared]
+WHATSAPP_SUPABASE_KEY = "sb_publishable_si0MtfRcPInr03o9Dl8otA_omdrPGWu"
+WHATSAPP_SUPABASE_URL = "https://tksuvtitmlbrpauwsxof.supabase.co/rest/v1"
+
+[workflows]
+runButton = "Project"
+
+[[workflows.workflow]]
+name = "Project"
+mode = "parallel"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "WhatsApp Server"
+
+[[workflows.workflow]]
+name = "WhatsApp Server"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "bun whatsapp-server.ts"
+waitForPort = 3000
+
+[workflows.workflow.metadata]
+outputType = "console"
+
+[[ports]]
+localPort = 3000
+externalPort = 80
