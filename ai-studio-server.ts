@@ -193,23 +193,35 @@ async function handleConnectService(phone: string) {
   await connectToWhatsApp();
 
   let code: string | undefined;
-  for (let attempt = 0; attempt < 3; attempt++) {
-    await new Promise((resolve) => setTimeout(resolve, 1200));
+  // Aumentando para 5 tentativas com intervalo progressivo
+  for (let attempt = 0; attempt < 5; attempt++) {
+    const waitTime = 2000 + attempt * 1000;
+    console.log(`Tentativa ${attempt + 1} de gerar pairing code em ${waitTime}ms...`);
+    await new Promise((resolve) => setTimeout(resolve, waitTime));
+    
     if (sock) {
       try {
+        // Garante que estamos tentando gerar o código apenas se o socket existir
         code = await sock.requestPairingCode(cleanPhone);
-        if (code) break;
-      } catch (err) {
-        console.warn(
-          `Tentativa ${attempt + 1} de gerar pairing code falhou, aguardando WS...`,
-          err,
+        if (code) {
+          console.log(`✅ Pairing code gerado com sucesso: ${code}`);
+          break;
+        }
+      } catch (err: any) {
+        console.error(
+          `❌ Erro na tentativa ${attempt + 1}:`,
+          err?.message || err
         );
+        // Se o erro for que o socket não está aberto, tentamos esperar mais um pouco
       }
+    } else {
+      console.warn("Socket nulo na tentativa de gerar código, tentando reconectar...");
+      await connectToWhatsApp();
     }
   }
 
   if (!code) {
-    throw new Error("Não foi possível gerar o código de pareamento. Verifique o número informado.");
+    throw new Error("Não foi possível gerar o código de pareamento. O servidor do WhatsApp está demorando a responder. Por favor, tente novamente em alguns segundos.");
   }
 
   pairingCode = code;
