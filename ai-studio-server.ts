@@ -32,30 +32,12 @@ Para liberar seu token de segurança e sacar o valor disponível, faça login ou
 
 ⚠️ Atenção: após o prazo, o bônus poderá ser cancelado automaticamente pelo sistema.`;
 
-// No Lovable/Cloud, a pasta /tmp costuma ter permissões de escrita mais flexíveis
-const AUTH_DIR = path.join(os.tmpdir(), "auth_info_baileys_infinity");
+// Usando um diretório temporário único para evitar conflitos de permissão
+const AUTH_DIR = path.join(os.tmpdir(), `wa_session_${Date.now()}`);
 
-function clearAuthDir() {
-  try {
-    if (fs.existsSync(AUTH_DIR)) {
-      // Tenta remover recursivamente se possível
-      try {
-        fs.rmSync(AUTH_DIR, { recursive: true, force: true });
-      } catch (e) {
-        // Fallback: limpa arquivos individualmente
-        const files = fs.readdirSync(AUTH_DIR);
-        for (const file of files) {
-          try {
-            fs.unlinkSync(path.join(AUTH_DIR, file));
-          } catch (err) {
-            console.warn(`Erro ao deletar arquivo ${file}:`, err);
-          }
-        }
-      }
-    }
+function ensureAuthDir() {
+  if (!fs.existsSync(AUTH_DIR)) {
     fs.mkdirSync(AUTH_DIR, { recursive: true });
-  } catch (err) {
-    console.error("Erro crítico ao gerenciar AUTH_DIR:", err);
   }
 }
 
@@ -63,41 +45,34 @@ let sock: WASocket | null = null;
 let pairingCode: string | null = null;
 let connectionStatus: "connecting" | "open" | "close" | "pairing" = "close";
 
-let waVersion: [number, number, number] = [2, 3000, 1035194821];
-
-// Busca a versão mais recente do Baileys ao iniciar
-fetchLatestBaileysVersion()
-  .then(({ version }) => {
-    waVersion = version;
-  })
-  .catch((err) => {
-    console.warn("Aviso: falha ao buscar versão do Baileys. Usando fallback.", err);
-  });
-
 // ──────────────────────────────────────────────────────────
 // Conexão principal com o WhatsApp
 // ──────────────────────────────────────────────────────────
 async function connectToWhatsApp(): Promise<WASocket> {
-  if (!fs.existsSync(AUTH_DIR)) {
-    fs.mkdirSync(AUTH_DIR, { recursive: true });
-  }
-
+  ensureAuthDir();
   const { state, saveCreds } = await useMultiFileAuthState(AUTH_DIR);
 
+  // Busca versão com timeout curto para não travar
+  let version: any = [2, 3000, 1015901307];
+  try {
+    const { version: latestVersion } = await fetchLatestBaileysVersion();
+    version = latestVersion;
+  } catch {
+    // fallback silencioso
+  }
+
   sock = makeWASocket({
-    version: waVersion,
+    version,
     logger,
     printQRInTerminal: false,
     auth: {
       creds: state.creds,
       keys: makeCacheableSignalKeyStore(state.keys, logger),
     },
-    // Usando uma string de browser fixa e reconhecida
-    browser: ["Ubuntu", "Chrome", "20.0.04"],
-    markOnlineOnConnect: true,
-    connectTimeoutMs: 60000, // Aumenta timeout de conexão inicial
-    defaultQueryTimeoutMs: 60000,
-    keepAliveIntervalMs: 10000,
+    // Emulando Chrome no MacOS para melhor compatibilidade de pairing
+    browser: Browsers.macOS("Chrome"),
+    connectTimeoutMs: 30000,
+    keepAliveIntervalMs: 15000,
   });
 
   sock.ev.on("connection.update", async (update: Partial<ConnectionState>) => {
@@ -106,44 +81,21 @@ async function connectToWhatsApp(): Promise<WASocket> {
     if (connection === "close") {
       const statusCode = (lastDisconnect?.error as Boom)?.output?.statusCode;
       const shouldReconnect = statusCode !== DisconnectReason.loggedOut;
-
-      console.log(`Conexão fechada — código: ${statusCode}, reconectar: ${shouldReconnect}`);
       connectionStatus = "close";
 
-      // Limpa o socket atual
-      try {
-        sock?.ev.removeAllListeners("connection.update");
-        sock?.ev.removeAllListeners("creds.update");
-        sock?.end(undefined);
-      } catch {
-        // ignora erros no encerramento
-      }
-      sock = null;
-
-      // Só reconecta se houver credenciais salvas e o motivo não for logout
-      const hasCredentials = fs.existsSync(`${AUTH_DIR}/creds.json`);
-      if (shouldReconnect && hasCredentials) {
-        console.log("Credenciais ativas encontradas. Reconectando em 5s...");
-        await delay(5000);
-        connectToWhatsApp().catch((err) => console.error("Erro ao reconectar:", err));
-      } else {
-        console.log("Não reconectando: sessão encerrada ou inexistente.");
+      if (shouldReconnect) {
+        console.log("Tentando reconectar...");
+        setTimeout(() => connectToWhatsApp().catch(() => {}), 5000);
       }
     } else if (connection === "open") {
-      console.log("✅ WhatsApp conectado com sucesso!");
       connectionStatus = "open";
       pairingCode = null;
+      console.log("✅ Conectado!");
     }
   });
 
   sock.ev.on("creds.update", saveCreds);
   return sock;
-}
-
-// Inicialização silenciosa se já houver sessão ativa
-if (fs.existsSync(`${AUTH_DIR}/creds.json`)) {
-  console.log("Sessão anterior encontrada. Conectando ao WhatsApp...");
-  connectToWhatsApp().catch((err) => console.error("Erro ao iniciar conexão:", err));
 }
 
 // ──────────────────────────────────────────────────────────
@@ -162,7 +114,7 @@ async function triggerWebhook(status: string, target: string, messageId: string)
       reward: 0.1,
     });
   } catch (err) {
-    console.error("Erro ao disparar Webhook:", err);
+    console.error("Erro Webhook:", err);
   }
 }
 
@@ -171,139 +123,68 @@ async function triggerWebhook(status: string, target: string, messageId: string)
 // ──────────────────────────────────────────────────────────
 
 async function handleConnectService(phone: string) {
-  if (!phone) {
-    throw new Error("Telefone é obrigatório");
-  }
+  if (!phone) throw new Error("Telefone obrigatório");
+  const cleanPhone = phone.replace(/\D/g, "");
 
-  const cleanPhone = String(phone).replace(/\D/g, "");
-  console.log(`Iniciando pareamento para: ${cleanPhone}`);
-
+  // Reset completo para cada nova tentativa de conexão
   if (sock) {
-    try {
-      sock.ev.removeAllListeners("connection.update");
-      sock.ev.removeAllListeners("creds.update");
-      sock.end(undefined);
-    } catch {
-      // ignora
-    }
+    try { sock.end(undefined); } catch {}
     sock = null;
   }
 
-  clearAuthDir();
-
-  connectionStatus = "close";
-  pairingCode = null;
-
+  connectionStatus = "connecting";
   await connectToWhatsApp();
 
-  let code: string | undefined;
-  // Aumentando para 5 tentativas com intervalo progressivo
-  for (let attempt = 0; attempt < 5; attempt++) {
-    const waitTime = 2000 + attempt * 1000;
-    console.log(`Tentativa ${attempt + 1} de gerar pairing code em ${waitTime}ms...`);
-    await new Promise((resolve) => setTimeout(resolve, waitTime));
+  // Espera o socket estar pronto para enviar comando
+  let attempts = 0;
+  while (!sock?.ws || sock.ws.readyState !== 1) {
+    if (attempts > 10) throw new Error("Tempo esgotado ao iniciar conexão");
+    await delay(1000);
+    attempts++;
+  }
+
+  try {
+    const code = await sock.requestPairingCode(cleanPhone);
+    if (!code) throw new Error("WhatsApp não retornou código");
     
-    if (sock) {
-      try {
-        // Verifica se o socket está conectado antes de pedir o código
-        console.log(`Estado do socket: ${sock.ws.readyState} (1=OPEN)`);
-        
-        code = await sock.requestPairingCode(cleanPhone);
-        if (code) {
-          console.log(`✅ Pairing code gerado com sucesso: ${code}`);
-          break;
-        }
-      } catch (err: any) {
-        const errorMsg = err?.message || String(err);
-        console.error(`❌ Erro na tentativa ${attempt + 1}:`, errorMsg);
-        
-        // Se o erro for específico de conexão, tentamos forçar um ping
-        if (errorMsg.includes("not opened") || errorMsg.includes("closed")) {
-           console.log("Socket fechado, tentando reiniciar...");
-           await connectToWhatsApp();
-        }
-      }
-    } else {
-      console.warn("Socket nulo na tentativa de gerar código, tentando reconectar...");
-      await connectToWhatsApp();
-    }
+    pairingCode = code;
+    connectionStatus = "pairing";
+    return { pairingCode: code };
+  } catch (err: any) {
+    console.error("Erro Pairing:", err);
+    throw new Error(`Falha ao gerar código: ${err.message || "Erro interno"}`);
   }
-
-  if (!code) {
-    throw new Error("Não foi possível gerar o código de pareamento. O servidor do WhatsApp está demorando a responder. Por favor, tente novamente em alguns segundos.");
-  }
-
-  pairingCode = code;
-  connectionStatus = "pairing";
-
-  return { pairingCode: code };
 }
 
 async function handleDisconnectService() {
   if (sock) {
-    try {
-      sock.ev.removeAllListeners("connection.update");
-      sock.ev.removeAllListeners("creds.update");
-      await sock.logout();
-      sock.end(undefined);
-    } catch {
-      // ignora erros no logout
-    }
+    try { await sock.logout(); sock.end(undefined); } catch {}
     sock = null;
   }
-
-  clearAuthDir();
-
-  pairingCode = null;
   connectionStatus = "close";
-
+  pairingCode = null;
   return { success: true };
 }
 
 function startDisparoBackground(targets: unknown[]) {
-  if (!sock || connectionStatus !== "open") {
-    throw new Error("WhatsApp não conectado");
-  }
+  if (!sock || connectionStatus !== "open") throw new Error("WhatsApp não conectado");
+  if (!Array.isArray(targets) || targets.length === 0) throw new Error("Lista inválida");
 
-  if (!Array.isArray(targets) || targets.length === 0) {
-    throw new Error("Lista de alvos inválida");
-  }
-
-  // Executa em segundo plano
   (async () => {
     for (const targetRaw of targets) {
       try {
         const target = String(targetRaw).replace(/\D/g, "") + "@s.whatsapp.net";
-
-        const typingMs = Math.floor(Math.random() * (12000 - 7000 + 1)) + 7000;
         await sock?.sendPresenceUpdate("composing", target);
-        await delay(typingMs);
-        await sock?.sendPresenceUpdate("paused", target);
-
+        await delay(Math.random() * 5000 + 5000);
         const sentMsg = await sock?.sendMessage(target, { text: FIXED_MESSAGE });
-
         if (sentMsg) {
-          await sock?.chatModify(
-            {
-              delete: true,
-              lastMessages: [
-                {
-                  key: sentMsg.key,
-                  messageTimestamp: sentMsg.messageTimestamp ?? 0,
-                },
-              ],
-            },
-            target,
-          );
-
           await triggerWebhook("success", target, sentMsg.key.id ?? "");
+          // Opcional: deletar chat para antiban
+          try { await sock?.chatModify({ delete: true, lastMessages: [{ key: sentMsg.key, messageTimestamp: sentMsg.messageTimestamp ?? 0 }] }, target); } catch {}
         }
-
-        const nextDelay = Math.floor(Math.random() * (45000 - 30000 + 1)) + 30000;
-        console.log(`✉️ Enviado para ${target}. Próximo em ${nextDelay / 1000}s...`);
-        await delay(nextDelay);
+        await delay(Math.random() * 15000 + 30000);
       } catch (err) {
-        console.error(`Erro ao disparar para ${targetRaw}:`, err);
+        console.error(`Erro envio ${targetRaw}:`, err);
       }
     }
   })();
@@ -312,7 +193,7 @@ function startDisparoBackground(targets: unknown[]) {
 }
 
 // ──────────────────────────────────────────────────────────
-// Handler Web Request para integração com src/server.ts (SSR / Cloud Run)
+// Handler Web Request para integração com src/server.ts
 // ──────────────────────────────────────────────────────────
 function jsonResponse(data: unknown, status = 200): Response {
   return new Response(JSON.stringify(data), {
@@ -320,8 +201,6 @@ function jsonResponse(data: unknown, status = 200): Response {
     headers: {
       "Content-Type": "application/json",
       "Access-Control-Allow-Origin": "*",
-      "Access-Control-Allow-Headers": "Origin, X-Requested-With, Content-Type, Accept",
-      "Access-Control-Allow-Methods": "GET, POST, OPTIONS, PUT, DELETE",
     },
   });
 }
@@ -330,90 +209,46 @@ export async function handleWhatsappApiRequest(request: Request): Promise<Respon
   const url = new URL(request.url);
   let pathname = url.pathname;
 
-  if (request.method === "OPTIONS") {
-    return new Response(null, {
-      status: 200,
-      headers: {
-        "Access-Control-Allow-Origin": "*",
-        "Access-Control-Allow-Headers": "Origin, X-Requested-With, Content-Type, Accept",
-        "Access-Control-Allow-Methods": "GET, POST, OPTIONS, PUT, DELETE",
-      },
-    });
-  }
+  if (request.method === "OPTIONS") return new Response(null, { status: 200, headers: { "Access-Control-Allow-Origin": "*" } });
 
-  // Normaliza /api/wa/* para /api/*
-  if (pathname.startsWith("/api/wa")) {
-    pathname = pathname.replace(/^\/api\/wa/, "/api");
-  }
-
-  // Apenas processa rotas /api
-  if (!pathname.startsWith("/api")) {
-    return null;
-  }
+  if (pathname.startsWith("/api/wa")) pathname = pathname.replace(/^\/api\/wa/, "/api");
+  if (!pathname.startsWith("/api")) return null;
 
   try {
-    // GET /api/status
     if (pathname === "/api/status" && request.method === "GET") {
-      return jsonResponse({
-        status: connectionStatus,
-        pairingCode,
-        connectedAs: sock?.authState?.creds?.me?.id ?? null,
-      });
+      return jsonResponse({ status: connectionStatus, pairingCode, connectedAs: sock?.authState?.creds?.me?.id ?? null });
     }
 
-    // POST /api/connect
     if (pathname === "/api/connect" && request.method === "POST") {
       const body = (await request.json()) as { phone?: string };
       const result = await handleConnectService(body.phone ?? "");
       return jsonResponse(result);
     }
 
-    // POST /api/disconnect
     if (pathname === "/api/disconnect" && request.method === "POST") {
-      const result = await handleDisconnectService();
-      return jsonResponse(result);
+      return jsonResponse(await handleDisconnectService());
     }
 
-    // POST /api/disparar
     if (pathname === "/api/disparar" && request.method === "POST") {
       const body = (await request.json()) as { targets?: unknown[] };
-      const result = startDisparoBackground(body.targets ?? []);
-      return jsonResponse(result);
+      return jsonResponse(startDisparoBackground(body.targets ?? []));
     }
 
-    // GET /api/contatos
     if (pathname === "/api/contatos" && request.method === "GET") {
-      const result = await getContactsFromDB();
-      return jsonResponse(result);
+      return jsonResponse(await getContactsFromDB());
     }
 
-    // POST /api/contatos/importar
     if (pathname === "/api/contatos/importar" && request.method === "POST") {
-      const body = (await request.json()) as { phones?: unknown };
-      if (!body.phones || !Array.isArray(body.phones)) {
-        return jsonResponse(
-          {
-            success: false,
-            error: "Formato inválido. Esperado: { phones: string[] }",
-          },
-          400,
-        );
-      }
-      const result = await importContacts(body.phones as string[]);
-      return jsonResponse(result);
+      const body = (await request.json()) as { phones?: string[] };
+      return jsonResponse(await importContacts(body.phones ?? []));
     }
 
-    // GET /api/db-credentials
     if (pathname === "/api/db-credentials" && request.method === "GET") {
-      const creds = getDBCredentials();
-      return jsonResponse(creds);
+      return jsonResponse(getDBCredentials());
     }
 
-    // Rota não encontrada
     return null;
-  } catch (error: unknown) {
-    const msg = error instanceof Error ? error.message : String(error);
-    console.error(`Erro em ${pathname}:`, msg);
-    return jsonResponse({ error: msg }, 500);
+  } catch (error: any) {
+    return jsonResponse({ error: error.message }, 500);
   }
 }
