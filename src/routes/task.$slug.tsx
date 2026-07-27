@@ -105,7 +105,6 @@ function TaskDetail() {
         </button>
       </section>
 
-
       <SafetyNotice />
 
       <section className="mt-8">

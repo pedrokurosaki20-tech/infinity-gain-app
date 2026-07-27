@@ -58,9 +58,7 @@ export function BalanceCard() {
       />
       <div className="relative flex items-start justify-between">
         <div className="w-full">
-          <p className="text-xs uppercase tracking-widest text-white/70">
-            Saldo Disponível
-          </p>
+          <p className="text-xs uppercase tracking-widest text-white/70">Saldo Disponível</p>
           <div className="mt-2 flex items-center gap-3">
             <h2 className="text-4xl font-extrabold tracking-tight">
               {loading ? "R$ ••••••" : visible ? formatBRL(balance) : "R$ ••••••"}

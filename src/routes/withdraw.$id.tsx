@@ -1,13 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import {
-  ArrowLeft,
-  CheckCircle2,
-  Clock,
-  Copy,
-  Loader2,
-  ShieldCheck,
-  XCircle,
-} from "lucide-react";
+import { ArrowLeft, CheckCircle2, Clock, Copy, Loader2, ShieldCheck, XCircle } from "lucide-react";
 import { useEffect, useState } from "react";
 import { AppShell } from "@/components/AppShell";
 import { supabase } from "@/integrations/supabase/client";
@@ -46,22 +38,19 @@ const statusMeta: Record<
     label: "Processando",
     className: "bg-[color:var(--brand-blue)]/15 text-[color:var(--brand-blue)]",
     Icon: Clock,
-    description:
-      "Seu saque está sendo processado. O prazo é de até 24 horas úteis.",
+    description: "Seu saque está sendo processado. O prazo é de até 24 horas úteis.",
   },
   completed: {
     label: "Concluído",
     className: "bg-emerald-500/15 text-emerald-400",
     Icon: CheckCircle2,
-    description:
-      "Pagamento enviado com sucesso para a sua chave PIX cadastrada.",
+    description: "Pagamento enviado com sucesso para a sua chave PIX cadastrada.",
   },
   rejected: {
     label: "Rejeitado",
     className: "bg-red-500/15 text-red-400",
     Icon: XCircle,
-    description:
-      "Não foi possível processar este saque. O valor foi devolvido ao seu saldo.",
+    description: "Não foi possível processar este saque. O valor foi devolvido ao seu saldo.",
   },
 };
 
@@ -93,9 +82,7 @@ function WithdrawDetailPage() {
     async function load() {
       const { data, error } = await supabase
         .from("withdrawals")
-        .select(
-          "id, amount, fee, net_amount, pix_key, pix_type, status, created_at, updated_at",
-        )
+        .select("id, amount, fee, net_amount, pix_key, pix_type, status, created_at, updated_at")
         .eq("id", id)
         .maybeSingle()
         .returns<Withdrawal>();
@@ -165,9 +152,7 @@ function WithdrawDetailPage() {
           <span className="w-10" />
         </header>
         <div className="mt-16 text-center">
-          <p className="text-sm text-muted-foreground">
-            Este saque não foi encontrado.
-          </p>
+          <p className="text-sm text-muted-foreground">Este saque não foi encontrado.</p>
           <Link
             to="/wallet"
             className="mt-4 inline-flex rounded-2xl bg-brand-gradient px-5 py-2.5 text-sm font-semibold text-white shadow-glow"
@@ -206,15 +191,11 @@ function WithdrawDetailPage() {
             <span className="ml-1 inline-block h-1.5 w-1.5 animate-pulse rounded-full bg-current" />
           )}
         </div>
-        <p className="mt-4 text-xs uppercase tracking-widest text-white/70">
-          Valor solicitado
-        </p>
+        <p className="mt-4 text-xs uppercase tracking-widest text-white/70">Valor solicitado</p>
         <p className="mt-1 text-4xl font-extrabold tracking-tight">
           {formatBRL(Number(item.amount))}
         </p>
-        <p className="mt-3 text-xs leading-relaxed text-muted-foreground">
-          {meta.description}
-        </p>
+        <p className="mt-3 text-xs leading-relaxed text-muted-foreground">{meta.description}</p>
       </section>
 
       <section className="mt-4 animate-fade-up">
@@ -222,17 +203,9 @@ function WithdrawDetailPage() {
           <h2 className="text-sm font-bold">Resumo</h2>
           <div className="mt-3 space-y-2.5 text-sm">
             <Row label="Valor bruto" value={formatBRL(Number(item.amount))} />
-            <Row
-              label="Taxa (5%)"
-              value={`− ${formatBRL(Number(item.fee))}`}
-              muted
-            />
+            <Row label="Taxa (5%)" value={`− ${formatBRL(Number(item.fee))}`} muted />
             <div className="h-px bg-white/10" />
-            <Row
-              label="Você recebe"
-              value={formatBRL(Number(item.net_amount))}
-              highlight
-            />
+            <Row label="Você recebe" value={formatBRL(Number(item.net_amount))} highlight />
           </div>
         </div>
       </section>
@@ -251,11 +224,7 @@ function WithdrawDetailPage() {
         <div className="glass rounded-3xl p-5">
           <h2 className="text-sm font-bold">Linha do tempo</h2>
           <div className="mt-4 space-y-4">
-            <Timeline
-              done
-              title="Solicitação recebida"
-              time={formatDateTime(item.created_at)}
-            />
+            <Timeline done title="Solicitação recebida" time={formatDateTime(item.created_at)} />
             <Timeline
               done={item.status !== "processing"}
               active={item.status === "processing"}
@@ -293,9 +262,7 @@ function WithdrawDetailPage() {
           </div>
         </button>
         {copied && (
-          <p className="mt-2 text-center text-[11px] text-[color:var(--brand-blue)]">
-            ID copiado
-          </p>
+          <p className="mt-2 text-center text-[11px] text-[color:var(--brand-blue)]">ID copiado</p>
         )}
       </section>
     </AppShell>

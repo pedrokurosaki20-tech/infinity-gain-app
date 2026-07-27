@@ -1,5 +1,13 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { ArrowLeft, ShieldCheck, Clock, CheckCircle2, XCircle, RefreshCw, Search } from "lucide-react";
+import {
+  ArrowLeft,
+  ShieldCheck,
+  Clock,
+  CheckCircle2,
+  XCircle,
+  RefreshCw,
+  Search,
+} from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { AppShell } from "@/components/AppShell";
 import { supabase } from "@/integrations/supabase/client";
@@ -39,7 +47,10 @@ const fmtDate = (iso: string) =>
     minute: "2-digit",
   });
 
-const statusMeta: Record<WithdrawalStatus, { label: string; className: string; Icon: typeof Clock }> = {
+const statusMeta: Record<
+  WithdrawalStatus,
+  { label: string; className: string; Icon: typeof Clock }
+> = {
   processing: {
     label: "Processando",
     className: "bg-[color:var(--brand-blue)]/15 text-[color:var(--brand-blue)]",
@@ -110,11 +121,7 @@ function AdminPage() {
     load();
     const ch = supabase
       .channel("admin-withdrawals")
-      .on(
-        "postgres_changes",
-        { event: "*", schema: "public", table: "withdrawals" },
-        () => load(),
-      )
+      .on("postgres_changes", { event: "*", schema: "public", table: "withdrawals" }, () => load())
       .subscribe();
     return () => {
       supabase.removeChannel(ch);
@@ -123,10 +130,7 @@ function AdminPage() {
 
   async function updateStatus(id: string, status: WithdrawalStatus) {
     setUpdatingId(id);
-    const { error } = await supabase
-      .from("withdrawals")
-      .update({ status })
-      .eq("id", id);
+    const { error } = await supabase.from("withdrawals").update({ status }).eq("id", id);
     if (error) alert("Falha ao atualizar: " + error.message);
     setUpdatingId(null);
   }
@@ -168,7 +172,11 @@ function AdminPage() {
     return (
       <AppShell>
         <header className="flex items-center justify-between">
-          <Link to="/profile" className="glass grid h-10 w-10 place-items-center rounded-full" aria-label="Voltar">
+          <Link
+            to="/profile"
+            className="glass grid h-10 w-10 place-items-center rounded-full"
+            aria-label="Voltar"
+          >
             <ArrowLeft size={18} />
           </Link>
           <h1 className="text-base font-semibold">Painel Admin</h1>
@@ -188,7 +196,11 @@ function AdminPage() {
   return (
     <AppShell>
       <header className="flex items-center justify-between">
-        <Link to="/profile" className="glass grid h-10 w-10 place-items-center rounded-full" aria-label="Voltar">
+        <Link
+          to="/profile"
+          className="glass grid h-10 w-10 place-items-center rounded-full"
+          aria-label="Voltar"
+        >
           <ArrowLeft size={18} />
         </Link>
         <h1 className="text-base font-semibold">Painel Admin</h1>
@@ -202,12 +214,30 @@ function AdminPage() {
       </header>
 
       <nav className="mt-5 flex gap-2 overflow-x-auto pb-1">
-        <span className="shrink-0 rounded-full bg-brand-gradient px-3.5 py-1.5 text-xs font-semibold text-white shadow-glow">Saques</span>
-        <Link to="/admin/tasks/$type" params={{ type: "rcs" }} className="glass shrink-0 rounded-full px-3.5 py-1.5 text-xs font-semibold text-muted-foreground">Tarefas RCS</Link>
-        <Link to="/admin/tasks/$type" params={{ type: "compartilhamento" }} className="glass shrink-0 rounded-full px-3.5 py-1.5 text-xs font-semibold text-muted-foreground">Compartilhamento</Link>
-        <Link to="/admin/referrals" className="glass shrink-0 rounded-full px-3.5 py-1.5 text-xs font-semibold text-muted-foreground">Indicados</Link>
+        <span className="shrink-0 rounded-full bg-brand-gradient px-3.5 py-1.5 text-xs font-semibold text-white shadow-glow">
+          Saques
+        </span>
+        <Link
+          to="/admin/tasks/$type"
+          params={{ type: "rcs" }}
+          className="glass shrink-0 rounded-full px-3.5 py-1.5 text-xs font-semibold text-muted-foreground"
+        >
+          Tarefas RCS
+        </Link>
+        <Link
+          to="/admin/tasks/$type"
+          params={{ type: "compartilhamento" }}
+          className="glass shrink-0 rounded-full px-3.5 py-1.5 text-xs font-semibold text-muted-foreground"
+        >
+          Compartilhamento
+        </Link>
+        <Link
+          to="/admin/referrals"
+          className="glass shrink-0 rounded-full px-3.5 py-1.5 text-xs font-semibold text-muted-foreground"
+        >
+          Indicados
+        </Link>
       </nav>
-
 
       <section className="mt-5 grid grid-cols-2 gap-3">
         <StatBox label="Pendentes" value={String(counts.processing)} tone="blue" />
@@ -261,9 +291,7 @@ function AdminPage() {
               <div key={r.id} className="glass rounded-2xl p-4">
                 <div className="flex items-start justify-between gap-3">
                   <div className="min-w-0">
-                    <p className="truncate text-sm font-semibold">
-                      {r.profile?.name || "Usuário"}
-                    </p>
+                    <p className="truncate text-sm font-semibold">{r.profile?.name || "Usuário"}</p>
                     <p className="text-[11px] text-muted-foreground">
                       {r.profile?.phone || "—"} · {fmtDate(r.created_at)}
                     </p>
@@ -335,7 +363,13 @@ function StatBox({
   tone: "blue" | "pink" | "emerald" | "red";
 }) {
   const color =
-    tone === "blue" ? "#7aa5ff" : tone === "pink" ? "#ff9edb" : tone === "emerald" ? "#4ade80" : "#f87171";
+    tone === "blue"
+      ? "#7aa5ff"
+      : tone === "pink"
+        ? "#ff9edb"
+        : tone === "emerald"
+          ? "#4ade80"
+          : "#f87171";
   return (
     <div className="glass rounded-2xl p-3.5">
       <p className="text-[10px] uppercase tracking-widest text-muted-foreground">{label}</p>

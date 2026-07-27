@@ -83,8 +83,7 @@ export function SistemaEmailTask() {
             aria-hidden
             className="pointer-events-none absolute inset-0"
             style={{
-              background:
-                "linear-gradient(180deg, transparent 60%, rgba(0,0,0,0.55) 100%)",
+              background: "linear-gradient(180deg, transparent 60%, rgba(0,0,0,0.55) 100%)",
             }}
           />
         </div>
@@ -92,13 +91,10 @@ export function SistemaEmailTask() {
 
       {/* Title + subtitle */}
       <section className="mt-6 animate-fade-up">
-        <h2 className="text-2xl font-extrabold tracking-tight text-white">
-          Sistema de E-mail
-        </h2>
+        <h2 className="text-2xl font-extrabold tracking-tight text-white">Sistema de E-mail</h2>
         <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-          Ganhe R$0,50 por cada conta Gmail aprovada. Complete tarefas simples e
-          desbloqueie bônus semanais, podendo alcançar ganhos de R$30 a R$100 por
-          dia conforme sua produtividade.
+          Ganhe R$0,50 por cada conta Gmail aprovada. Complete tarefas simples e desbloqueie bônus
+          semanais, podendo alcançar ganhos de R$30 a R$100 por dia conforme sua produtividade.
         </p>
       </section>
 
@@ -125,10 +121,7 @@ export function SistemaEmailTask() {
         <ul className="glass space-y-2 rounded-2xl p-4">
           {requirements.map((r) => (
             <li key={r} className="flex items-start gap-2 text-sm">
-              <CheckCircle2
-                size={16}
-                className="mt-0.5 shrink-0 text-[color:var(--brand-blue)]"
-              />
+              <CheckCircle2 size={16} className="mt-0.5 shrink-0 text-[color:var(--brand-blue)]" />
               <span className="text-white/90">{r}</span>
             </li>
           ))}
@@ -206,13 +199,13 @@ export function SistemaEmailTask() {
                   Os bônus são calculados apenas sobre contas aprovadas.
                 </li>
                 <li className="flex gap-2">
-                  <Info size={12} className="mt-0.5 shrink-0 text-[color:var(--brand-pink)]" />
-                  O progresso semanal é reiniciado automaticamente ao final de cada semana.
+                  <Info size={12} className="mt-0.5 shrink-0 text-[color:var(--brand-pink)]" />O
+                  progresso semanal é reiniciado automaticamente ao final de cada semana.
                 </li>
                 <li className="flex gap-2">
                   <Info size={12} className="mt-0.5 shrink-0 text-[color:var(--brand-pink)]" />
-                  Sempre siga corretamente as orientações apresentadas pelo Bot
-                  oficial para evitar reprovações.
+                  Sempre siga corretamente as orientações apresentadas pelo Bot oficial para evitar
+                  reprovações.
                 </li>
               </ul>
             </div>
@@ -256,9 +249,7 @@ export function SistemaEmailTask() {
                   <t.icon size={18} className="text-white" />
                 </div>
                 <p className="mt-3 text-sm font-semibold">{t.title}</p>
-                <p className="mt-1 text-[11px] text-muted-foreground">
-                  {t.earnings}
-                </p>
+                <p className="mt-1 text-[11px] text-muted-foreground">{t.earnings}</p>
               </Link>
             ))}
         </div>
@@ -276,11 +267,7 @@ function MetaCard({ meta }: { meta: Meta }) {
           state === "locked" ? "bg-white/5" : "bg-brand-gradient shadow-glow"
         }`}
       >
-        {state === "locked" ? (
-          <Lock size={18} className="text-white/60" />
-        ) : (
-          <Mail size={18} />
-        )}
+        {state === "locked" ? <Lock size={18} className="text-white/60" /> : <Mail size={18} />}
       </div>
       <p className="mt-3 text-sm font-semibold">{goal} E-mails</p>
       <p className="text-[11px] text-muted-foreground">+ Bônus {reward}</p>

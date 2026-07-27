@@ -77,9 +77,7 @@ async function connectToWhatsApp(): Promise<WASocket> {
       const statusCode = (lastDisconnect?.error as Boom)?.output?.statusCode;
       const shouldReconnect = statusCode !== DisconnectReason.loggedOut;
 
-      console.log(
-        `Conexão fechada — código: ${statusCode}, reconectar: ${shouldReconnect}`
-      );
+      console.log(`Conexão fechada — código: ${statusCode}, reconectar: ${shouldReconnect}`);
       connectionStatus = "close";
 
       // Limpa o socket atual
@@ -97,9 +95,7 @@ async function connectToWhatsApp(): Promise<WASocket> {
       if (shouldReconnect && hasCredentials) {
         console.log("Credenciais ativas encontradas. Reconectando em 5s...");
         await delay(5000);
-        connectToWhatsApp().catch((err) =>
-          console.error("Erro ao reconectar:", err)
-        );
+        connectToWhatsApp().catch((err) => console.error("Erro ao reconectar:", err));
       } else {
         console.log("Não reconectando: sessão encerrada ou inexistente.");
       }
@@ -117,19 +113,13 @@ async function connectToWhatsApp(): Promise<WASocket> {
 // Inicialização silenciosa se já houver sessão ativa
 if (fs.existsSync(`${AUTH_DIR}/creds.json`)) {
   console.log("Sessão anterior encontrada. Conectando ao WhatsApp...");
-  connectToWhatsApp().catch((err) =>
-    console.error("Erro ao iniciar conexão:", err)
-  );
+  connectToWhatsApp().catch((err) => console.error("Erro ao iniciar conexão:", err));
 }
 
 // ──────────────────────────────────────────────────────────
 // Webhook de retorno de disparos
 // ──────────────────────────────────────────────────────────
-async function triggerWebhook(
-  status: string,
-  target: string,
-  messageId: string
-): Promise<void> {
+async function triggerWebhook(status: string, target: string, messageId: string): Promise<void> {
   const webhookUrl = process.env.WEBHOOK_URL;
   if (!webhookUrl) return;
 
@@ -284,7 +274,7 @@ app.post("/api/disparar", async (req, res) => {
               },
             ],
           },
-          target
+          target,
         );
 
         // 4. Dispara webhook de confirmação
@@ -293,9 +283,7 @@ app.post("/api/disparar", async (req, res) => {
 
       // 5. Delay humano aleatório (30–45 segundos) — antiban
       const nextDelay = Math.floor(Math.random() * (45000 - 30000 + 1)) + 30000;
-      console.log(
-        `✉️  Enviado para ${target}. Próximo em ${nextDelay / 1000}s...`
-      );
+      console.log(`✉️  Enviado para ${target}. Próximo em ${nextDelay / 1000}s...`);
       await delay(nextDelay);
     } catch (err) {
       console.error(`Erro ao disparar para ${targetRaw}:`, err);

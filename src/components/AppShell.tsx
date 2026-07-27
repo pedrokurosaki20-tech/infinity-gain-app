@@ -25,9 +25,7 @@ export function BottomNav() {
             >
               <span
                 className={`grid h-9 w-9 place-items-center rounded-xl transition-all ${
-                  active
-                    ? "bg-brand-gradient text-white shadow-glow"
-                    : "text-muted-foreground"
+                  active ? "bg-brand-gradient text-white shadow-glow" : "text-muted-foreground"
                 }`}
               >
                 <Icon size={18} strokeWidth={2.2} />
@@ -47,13 +45,7 @@ export function BottomNav() {
   );
 }
 
-export function AppShell({
-  children,
-  withNav = true,
-}: {
-  children: ReactNode;
-  withNav?: boolean;
-}) {
+export function AppShell({ children, withNav = true }: { children: ReactNode; withNav?: boolean }) {
   return (
     <div className="relative min-h-screen bg-background">
       {/* Ambient gradients */}
@@ -65,11 +57,7 @@ export function AppShell({
             "radial-gradient(600px 400px at 10% -10%, rgba(30,94,255,0.25), transparent 60%), radial-gradient(500px 400px at 100% 10%, rgba(255,102,196,0.18), transparent 60%)",
         }}
       />
-      <main
-        className={`relative mx-auto max-w-md px-5 pt-6 ${
-          withNav ? "pb-32" : "pb-8"
-        }`}
-      >
+      <main className={`relative mx-auto max-w-md px-5 pt-6 ${withNav ? "pb-32" : "pb-8"}`}>
         {children}
       </main>
       {withNav && <BottomNav />}

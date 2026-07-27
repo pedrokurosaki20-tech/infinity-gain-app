@@ -4,7 +4,6 @@ import { useState } from "react";
 import { AppShell } from "@/components/AppShell";
 import { supabase } from "@/integrations/supabase/client";
 
-
 export const Route = createFileRoute("/withdraw")({
   head: () => ({
     meta: [
@@ -54,8 +53,6 @@ function WithdrawPage() {
     navigate({ to: "/withdraw/$id", params: { id: newId as string } });
   }
 
-
-
   return (
     <AppShell>
       <header className="flex items-center justify-between">
@@ -71,17 +68,11 @@ function WithdrawPage() {
       </header>
 
       <section className="mt-6 rounded-3xl p-5 bg-card-gradient border border-white/10 shadow-glow animate-fade-up">
-        <p className="text-xs uppercase tracking-widest text-white/70">
-          Saldo Disponível
-        </p>
+        <p className="text-xs uppercase tracking-widest text-white/70">Saldo Disponível</p>
         <p className="mt-1 text-3xl font-extrabold">R$ 1.284,50</p>
       </section>
 
-      <form
-        onSubmit={handleSubmit}
-        className="mt-6 space-y-4 animate-fade-up"
-      >
-
+      <form onSubmit={handleSubmit} className="mt-6 space-y-4 animate-fade-up">
         <div>
           <label className="mb-2 block text-xs font-medium uppercase tracking-widest text-muted-foreground">
             Tipo de chave PIX
@@ -93,9 +84,7 @@ function WithdrawPage() {
                 type="button"
                 onClick={() => setType(t)}
                 className={`rounded-2xl px-2 py-3 text-xs font-semibold transition ${
-                  type === t
-                    ? "bg-brand-gradient text-white shadow-glow"
-                    : "glass text-white/80"
+                  type === t ? "bg-brand-gradient text-white shadow-glow" : "glass text-white/80"
                 }`}
               >
                 {t}
@@ -129,22 +118,27 @@ function WithdrawPage() {
         <div className="glass rounded-2xl p-5">
           <div className="mb-4 flex items-center gap-2">
             <span className="text-lg">📌</span>
-            <h2 className="text-sm font-bold text-white">
-              Informações sobre Saques
-            </h2>
+            <h2 className="text-sm font-bold text-white">Informações sobre Saques</h2>
           </div>
           <ul className="space-y-3 text-sm text-white/90">
             <li className="flex items-start gap-2">
               <span className="mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-[color:var(--brand-blue)]" />
-              <span>Saque mínimo: <strong className="text-white">R$ 10,00</strong></span>
+              <span>
+                Saque mínimo: <strong className="text-white">R$ 10,00</strong>
+              </span>
             </li>
             <li className="flex items-start gap-2">
               <span className="mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-[color:var(--brand-pink)]" />
-              <span>Taxa de processamento: <strong className="text-white">5%</strong></span>
+              <span>
+                Taxa de processamento: <strong className="text-white">5%</strong>
+              </span>
             </li>
             <li className="flex items-start gap-2">
               <span className="mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-[color:var(--brand-blue)]" />
-              <span>Os pagamentos são processados em até <strong className="text-white">24 horas úteis</strong>.</span>
+              <span>
+                Os pagamentos são processados em até{" "}
+                <strong className="text-white">24 horas úteis</strong>.
+              </span>
             </li>
             <li className="flex items-start gap-2">
               <span className="mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-[color:var(--brand-pink)]" />
@@ -156,7 +150,8 @@ function WithdrawPage() {
         <div className="glass flex items-start gap-3 rounded-2xl p-4">
           <Info size={18} className="mt-0.5 shrink-0 text-[color:var(--brand-blue)]" />
           <p className="text-xs leading-relaxed text-muted-foreground">
-            A taxa de 5% é descontada automaticamente apenas no momento do saque. Nenhuma outra taxa é cobrada pela plataforma.
+            A taxa de 5% é descontada automaticamente apenas no momento do saque. Nenhuma outra taxa
+            é cobrada pela plataforma.
           </p>
         </div>
 
@@ -168,9 +163,7 @@ function WithdrawPage() {
             <span className="font-semibold uppercase tracking-wider text-white/70">
               Solicitação
             </span>
-            <span className="font-semibold uppercase tracking-wider text-white/70">
-              Taxa (5%)
-            </span>
+            <span className="font-semibold uppercase tracking-wider text-white/70">Taxa (5%)</span>
             <span className="font-semibold uppercase tracking-wider text-[color:var(--brand-blue)]">
               Você recebe
             </span>
@@ -184,9 +177,7 @@ function WithdrawPage() {
           </div>
         </section>
 
-        {error && (
-          <p className="text-center text-xs font-medium text-red-400">{error}</p>
-        )}
+        {error && <p className="text-center text-xs font-medium text-red-400">{error}</p>}
         <button
           type="submit"
           disabled={submitting}
@@ -194,19 +185,12 @@ function WithdrawPage() {
         >
           {submitting ? "Enviando…" : "Solicitar Saque"}
         </button>
-
       </form>
     </AppShell>
   );
 }
 
-function FieldBlock({
-  label,
-  children,
-}: {
-  label: string;
-  children: React.ReactNode;
-}) {
+function FieldBlock({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div>
       <label className="mb-2 block text-xs font-medium uppercase tracking-widest text-muted-foreground">

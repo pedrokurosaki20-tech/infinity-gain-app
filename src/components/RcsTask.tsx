@@ -33,10 +33,7 @@ export function RcsTask() {
   const [lastStatus, setLastStatus] = useState<LastStatus>(null);
   const [message, setMessage] = useState<string | null>(null);
 
-  const target = useMemo(
-    () => new Date(Date.now() + 23 * 60 * 60 * 1000 + 17 * 60 * 1000),
-    []
-  );
+  const target = useMemo(() => new Date(Date.now() + 23 * 60 * 60 * 1000 + 17 * 60 * 1000), []);
   const [timeLeft, setTimeLeft] = useState(() => getTimeLeft(target));
 
   useEffect(() => {
@@ -103,8 +100,8 @@ export function RcsTask() {
       <section className="mt-6 animate-fade-up">
         <h2 className="text-2xl font-extrabold tracking-tight">RCS</h2>
         <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-          Envie mensagens RCS de forma simples e segura. Cada envio concluído
-          com sucesso gera recompensas automaticamente para sua conta.
+          Envie mensagens RCS de forma simples e segura. Cada envio concluído com sucesso gera
+          recompensas automaticamente para sua conta.
         </p>
       </section>
 
@@ -175,10 +172,7 @@ export function RcsTask() {
             "Concluir o envio corretamente.",
           ].map((req) => (
             <li key={req} className="flex items-start gap-2 text-sm">
-              <CheckCircle2
-                size={16}
-                className="mt-0.5 shrink-0 text-[color:var(--brand-blue)]"
-              />
+              <CheckCircle2 size={16} className="mt-0.5 shrink-0 text-[color:var(--brand-blue)]" />
               <span className="text-white/90">{req}</span>
             </li>
           ))}
@@ -227,9 +221,7 @@ export function RcsTask() {
           <StatusBadge status={lastStatus} />
         </section>
       )}
-      {message && (
-        <p className="mt-3 text-center text-xs text-white/80">{message}</p>
-      )}
+      {message && <p className="mt-3 text-center text-xs text-white/80">{message}</p>}
 
       <section className="mt-8 animate-fade-up space-y-3">
         <button className="group relative flex w-full items-center justify-center gap-2 overflow-hidden rounded-2xl bg-brand-gradient px-6 py-4 text-base font-semibold text-white shadow-glow transition-all duration-200 hover:scale-[1.01] hover:shadow-[0_0_30px_rgba(30,94,255,0.45)] active:scale-[0.97]">
@@ -299,9 +291,7 @@ export function RcsTask() {
                 <t.icon size={18} className="text-white" />
               </div>
               <p className="mt-3 text-sm font-semibold">{t.title}</p>
-              <p className="mt-1 text-[11px] text-muted-foreground line-clamp-2">
-                {t.short}
-              </p>
+              <p className="mt-1 text-[11px] text-muted-foreground line-clamp-2">{t.short}</p>
             </Link>
           ))}
         </div>
@@ -312,12 +302,26 @@ export function RcsTask() {
 
 function StatusBadge({ status }: { status: "pending" | "approved" | "rejected" }) {
   const meta = {
-    pending: { Icon: Clock, label: "Última validação em análise", cls: "text-[color:var(--brand-blue)] bg-[color:var(--brand-blue)]/15" },
-    approved: { Icon: CheckCircle2, label: "Última validação aprovada", cls: "text-emerald-400 bg-emerald-500/15" },
-    rejected: { Icon: XCircle, label: "Última validação rejeitada", cls: "text-red-400 bg-red-500/15" },
+    pending: {
+      Icon: Clock,
+      label: "Última validação em análise",
+      cls: "text-[color:var(--brand-blue)] bg-[color:var(--brand-blue)]/15",
+    },
+    approved: {
+      Icon: CheckCircle2,
+      label: "Última validação aprovada",
+      cls: "text-emerald-400 bg-emerald-500/15",
+    },
+    rejected: {
+      Icon: XCircle,
+      label: "Última validação rejeitada",
+      cls: "text-red-400 bg-red-500/15",
+    },
   }[status];
   return (
-    <div className={`glass flex items-center justify-center gap-2 rounded-2xl px-4 py-3 text-sm font-semibold ${meta.cls}`}>
+    <div
+      className={`glass flex items-center justify-center gap-2 rounded-2xl px-4 py-3 text-sm font-semibold ${meta.cls}`}
+    >
       <meta.Icon size={16} />
       {meta.label}
     </div>

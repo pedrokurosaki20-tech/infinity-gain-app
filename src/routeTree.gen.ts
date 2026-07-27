@@ -9,54 +9,24 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as IndexRouteImport } from './routes/index'
-import { Route as AdminRouteRouteImport } from './routes/admin.route'
-import { Route as DashboardRouteImport } from './routes/dashboard'
-import { Route as HelpRouteImport } from './routes/help'
-import { Route as ProfileRouteImport } from './routes/profile'
-import { Route as ReferralRouteImport } from './routes/referral'
-import { Route as RegisterRouteImport } from './routes/register'
-import { Route as WalletRouteImport } from './routes/wallet'
 import { Route as WithdrawRouteImport } from './routes/withdraw'
+import { Route as WalletRouteImport } from './routes/wallet'
+import { Route as RegisterRouteImport } from './routes/register'
+import { Route as ReferralRouteImport } from './routes/referral'
+import { Route as ProfileRouteImport } from './routes/profile'
+import { Route as HelpRouteImport } from './routes/help'
+import { Route as DashboardRouteImport } from './routes/dashboard'
+import { Route as AdminRouteRouteImport } from './routes/admin.route'
+import { Route as IndexRouteImport } from './routes/index'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
-import { Route as AdminReferralsRouteImport } from './routes/admin.referrals'
-import { Route as TaskSlugRouteImport } from './routes/task.$slug'
 import { Route as WithdrawIdRouteImport } from './routes/withdraw.$id'
+import { Route as TaskSlugRouteImport } from './routes/task.$slug'
+import { Route as AdminReferralsRouteImport } from './routes/admin.referrals'
 import { Route as AdminTasksTypeRouteImport } from './routes/admin.tasks.$type'
 
-const IndexRoute = IndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AdminRouteRoute = AdminRouteRouteImport.update({
-  id: '/admin',
-  path: '/admin',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const DashboardRoute = DashboardRouteImport.update({
-  id: '/dashboard',
-  path: '/dashboard',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const HelpRoute = HelpRouteImport.update({
-  id: '/help',
-  path: '/help',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ProfileRoute = ProfileRouteImport.update({
-  id: '/profile',
-  path: '/profile',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ReferralRoute = ReferralRouteImport.update({
-  id: '/referral',
-  path: '/referral',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const RegisterRoute = RegisterRouteImport.update({
-  id: '/register',
-  path: '/register',
+const WithdrawRoute = WithdrawRouteImport.update({
+  id: '/withdraw',
+  path: '/withdraw',
   getParentRoute: () => rootRouteImport,
 } as any)
 const WalletRoute = WalletRouteImport.update({
@@ -64,9 +34,39 @@ const WalletRoute = WalletRouteImport.update({
   path: '/wallet',
   getParentRoute: () => rootRouteImport,
 } as any)
-const WithdrawRoute = WithdrawRouteImport.update({
-  id: '/withdraw',
-  path: '/withdraw',
+const RegisterRoute = RegisterRouteImport.update({
+  id: '/register',
+  path: '/register',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ReferralRoute = ReferralRouteImport.update({
+  id: '/referral',
+  path: '/referral',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProfileRoute = ProfileRouteImport.update({
+  id: '/profile',
+  path: '/profile',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HelpRoute = HelpRouteImport.update({
+  id: '/help',
+  path: '/help',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DashboardRoute = DashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminRouteRoute = AdminRouteRouteImport.update({
+  id: '/admin',
+  path: '/admin',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const IndexRoute = IndexRouteImport.update({
+  id: '/',
+  path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AdminIndexRoute = AdminIndexRouteImport.update({
@@ -74,20 +74,20 @@ const AdminIndexRoute = AdminIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AdminRouteRoute,
 } as any)
-const AdminReferralsRoute = AdminReferralsRouteImport.update({
-  id: '/referrals',
-  path: '/referrals',
-  getParentRoute: () => AdminRouteRoute,
+const WithdrawIdRoute = WithdrawIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => WithdrawRoute,
 } as any)
 const TaskSlugRoute = TaskSlugRouteImport.update({
   id: '/task/$slug',
   path: '/task/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
-const WithdrawIdRoute = WithdrawIdRouteImport.update({
-  id: '/$id',
-  path: '/$id',
-  getParentRoute: () => WithdrawRoute,
+const AdminReferralsRoute = AdminReferralsRouteImport.update({
+  id: '/referrals',
+  path: '/referrals',
+  getParentRoute: () => AdminRouteRoute,
 } as any)
 const AdminTasksTypeRoute = AdminTasksTypeRouteImport.update({
   id: '/tasks/$type',
@@ -208,53 +208,11 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/admin': {
-      id: '/admin'
-      path: '/admin'
-      fullPath: '/admin'
-      preLoaderRoute: typeof AdminRouteRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/dashboard': {
-      id: '/dashboard'
-      path: '/dashboard'
-      fullPath: '/dashboard'
-      preLoaderRoute: typeof DashboardRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/help': {
-      id: '/help'
-      path: '/help'
-      fullPath: '/help'
-      preLoaderRoute: typeof HelpRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/profile': {
-      id: '/profile'
-      path: '/profile'
-      fullPath: '/profile'
-      preLoaderRoute: typeof ProfileRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/referral': {
-      id: '/referral'
-      path: '/referral'
-      fullPath: '/referral'
-      preLoaderRoute: typeof ReferralRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/register': {
-      id: '/register'
-      path: '/register'
-      fullPath: '/register'
-      preLoaderRoute: typeof RegisterRouteImport
+    '/withdraw': {
+      id: '/withdraw'
+      path: '/withdraw'
+      fullPath: '/withdraw'
+      preLoaderRoute: typeof WithdrawRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/wallet': {
@@ -264,11 +222,53 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof WalletRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/withdraw': {
-      id: '/withdraw'
-      path: '/withdraw'
-      fullPath: '/withdraw'
-      preLoaderRoute: typeof WithdrawRouteImport
+    '/register': {
+      id: '/register'
+      path: '/register'
+      fullPath: '/register'
+      preLoaderRoute: typeof RegisterRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/referral': {
+      id: '/referral'
+      path: '/referral'
+      fullPath: '/referral'
+      preLoaderRoute: typeof ReferralRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/profile': {
+      id: '/profile'
+      path: '/profile'
+      fullPath: '/profile'
+      preLoaderRoute: typeof ProfileRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/help': {
+      id: '/help'
+      path: '/help'
+      fullPath: '/help'
+      preLoaderRoute: typeof HelpRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/dashboard': {
+      id: '/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof DashboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin': {
+      id: '/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AdminRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/admin/': {
@@ -278,12 +278,12 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminIndexRouteImport
       parentRoute: typeof AdminRouteRoute
     }
-    '/admin/referrals': {
-      id: '/admin/referrals'
-      path: '/referrals'
-      fullPath: '/admin/referrals'
-      preLoaderRoute: typeof AdminReferralsRouteImport
-      parentRoute: typeof AdminRouteRoute
+    '/withdraw/$id': {
+      id: '/withdraw/$id'
+      path: '/$id'
+      fullPath: '/withdraw/$id'
+      preLoaderRoute: typeof WithdrawIdRouteImport
+      parentRoute: typeof WithdrawRoute
     }
     '/task/$slug': {
       id: '/task/$slug'
@@ -292,12 +292,12 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof TaskSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/withdraw/$id': {
-      id: '/withdraw/$id'
-      path: '/$id'
-      fullPath: '/withdraw/$id'
-      preLoaderRoute: typeof WithdrawIdRouteImport
-      parentRoute: typeof WithdrawRoute
+    '/admin/referrals': {
+      id: '/admin/referrals'
+      path: '/referrals'
+      fullPath: '/admin/referrals'
+      preLoaderRoute: typeof AdminReferralsRouteImport
+      parentRoute: typeof AdminRouteRoute
     }
     '/admin/tasks/$type': {
       id: '/admin/tasks/$type'

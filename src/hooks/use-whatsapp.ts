@@ -93,7 +93,9 @@ export function useWhatsapp() {
     }
 
     startSending();
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, [phase.kind]);
 
   // ── Estimativa de progresso (1 msg a cada ~37,5 s em média) ─────────

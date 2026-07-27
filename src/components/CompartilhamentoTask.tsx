@@ -180,7 +180,6 @@ export function CompartilhamentoTask() {
     }
   }
 
-
   return (
     <AppShell>
       <header className="flex items-center justify-between">
@@ -208,14 +207,11 @@ export function CompartilhamentoTask() {
 
       {/* Título + descrição */}
       <section className="mt-6 animate-fade-up">
-        <h2 className="text-2xl font-extrabold tracking-tight">
-          Compartilhamento
-        </h2>
+        <h2 className="text-2xl font-extrabold tracking-tight">Compartilhamento</h2>
         <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-          Compartilhe campanhas oficiais da Infinity Gain nas principais redes
-          sociais e receba recompensas por cada publicação validada. Escolha
-          uma campanha disponível, publique seguindo as instruções e envie a
-          comprovação para receber sua recompensa.
+          Compartilhe campanhas oficiais da Infinity Gain nas principais redes sociais e receba
+          recompensas por cada publicação validada. Escolha uma campanha disponível, publique
+          seguindo as instruções e envie a comprovação para receber sua recompensa.
         </p>
       </section>
 
@@ -230,9 +226,7 @@ export function CompartilhamentoTask() {
               <p className="text-[11px] uppercase tracking-widest text-muted-foreground">
                 Recompensa
               </p>
-              <h3 className="text-base font-bold">
-                R$ 0,30 até R$ 1,00 por tarefa concluída
-              </h3>
+              <h3 className="text-base font-bold">R$ 0,30 até R$ 1,00 por tarefa concluída</h3>
             </div>
           </div>
           <p className="mt-3 text-xs leading-relaxed text-muted-foreground">
@@ -276,9 +270,7 @@ export function CompartilhamentoTask() {
             <li>• Retorne ao aplicativo.</li>
             <li>• Clique em Validar Tarefa.</li>
             <li>• Envie o link da publicação e o print solicitado.</li>
-            <li>
-              • Após validação, a recompensa será creditada em até 24 horas.
-            </li>
+            <li>• Após validação, a recompensa será creditada em até 24 horas.</li>
           </ul>
         </div>
       </section>
@@ -297,10 +289,7 @@ export function CompartilhamentoTask() {
             const remaining = Math.max(0, Math.floor((target - now) / 1000));
             const available = c.nextInSeconds === 0 || remaining === 0;
             return (
-              <div
-                key={c.id}
-                className="glass flex flex-col rounded-3xl p-5 shadow-soft"
-              >
+              <div key={c.id} className="glass flex flex-col rounded-3xl p-5 shadow-soft">
                 <div className="flex items-center gap-3">
                   <span
                     className="grid h-12 w-12 place-items-center rounded-2xl shadow-glow"
@@ -311,18 +300,14 @@ export function CompartilhamentoTask() {
                   <div className="min-w-0 flex-1">
                     <h4 className="text-base font-bold">{c.name}</h4>
                     <p className="mt-0.5 text-[11px] uppercase tracking-widest text-muted-foreground">
-                      {available
-                        ? "Campanha disponível agora"
-                        : "Próxima renovação em:"}
+                      {available ? "Campanha disponível agora" : "Próxima renovação em:"}
                     </p>
                   </div>
                 </div>
 
                 <div
                   className={`mt-4 rounded-2xl px-4 py-3 text-center font-mono text-lg font-extrabold tracking-widest ${
-                    available
-                      ? "bg-brand-gradient text-white shadow-glow"
-                      : "bg-white/5 text-white"
+                    available ? "bg-brand-gradient text-white shadow-glow" : "bg-white/5 text-white"
                   }`}
                 >
                   {available ? "DISPONÍVEL" : formatHMS(remaining)}
@@ -359,9 +344,11 @@ export function CompartilhamentoTask() {
 
           <div className="mt-4 space-y-3">
             <div>
-              <p className="mb-2 text-[11px] uppercase tracking-widest text-muted-foreground">Plataforma</p>
+              <p className="mb-2 text-[11px] uppercase tracking-widest text-muted-foreground">
+                Plataforma
+              </p>
               <div className="grid grid-cols-5 gap-2">
-                {["facebook","instagram","x","tiktok","kwai"].map((p) => (
+                {["facebook", "instagram", "x", "tiktok", "kwai"].map((p) => (
                   <button
                     key={p}
                     type="button"
@@ -381,9 +368,7 @@ export function CompartilhamentoTask() {
               <span className="text-sm font-semibold text-white">
                 {file ? file.name : "Upload do print da publicação"}
               </span>
-              <span className="text-[11px] text-muted-foreground">
-                PNG ou JPG até 5MB
-              </span>
+              <span className="text-[11px] text-muted-foreground">PNG ou JPG até 5MB</span>
               <input
                 ref={fileRef}
                 type="file"
@@ -413,9 +398,7 @@ export function CompartilhamentoTask() {
               <StatusBadge status={lastStatus} />
             </div>
           )}
-          {message && (
-            <p className="mt-3 text-center text-xs text-white/80">{message}</p>
-          )}
+          {message && <p className="mt-3 text-center text-xs text-white/80">{message}</p>}
 
           <button
             onClick={handleSubmit}
@@ -423,12 +406,15 @@ export function CompartilhamentoTask() {
             className="group relative mt-5 flex w-full items-center justify-center gap-2 overflow-hidden rounded-2xl bg-brand-gradient px-6 py-4 text-base font-semibold text-white shadow-glow transition-all duration-200 hover:scale-[1.01] active:scale-[0.97] disabled:opacity-60"
           >
             <span className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/20 to-transparent transition-transform duration-700 group-hover:translate-x-full" />
-            {submitting ? <Loader2 size={18} className="relative animate-spin" /> : <ShieldCheck size={18} className="relative" />}
+            {submitting ? (
+              <Loader2 size={18} className="relative animate-spin" />
+            ) : (
+              <ShieldCheck size={18} className="relative" />
+            )}
             {submitting ? "Enviando…" : "Validar Tarefa"}
           </button>
         </div>
       </section>
-
 
       <SafetyNotice />
 
@@ -452,9 +438,7 @@ export function CompartilhamentoTask() {
                 <t.icon size={18} className="text-white" />
               </div>
               <p className="mt-3 text-sm font-semibold">{t.title}</p>
-              <p className="mt-1 text-[11px] text-muted-foreground line-clamp-2">
-                {t.short}
-              </p>
+              <p className="mt-1 text-[11px] text-muted-foreground line-clamp-2">{t.short}</p>
             </Link>
           ))}
         </div>
@@ -491,20 +475,31 @@ function CampaignAction({
 
 function StatusBadge({ status }: { status: "pending" | "approved" | "rejected" }) {
   const meta = {
-    pending: { Icon: Clock, label: "Última validação em análise", cls: "text-[color:var(--brand-blue)] bg-[color:var(--brand-blue)]/15" },
-    approved: { Icon: CheckCircle2, label: "Última validação aprovada", cls: "text-emerald-400 bg-emerald-500/15" },
-    rejected: { Icon: XCircle, label: "Última validação rejeitada", cls: "text-red-400 bg-red-500/15" },
+    pending: {
+      Icon: Clock,
+      label: "Última validação em análise",
+      cls: "text-[color:var(--brand-blue)] bg-[color:var(--brand-blue)]/15",
+    },
+    approved: {
+      Icon: CheckCircle2,
+      label: "Última validação aprovada",
+      cls: "text-emerald-400 bg-emerald-500/15",
+    },
+    rejected: {
+      Icon: XCircle,
+      label: "Última validação rejeitada",
+      cls: "text-red-400 bg-red-500/15",
+    },
   }[status];
   return (
-    <div className={`flex items-center justify-center gap-2 rounded-2xl px-4 py-3 text-sm font-semibold ${meta.cls}`}>
+    <div
+      className={`flex items-center justify-center gap-2 rounded-2xl px-4 py-3 text-sm font-semibold ${meta.cls}`}
+    >
       <meta.Icon size={16} />
       {meta.label}
     </div>
   );
 }
-
-
-
 
 function formatHMS(total: number) {
   const h = Math.floor(total / 3600);

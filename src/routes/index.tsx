@@ -57,12 +57,8 @@ function LoginPage() {
         </div>
 
         <div className="mt-14 animate-fade-up">
-          <h1 className="text-3xl font-extrabold tracking-tight">
-            Bem-vindo de volta
-          </h1>
-          <p className="mt-2 text-muted-foreground">
-            Entre para continuar ganhando.
-          </p>
+          <h1 className="text-3xl font-extrabold tracking-tight">Bem-vindo de volta</h1>
+          <p className="mt-2 text-muted-foreground">Entre para continuar ganhando.</p>
         </div>
 
         <form onSubmit={handleSubmit} className="mt-8 space-y-4 animate-fade-up">
@@ -95,7 +91,10 @@ function LoginPage() {
             >
               {loading ? <Loader2 size={18} className="animate-spin" /> : "Entrar"}
               {!loading && (
-                <ArrowRight size={18} className="transition-transform group-hover:translate-x-0.5" />
+                <ArrowRight
+                  size={18}
+                  className="transition-transform group-hover:translate-x-0.5"
+                />
               )}
             </button>
           </div>

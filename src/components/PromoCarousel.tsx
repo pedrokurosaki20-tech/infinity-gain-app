@@ -25,10 +25,9 @@ const banners: Banner[] = [
 ];
 
 export function PromoCarousel() {
-  const [emblaRef, emblaApi] = useEmblaCarousel(
-    { loop: true, align: "center" },
-    [Autoplay({ delay: 5000, stopOnInteraction: false, stopOnMouseEnter: true })],
-  );
+  const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true, align: "center" }, [
+    Autoplay({ delay: 5000, stopOnInteraction: false, stopOnMouseEnter: true }),
+  ]);
   const [selected, setSelected] = useState(0);
 
   useEffect(() => {
@@ -45,10 +44,7 @@ export function PromoCarousel() {
 
   return (
     <div className="w-full">
-      <div
-        ref={emblaRef}
-        className="overflow-hidden rounded-[20px] shadow-soft"
-      >
+      <div ref={emblaRef} className="overflow-hidden rounded-[20px] shadow-soft">
         <div className="flex touch-pan-y">
           {banners.map((b, i) => {
             const img = (
@@ -62,12 +58,7 @@ export function PromoCarousel() {
             return (
               <div key={i} className="relative min-w-0 flex-[0_0_100%]">
                 {b.to ? (
-                  <Link
-                    to={b.to}
-                    params={b.params as never}
-                    className="block"
-                    aria-label={b.alt}
-                  >
+                  <Link to={b.to} params={b.params as never} className="block" aria-label={b.alt}>
                     {img}
                   </Link>
                 ) : (

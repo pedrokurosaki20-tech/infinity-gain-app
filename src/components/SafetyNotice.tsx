@@ -11,11 +11,10 @@ export function SafetyNotice() {
           <div>
             <h3 className="text-sm font-bold">Importante</h3>
             <p className="mt-2 text-sm leading-relaxed text-white/80">
-              O não cumprimento das regras de cada tarefa poderá resultar na
-              reprovação da atividade. O envio de informações falsas, conteúdo
-              duplicado, tentativas de fraude ou qualquer atividade irregular
-              poderá ocasionar a suspensão ou o bloqueio permanente da conta,
-              conforme análise da equipe da Infinity Gain.
+              O não cumprimento das regras de cada tarefa poderá resultar na reprovação da
+              atividade. O envio de informações falsas, conteúdo duplicado, tentativas de fraude ou
+              qualquer atividade irregular poderá ocasionar a suspensão ou o bloqueio permanente da
+              conta, conforme análise da equipe da Infinity Gain.
             </p>
           </div>
         </div>

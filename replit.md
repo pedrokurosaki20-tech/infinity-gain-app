@@ -10,36 +10,40 @@ Plataforma de tarefas e ganhos online em português, com um backend de disparo W
 
 ## Serviços
 
-| Serviço | Porta | Descrição |
-|---|---|---|
-| WhatsApp Server | 3000 | API de disparos em massa via WhatsApp |
-| Frontend (Infinity Gain) | 5000 | App React com TanStack Start |
+| Serviço                  | Porta | Descrição                             |
+| ------------------------ | ----- | ------------------------------------- |
+| WhatsApp Server          | 3000  | API de disparos em massa via WhatsApp |
+| Frontend (Infinity Gain) | 5000  | App React com TanStack Start          |
 
 ## Como rodar
 
 ### WhatsApp Server (porta 3000)
+
 ```bash
 bun whatsapp-server.ts
 ```
+
 Workflow configurado: **WhatsApp Server**
 
 ### Frontend Infinity Gain
+
 O projeto veio do Lovable (TanStack Start + Vite). Para rodar em dev:
+
 ```bash
 bun run dev
 ```
 
 ## Rotas da API WhatsApp
 
-| Método | Rota | Descrição |
-|---|---|---|
-| GET | /api/status | Status da conexão WhatsApp |
-| POST | /api/connect | Gera Pairing Code para conectar |
-| POST | /api/disconnect | Desconecta e apaga a sessão |
-| POST | /api/disparar | Dispara mensagens em massa |
-| GET | /api/contatos | Lista contatos do Supabase |
-| POST | /api/contatos/importar | Importa lista de telefones |
-| GET | /api/db-credentials | Info do banco de dados |
+| Método | Rota                   | Descrição                       |
+| ------ | ---------------------- | ------------------------------- |
+| GET    | /api/status            | Status da conexão WhatsApp      |
+| POST   | /api/connect           | Gera Pairing Code para conectar |
+| POST   | /api/disconnect        | Desconecta e apaga a sessão     |
+| POST   | /api/disparar          | Dispara mensagens em massa      |
+| GET    | /api/contatos          | Lista contatos do Supabase      |
+| POST   | /api/contatos/importar | Importa lista de telefones      |
+| GET    | /api/db-credentials    | Info do banco de dados          |
 
 ## Banco de dados — Supabase (WhatsApp Sender)
 
