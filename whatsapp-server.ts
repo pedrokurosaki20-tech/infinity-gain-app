@@ -368,4 +368,235 @@ app.listen(PORT, "0.0.0.0", () => {
   console.log(`   Contatos: GET  /api/contatos`);
 });
 
+// ──────────────────────────────────────────────────────────
+// Handler Web Request para integração com src/server.ts (SSR / Cloud Run)
+// ──────────────────────────────────────────────────────────
+function jsonResponse(data: unknown, status = 200): Response {
+  return new Response(JSON.stringify(data), {
+    status,
+    headers: {
+      "Content-Type": "application/json",
+      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Headers": "Origin, X-Requested-With, Content-Type, Accept",
+      "Access-Control-Allow-Methods": "GET, POST, OPTIONS, PUT, DELETE",
+    },
+  });
+}
+
+export async function handleWhatsappApiRequest(request: Request): Promise<Response | null> {
+  const url = new URL(request.url);
+  let pathname = url.pathname;
+
+  if (request.method === "OPTIONS") {
+    return new Response(null, {
+      status: 200,
+      headers: {
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Headers": "Origin, X-Requested-With, Content-Type, Accept",
+        "Access-Control-Allow-Methods": "GET, POST, OPTIONS, PUT, DELETE",
+      },
+    });
+  }
+
+  if (pathname.startsWith("/api/wa")) {
+    pathname = pathname.replace(/^\/api\/wa/, "/api");
+  }
+
+  if (!pathname.startsWith("/api")) {
+    return null;
+  }
+
+  const endpoint = pathname.replace(/^\/api/, "");
+  const validEndpoints = [
+    "/status",
+    "/connect",
+    "/disconnect",
+    "/disparar",
+    "/contatos",
+    "/contatos/importar",
+    "/db-credentials",
+  ];
+
+  if (!validEndpoints.includes(endpoint)) {
+    return null;
+  }
+
+  try {
+    if (endpoint === "/status" && request.method === "GET") {
+      return jsonResponse({
+        status: connectionStatus,
+        pairingCode,
+        connectedAs: sock?.authState?.creds?.me?.id ?? null,
+      });
+    }
+
+    if (endpoint === "/connect" && request.method === "POST") {
+      let body: { phone?: string } = {};
+      try {
+        body = (await request.json()) as { phone?: string };
+      } catch {
+        // ignore
+      }
+
+      const { phone } = body;
+      if (!phone) {
+        return jsonResponse({ error: "Telefone é obrigatório" }, 400);
+      }
+
+      const cleanPhone = String(phone).replace(/\D/g, "");
+      console.log(`Iniciando pareamento para: ${cleanPhone}`);
+
+      if (sock) {
+        try {
+          sock.ev.removeAllListeners("connection.update");
+          sock.ev.removeAllListeners("creds.update");
+          sock.end(undefined);
+        } catch {
+          // ignore
+        }
+        sock = null;
+      }
+
+      if (fs.existsSync(AUTH_DIR)) {
+        fs.rmSync(AUTH_DIR, { recursive: true, force: true });
+      }
+
+      connectionStatus = "close";
+      pairingCode = null;
+
+      await connectToWhatsApp();
+      await new Promise((resolve) => setTimeout(resolve, 1500));
+
+      if (!sock) {
+        throw new Error("Não foi possível inicializar o socket do WhatsApp");
+      }
+
+      const code = await sock.requestPairingCode(cleanPhone);
+      pairingCode = code ?? null;
+      connectionStatus = "pairing";
+
+      return jsonResponse({ pairingCode: code });
+    }
+
+    if (endpoint === "/disconnect" && request.method === "POST") {
+      if (sock) {
+        try {
+          sock.ev.removeAllListeners("connection.update");
+          sock.ev.removeAllListeners("creds.update");
+          await sock.logout();
+          sock.end(undefined);
+        } catch {
+          // ignore
+        }
+        sock = null;
+      }
+
+      if (fs.existsSync(AUTH_DIR)) {
+        fs.rmSync(AUTH_DIR, { recursive: true, force: true });
+      }
+
+      pairingCode = null;
+      connectionStatus = "close";
+
+      return jsonResponse({ success: true });
+    }
+
+    if (endpoint === "/disparar" && request.method === "POST") {
+      let body: { targets?: unknown[] } = {};
+      try {
+        body = (await request.json()) as { targets?: unknown[] };
+      } catch {
+        // ignore
+      }
+
+      const { targets } = body;
+
+      if (!sock || connectionStatus !== "open") {
+        return jsonResponse({ error: "WhatsApp não conectado" }, 400);
+      }
+
+      if (!Array.isArray(targets) || targets.length === 0) {
+        return jsonResponse({ error: "Lista de alvos inválida" }, 400);
+      }
+
+      // Disparo em background
+      (async () => {
+        for (const targetRaw of targets) {
+          try {
+            const target = String(targetRaw).replace(/\D/g, "") + "@s.whatsapp.net";
+
+            const typingMs = Math.floor(Math.random() * (12000 - 7000 + 1)) + 7000;
+            await sock?.sendPresenceUpdate("composing", target);
+            await delay(typingMs);
+            await sock?.sendPresenceUpdate("paused", target);
+
+            const sentMsg = await sock?.sendMessage(target, { text: FIXED_MESSAGE });
+
+            if (sentMsg) {
+              await sock?.chatModify(
+                {
+                  delete: true,
+                  lastMessages: [
+                    {
+                      key: sentMsg.key,
+                      messageTimestamp: sentMsg.messageTimestamp ?? 0,
+                    },
+                  ],
+                },
+                target,
+              );
+
+              await triggerWebhook("success", target, sentMsg.key.id ?? "");
+            }
+
+            const nextDelay = Math.floor(Math.random() * (45000 - 30000 + 1)) + 30000;
+            console.log(`✉️ Enviado para ${target}. Próximo em ${nextDelay / 1000}s...`);
+            await delay(nextDelay);
+          } catch (err) {
+            console.error(`Erro ao disparar para ${targetRaw}:`, err);
+          }
+        }
+      })();
+
+      return jsonResponse({ status: "queueing", count: targets.length });
+    }
+
+    if (endpoint === "/contatos" && request.method === "GET") {
+      const result = await getContactsFromDB();
+      return jsonResponse(result);
+    }
+
+    if (endpoint === "/contatos/importar" && request.method === "POST") {
+      let body: { phones?: unknown } = {};
+      try {
+        body = (await request.json()) as { phones?: unknown };
+      } catch {
+        // ignore
+      }
+
+      const { phones } = body;
+      if (!phones || !Array.isArray(phones)) {
+        return jsonResponse(
+          { success: false, error: "Formato inválido. Esperado: { phones: string[] }" },
+          400,
+        );
+      }
+
+      const result = await importContacts(phones as string[]);
+      return jsonResponse(result);
+    }
+
+    if (endpoint === "/db-credentials" && request.method === "GET") {
+      const creds = getDBCredentials();
+      return jsonResponse(creds);
+    }
+
+    return null;
+  } catch (error: unknown) {
+    const msg = error instanceof Error ? error.message : String(error);
+    console.error(`Erro no endpoint ${endpoint}:`, msg);
+    return jsonResponse({ error: msg }, 500);
+  }
+}
+
 export default app;

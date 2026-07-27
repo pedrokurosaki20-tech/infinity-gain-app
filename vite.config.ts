@@ -6,6 +6,10 @@
 // You can pass additional config via defineConfig({ vite: { ... }, etc... }) if needed.
 import { defineConfig } from "@lovable.dev/vite-tanstack-config";
 import type { Plugin } from "vite";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 function whatsappApiPlugin(): Plugin {
   return {
@@ -38,6 +42,16 @@ export default defineConfig({
     server: { entry: "server" },
   },
   vite: {
+    resolve: {
+      alias: {
+        sharp: path.resolve(__dirname, "src/mocks/sharp.js"),
+        "@img/sharp-linux-x64": path.resolve(__dirname, "src/mocks/sharp.js"),
+        "@img/sharp-linuxmusl-x64": path.resolve(__dirname, "src/mocks/sharp.js"),
+      },
+    },
+    ssr: {
+      external: ["sharp", "@whiskeysockets/baileys", "pino"],
+    },
     server: {
       host: "0.0.0.0",
       port: 3000,
