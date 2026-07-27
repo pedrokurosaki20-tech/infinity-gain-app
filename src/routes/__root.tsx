@@ -1,4 +1,7 @@
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import {
+  QueryClient,
+  QueryClientProvider,
+} from "@tanstack/react-query";
 import {
   Outlet,
   Link,
@@ -44,7 +47,9 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
       <div className="max-w-md text-center">
         <h1 className="text-xl font-semibold">Não foi possível carregar</h1>
-        <p className="mt-2 text-sm text-muted-foreground">Algo deu errado. Tente novamente.</p>
+        <p className="mt-2 text-sm text-muted-foreground">
+          Algo deu errado. Tente novamente.
+        </p>
         <div className="mt-6 flex flex-wrap justify-center gap-2">
           <button
             onClick={() => {
@@ -70,30 +75,21 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { title: "Entrar — Infinity Gain" },
       {
         name: "description",
-        content: "Entre na sua conta Infinity Gain e continue ganhando com tarefas online.",
+        content:
+          "Entre na sua conta Infinity Gain e continue ganhando com tarefas online.",
       },
       { property: "og:title", content: "Entrar — Infinity Gain" },
       {
         property: "og:description",
-        content: "Entre na sua conta Infinity Gain e continue ganhando com tarefas online.",
+        content:
+          "Entre na sua conta Infinity Gain e continue ganhando com tarefas online.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
       { name: "twitter:title", content: "Entrar — Infinity Gain" },
-      {
-        name: "twitter:description",
-        content: "Entre na sua conta Infinity Gain e continue ganhando com tarefas online.",
-      },
-      {
-        property: "og:image",
-        content:
-          "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/f18a5739-f9ad-4f0a-b0a7-c42537beec68/id-preview-80ac66d8--486f4e4a-1710-4932-baee-59a1429fe272.lovable.app-1784584846123.png",
-      },
-      {
-        name: "twitter:image",
-        content:
-          "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/f18a5739-f9ad-4f0a-b0a7-c42537beec68/id-preview-80ac66d8--486f4e4a-1710-4932-baee-59a1429fe272.lovable.app-1784584846123.png",
-      },
+      { name: "twitter:description", content: "Entre na sua conta Infinity Gain e continue ganhando com tarefas online." },
+      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/f18a5739-f9ad-4f0a-b0a7-c42537beec68/id-preview-80ac66d8--486f4e4a-1710-4932-baee-59a1429fe272.lovable.app-1784584846123.png" },
+      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/f18a5739-f9ad-4f0a-b0a7-c42537beec68/id-preview-80ac66d8--486f4e4a-1710-4932-baee-59a1429fe272.lovable.app-1784584846123.png" },
     ],
     links: [
       { rel: "stylesheet", href: appCss },

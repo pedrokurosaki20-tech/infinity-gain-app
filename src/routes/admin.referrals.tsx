@@ -24,13 +24,7 @@ type Profile = {
 };
 
 const fmtDate = (iso: string) =>
-  new Date(iso).toLocaleString("pt-BR", {
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  });
+  new Date(iso).toLocaleString("pt-BR", { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" });
 
 function AdminReferralsPage() {
   const navigate = useNavigate();
@@ -76,7 +70,7 @@ function AdminReferralsPage() {
       (p) =>
         (p.name ?? "").toLowerCase().includes(term) ||
         (p.phone ?? "").toLowerCase().includes(term) ||
-        (p.invite_code ?? "").toLowerCase().includes(term),
+        (p.invite_code ?? "").toLowerCase().includes(term)
     );
   }, [profiles, q]);
 
@@ -107,11 +101,7 @@ function AdminReferralsPage() {
   return (
     <AppShell>
       <header className="flex items-center justify-between">
-        <Link
-          to="/admin"
-          className="glass grid h-10 w-10 place-items-center rounded-full"
-          aria-label="Voltar"
-        >
+        <Link to="/admin" className="glass grid h-10 w-10 place-items-center rounded-full" aria-label="Voltar">
           <ArrowLeft size={18} />
         </Link>
         <h1 className="text-base font-semibold">Indicados</h1>
@@ -119,29 +109,10 @@ function AdminReferralsPage() {
       </header>
 
       <nav className="mt-5 flex gap-2 overflow-x-auto pb-1">
-        <Link
-          to="/admin"
-          className="glass shrink-0 rounded-full px-3.5 py-1.5 text-xs font-semibold text-muted-foreground"
-        >
-          Saques
-        </Link>
-        <Link
-          to="/admin/tasks/$type"
-          params={{ type: "rcs" }}
-          className="glass shrink-0 rounded-full px-3.5 py-1.5 text-xs font-semibold text-muted-foreground"
-        >
-          Tarefas RCS
-        </Link>
-        <Link
-          to="/admin/tasks/$type"
-          params={{ type: "compartilhamento" }}
-          className="glass shrink-0 rounded-full px-3.5 py-1.5 text-xs font-semibold text-muted-foreground"
-        >
-          Compartilhamento
-        </Link>
-        <span className="shrink-0 rounded-full bg-brand-gradient px-3.5 py-1.5 text-xs font-semibold text-white shadow-glow">
-          Indicados
-        </span>
+        <Link to="/admin" className="glass shrink-0 rounded-full px-3.5 py-1.5 text-xs font-semibold text-muted-foreground">Saques</Link>
+        <Link to="/admin/tasks/$type" params={{ type: "rcs" }} className="glass shrink-0 rounded-full px-3.5 py-1.5 text-xs font-semibold text-muted-foreground">Tarefas RCS</Link>
+        <Link to="/admin/tasks/$type" params={{ type: "compartilhamento" }} className="glass shrink-0 rounded-full px-3.5 py-1.5 text-xs font-semibold text-muted-foreground">Compartilhamento</Link>
+        <span className="shrink-0 rounded-full bg-brand-gradient px-3.5 py-1.5 text-xs font-semibold text-white shadow-glow">Indicados</span>
       </nav>
 
       <section className="mt-5">
@@ -162,9 +133,7 @@ function AdminReferralsPage() {
       {!selected && (
         <section className="mt-5 space-y-2 pb-4">
           {filtered.length === 0 ? (
-            <div className="glass rounded-3xl px-4 py-8 text-center text-sm text-muted-foreground">
-              Nenhum usuário encontrado.
-            </div>
+            <div className="glass rounded-3xl px-4 py-8 text-center text-sm text-muted-foreground">Nenhum usuário encontrado.</div>
           ) : (
             filtered.map((p) => (
               <button
@@ -177,9 +146,7 @@ function AdminReferralsPage() {
                   <p className="text-[11px] text-muted-foreground">{p.phone || "—"}</p>
                 </div>
                 <div className="text-right">
-                  <p className="text-[10px] uppercase tracking-widest text-muted-foreground">
-                    Código
-                  </p>
+                  <p className="text-[10px] uppercase tracking-widest text-muted-foreground">Código</p>
                   <p className="font-mono text-xs text-white">{p.invite_code || "—"}</p>
                 </div>
               </button>
@@ -194,16 +161,11 @@ function AdminReferralsPage() {
             <div className="glass rounded-3xl p-5">
               <div className="flex items-start justify-between gap-3">
                 <div className="min-w-0">
-                  <p className="text-[10px] uppercase tracking-widest text-muted-foreground">
-                    Indicador
-                  </p>
-                  <h2 className="mt-1 truncate text-base font-bold">
-                    {selected.name || "Usuário"}
-                  </h2>
+                  <p className="text-[10px] uppercase tracking-widest text-muted-foreground">Indicador</p>
+                  <h2 className="mt-1 truncate text-base font-bold">{selected.name || "Usuário"}</h2>
                   <p className="text-xs text-muted-foreground">{selected.phone || "—"}</p>
                   <p className="mt-2 text-[11px] text-muted-foreground">
-                    Código:{" "}
-                    <span className="font-mono text-white">{selected.invite_code || "—"}</span>
+                    Código: <span className="font-mono text-white">{selected.invite_code || "—"}</span>
                   </p>
                 </div>
                 <button
@@ -236,9 +198,7 @@ function AdminReferralsPage() {
                       <p className="truncate text-sm font-semibold">{p.name || "Usuário"}</p>
                       <p className="text-[11px] text-muted-foreground">{p.phone || "—"}</p>
                     </div>
-                    <p className="shrink-0 text-[11px] text-muted-foreground">
-                      {fmtDate(p.created_at)}
-                    </p>
+                    <p className="shrink-0 text-[11px] text-muted-foreground">{fmtDate(p.created_at)}</p>
                   </div>
                 </div>
               ))

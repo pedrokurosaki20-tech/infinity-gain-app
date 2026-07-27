@@ -1,12 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import {
-  ArrowDownToLine,
-  ArrowLeft,
-  ArrowUpRight,
-  Clock,
-  CheckCircle2,
-  XCircle,
-} from "lucide-react";
+import { ArrowDownToLine, ArrowLeft, ArrowUpRight, Clock, CheckCircle2, XCircle } from "lucide-react";
 import { useEffect, useState } from "react";
 import { AppShell } from "@/components/AppShell";
 import { BalanceCard } from "@/components/BalanceCard";
@@ -51,10 +44,7 @@ function formatDate(iso: string) {
   });
 }
 
-const statusMeta: Record<
-  WithdrawalStatus,
-  { label: string; className: string; Icon: typeof Clock }
-> = {
+const statusMeta: Record<WithdrawalStatus, { label: string; className: string; Icon: typeof Clock }> = {
   processing: {
     label: "Processando",
     className: "bg-[color:var(--brand-blue)]/15 text-[color:var(--brand-blue)]",
@@ -162,9 +152,13 @@ function WalletPage() {
                     <ArrowUpRight size={18} />
                   </div>
                   <div className="min-w-0 flex-1">
-                    <p className="truncate text-sm font-medium">Saque via PIX · {t.pix_type}</p>
+                    <p className="truncate text-sm font-medium">
+                      Saque via PIX · {t.pix_type}
+                    </p>
                     <div className="mt-0.5 flex items-center gap-2">
-                      <p className="text-xs text-muted-foreground">{formatDate(t.created_at)}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {formatDate(t.created_at)}
+                      </p>
                       <span
                         className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold ${meta.className}`}
                       >
@@ -182,6 +176,7 @@ function WalletPage() {
                     </p>
                   </div>
                 </Link>
+
               );
             })}
           </div>
@@ -191,10 +186,20 @@ function WalletPage() {
   );
 }
 
-function Stat({ label, value, tone }: { label: string; value: string; tone: "blue" | "pink" }) {
+function Stat({
+  label,
+  value,
+  tone,
+}: {
+  label: string;
+  value: string;
+  tone: "blue" | "pink";
+}) {
   return (
     <div className="glass rounded-2xl p-4">
-      <p className="text-xs uppercase tracking-widest text-muted-foreground">{label}</p>
+      <p className="text-xs uppercase tracking-widest text-muted-foreground">
+        {label}
+      </p>
       <p
         className="mt-1.5 text-xl font-extrabold"
         style={{ color: tone === "blue" ? "#7aa5ff" : "#ff9edb" }}

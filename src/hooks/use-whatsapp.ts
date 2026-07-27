@@ -11,27 +11,12 @@ export type WaPhase =
   | { kind: "sending"; total: number; sent: number; startedAt: number };
 
 async function waFetch(path: string, opts?: RequestInit) {
-  let res: Response;
-  try {
-    res = await fetch(`${API}${path}`, {
-      headers: { "Content-Type": "application/json" },
-      ...opts,
-    });
-  } catch {
-    throw new Error(
-      "Não foi possível conectar ao servidor WhatsApp. Verifique se o serviço está ativo.",
-    );
-  }
-
-  const contentType = res.headers.get("content-type") || "";
-  if (!contentType.includes("application/json")) {
-    throw new Error(
-      "Servidor WhatsApp indisponível no momento. Inicie o servidor WhatsApp na porta 3000.",
-    );
-  }
-
+  const res = await fetch(`${API}${path}`, {
+    headers: { "Content-Type": "application/json" },
+    ...opts,
+  });
   const data = await res.json();
-  if (!res.ok) throw new Error(data.error ?? "Erro no servidor WhatsApp");
+  if (!res.ok) throw new Error(data.error ?? "Erro desconhecido");
   return data;
 }
 
@@ -108,9 +93,7 @@ export function useWhatsapp() {
     }
 
     startSending();
-    return () => {
-      cancelled = true;
-    };
+    return () => { cancelled = true; };
   }, [phase.kind]);
 
   // ── Estimativa de progresso (1 msg a cada ~37,5 s em média) ─────────

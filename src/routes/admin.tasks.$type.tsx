@@ -1,14 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import {
-  ArrowLeft,
-  CheckCircle2,
-  Clock,
-  RefreshCw,
-  Search,
-  XCircle,
-  ShieldCheck,
-  ExternalLink,
-} from "lucide-react";
+import { ArrowLeft, CheckCircle2, Clock, RefreshCw, Search, XCircle, ShieldCheck, ExternalLink } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { AppShell } from "@/components/AppShell";
 import { supabase } from "@/integrations/supabase/client";
@@ -42,27 +33,11 @@ type Row = {
 };
 
 const fmtDate = (iso: string) =>
-  new Date(iso).toLocaleString("pt-BR", {
-    day: "2-digit",
-    month: "2-digit",
-    hour: "2-digit",
-    minute: "2-digit",
-  });
+  new Date(iso).toLocaleString("pt-BR", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" });
 
-const statusMeta: Record<
-  SubmissionStatus,
-  { label: string; className: string; Icon: typeof Clock }
-> = {
-  pending: {
-    label: "Pendente",
-    className: "bg-[color:var(--brand-blue)]/15 text-[color:var(--brand-blue)]",
-    Icon: Clock,
-  },
-  approved: {
-    label: "Aprovado",
-    className: "bg-emerald-500/15 text-emerald-400",
-    Icon: CheckCircle2,
-  },
+const statusMeta: Record<SubmissionStatus, { label: string; className: string; Icon: typeof Clock }> = {
+  pending: { label: "Pendente", className: "bg-[color:var(--brand-blue)]/15 text-[color:var(--brand-blue)]", Icon: Clock },
+  approved: { label: "Aprovado", className: "bg-emerald-500/15 text-emerald-400", Icon: CheckCircle2 },
   rejected: { label: "Rejeitado", className: "bg-red-500/15 text-red-400", Icon: XCircle },
 };
 
@@ -102,29 +77,22 @@ function AdminTasksPage() {
     setLoading(true);
     const { data } = await supabase
       .from("task_submissions")
-      .select(
-        "id, user_id, task_type, proof_path, link, platform, status, reward_amount, rejection_reason, created_at",
-      )
+      .select("id, user_id, task_type, proof_path, link, platform, status, reward_amount, rejection_reason, created_at")
       .eq("task_type", taskType)
       .order("created_at", { ascending: false });
     const list = (data ?? []) as Row[];
     const ids = Array.from(new Set(list.map((r) => r.user_id)));
     if (ids.length) {
-      const { data: profs } = await supabase
-        .from("profiles")
-        .select("id, name, phone")
-        .in("id", ids);
+      const { data: profs } = await supabase.from("profiles").select("id, name, phone").in("id", ids);
       const map = new Map((profs ?? []).map((p: any) => [p.id, p]));
       for (const r of list) r.profile = map.get(r.user_id) ?? null;
     }
     // Signed URLs for previews
     await Promise.all(
       list.map(async (r) => {
-        const { data: sig } = await supabase.storage
-          .from("task-proofs")
-          .createSignedUrl(r.proof_path, 3600);
+        const { data: sig } = await supabase.storage.from("task-proofs").createSignedUrl(r.proof_path, 3600);
         r.proof_url = sig?.signedUrl;
-      }),
+      })
     );
     setRows(list);
     setLoading(false);
@@ -135,9 +103,7 @@ function AdminTasksPage() {
     load();
     const ch = supabase
       .channel(`admin-tasks-${taskType}`)
-      .on("postgres_changes", { event: "*", schema: "public", table: "task_submissions" }, () =>
-        load(),
-      )
+      .on("postgres_changes", { event: "*", schema: "public", table: "task_submissions" }, () => load())
       .subscribe();
     return () => {
       supabase.removeChannel(ch);
@@ -151,11 +117,7 @@ function AdminTasksPage() {
       reason = window.prompt("Motivo da rejeição (opcional):") || null;
     }
     setBusyId(id);
-    const { error } = await supabase.rpc("review_task_submission", {
-      _id: id,
-      _approve: approve,
-      _reason: reason ?? undefined,
-    });
+    const { error } = await supabase.rpc("review_task_submission", { _id: id, _approve: approve, _reason: reason ?? undefined });
     if (error) alert("Falha: " + error.message);
     setBusyId(null);
   }
@@ -195,50 +157,20 @@ function AdminTasksPage() {
   return (
     <AppShell>
       <header className="flex items-center justify-between">
-        <Link
-          to="/admin"
-          className="glass grid h-10 w-10 place-items-center rounded-full"
-          aria-label="Voltar"
-        >
+        <Link to="/admin" className="glass grid h-10 w-10 place-items-center rounded-full" aria-label="Voltar">
           <ArrowLeft size={18} />
         </Link>
         <h1 className="text-base font-semibold">{titleFor(taskType)}</h1>
-        <button
-          onClick={load}
-          className="glass grid h-10 w-10 place-items-center rounded-full"
-          aria-label="Atualizar"
-        >
+        <button onClick={load} className="glass grid h-10 w-10 place-items-center rounded-full" aria-label="Atualizar">
           <RefreshCw size={16} />
         </button>
       </header>
 
       <nav className="mt-5 flex gap-2 overflow-x-auto pb-1">
-        <Link
-          to="/admin"
-          className="glass shrink-0 rounded-full px-3.5 py-1.5 text-xs font-semibold text-muted-foreground"
-        >
-          Saques
-        </Link>
-        <Link
-          to="/admin/tasks/$type"
-          params={{ type: "rcs" }}
-          className={`shrink-0 rounded-full px-3.5 py-1.5 text-xs font-semibold ${taskType === "rcs" ? "bg-brand-gradient text-white shadow-glow" : "glass text-muted-foreground"}`}
-        >
-          Tarefas RCS
-        </Link>
-        <Link
-          to="/admin/tasks/$type"
-          params={{ type: "compartilhamento" }}
-          className={`shrink-0 rounded-full px-3.5 py-1.5 text-xs font-semibold ${taskType === "compartilhamento" ? "bg-brand-gradient text-white shadow-glow" : "glass text-muted-foreground"}`}
-        >
-          Compartilhamento
-        </Link>
-        <Link
-          to="/admin/referrals"
-          className="glass shrink-0 rounded-full px-3.5 py-1.5 text-xs font-semibold text-muted-foreground"
-        >
-          Indicados
-        </Link>
+        <Link to="/admin" className="glass shrink-0 rounded-full px-3.5 py-1.5 text-xs font-semibold text-muted-foreground">Saques</Link>
+        <Link to="/admin/tasks/$type" params={{ type: "rcs" }} className={`shrink-0 rounded-full px-3.5 py-1.5 text-xs font-semibold ${taskType === "rcs" ? "bg-brand-gradient text-white shadow-glow" : "glass text-muted-foreground"}`}>Tarefas RCS</Link>
+        <Link to="/admin/tasks/$type" params={{ type: "compartilhamento" }} className={`shrink-0 rounded-full px-3.5 py-1.5 text-xs font-semibold ${taskType === "compartilhamento" ? "bg-brand-gradient text-white shadow-glow" : "glass text-muted-foreground"}`}>Compartilhamento</Link>
+        <Link to="/admin/referrals" className="glass shrink-0 rounded-full px-3.5 py-1.5 text-xs font-semibold text-muted-foreground">Indicados</Link>
       </nav>
 
       <section className="mt-5">
@@ -266,13 +198,9 @@ function AdminTasksPage() {
 
       <section className="mt-5 space-y-3 pb-4">
         {loading ? (
-          <div className="glass rounded-3xl px-4 py-6 text-center text-sm text-muted-foreground">
-            Carregando…
-          </div>
+          <div className="glass rounded-3xl px-4 py-6 text-center text-sm text-muted-foreground">Carregando…</div>
         ) : filtered.length === 0 ? (
-          <div className="glass rounded-3xl px-4 py-8 text-center text-sm text-muted-foreground">
-            Nenhum envio encontrado.
-          </div>
+          <div className="glass rounded-3xl px-4 py-8 text-center text-sm text-muted-foreground">Nenhum envio encontrado.</div>
         ) : (
           filtered.map((r) => {
             const meta = statusMeta[r.status];
@@ -287,9 +215,7 @@ function AdminTasksPage() {
                       {r.profile?.phone || "—"} · {fmtDate(r.created_at)}
                     </p>
                   </div>
-                  <span
-                    className={`inline-flex shrink-0 items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold ${meta.className}`}
-                  >
+                  <span className={`inline-flex shrink-0 items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold ${meta.className}`}>
                     <Icon size={10} />
                     {meta.label}
                   </span>
@@ -313,17 +239,8 @@ function AdminTasksPage() {
                 )}
 
                 {r.proof_url && (
-                  <a
-                    href={r.proof_url}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="mt-3 block overflow-hidden rounded-2xl border border-white/10"
-                  >
-                    <img
-                      src={r.proof_url}
-                      alt="Comprovante"
-                      className="max-h-72 w-full object-contain bg-black/40"
-                    />
+                  <a href={r.proof_url} target="_blank" rel="noreferrer" className="mt-3 block overflow-hidden rounded-2xl border border-white/10">
+                    <img src={r.proof_url} alt="Comprovante" className="max-h-72 w-full object-contain bg-black/40" />
                   </a>
                 )}
 

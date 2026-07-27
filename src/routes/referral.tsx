@@ -1,5 +1,13 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowLeft, Check, Coins, Gift, Info, Lock, UsersRound } from "lucide-react";
+import {
+  ArrowLeft,
+  Check,
+  Coins,
+  Gift,
+  Info,
+  Lock,
+  UsersRound,
+} from "lucide-react";
 import { useMemo, useState } from "react";
 import { AppShell } from "@/components/AppShell";
 import { tasks } from "@/lib/tasks";
@@ -64,10 +72,13 @@ function ReferralPage() {
     "weekly-50": true,
   });
 
-  const progressoDia = useMemo(() => Math.min(100, (CONVITES_DIA / META_DIARIA_MAX) * 100), []);
+  const progressoDia = useMemo(
+    () => Math.min(100, (CONVITES_DIA / META_DIARIA_MAX) * 100),
+    []
+  );
   const progressoSemana = useMemo(
     () => Math.min(100, (CONVITES_SEMANA / META_SEMANAL_MAX) * 100),
-    [],
+    []
   );
 
   const outras = tasks.filter((t) => t.slug !== "indique-ganhe");
@@ -101,8 +112,9 @@ function ReferralPage() {
       <section className="mt-6 animate-fade-up">
         <h2 className="text-2xl font-extrabold tracking-tight">Indique & Ganhe</h2>
         <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-          Convide novos usuários para a Infinity Gain através do seu link exclusivo. Cada indicação
-          válida gera comissão automaticamente e ainda desbloqueia bônus diários e semanais.
+          Convide novos usuários para a Infinity Gain através do seu link
+          exclusivo. Cada indicação válida gera comissão automaticamente e ainda
+          desbloqueia bônus diários e semanais.
         </p>
       </section>
 
@@ -154,7 +166,9 @@ function ReferralPage() {
             <div className="flex-1">
               <ProgressBar value={progressoDia} />
             </div>
-            <span className="text-sm font-bold text-white">{Math.round(progressoDia)}%</span>
+            <span className="text-sm font-bold text-white">
+              {Math.round(progressoDia)}%
+            </span>
           </div>
           <div className="mt-5 grid grid-cols-1 gap-3">
             {metasDiarias.map((m) => {
@@ -169,7 +183,9 @@ function ReferralPage() {
                   bonus={m.bonus}
                   atingida={atingida}
                   resgatado={resgatado}
-                  onResgatar={() => setResgatados((r) => ({ ...r, [key]: true }))}
+                  onResgatar={() =>
+                    setResgatados((r) => ({ ...r, [key]: true }))
+                  }
                 />
               );
             })}
@@ -192,7 +208,9 @@ function ReferralPage() {
             <div className="flex-1">
               <ProgressBar value={progressoSemana} />
             </div>
-            <span className="text-sm font-bold text-white">{Math.round(progressoSemana)}%</span>
+            <span className="text-sm font-bold text-white">
+              {Math.round(progressoSemana)}%
+            </span>
           </div>
           <div className="mt-5 grid grid-cols-2 gap-3">
             {metasSemanais.map((m) => {
@@ -208,7 +226,9 @@ function ReferralPage() {
                   atingida={atingida}
                   resgatado={resgatado}
                   hideCommission
-                  onResgatar={() => setResgatados((r) => ({ ...r, [key]: true }))}
+                  onResgatar={() =>
+                    setResgatados((r) => ({ ...r, [key]: true }))
+                  }
                 />
               );
             })}
@@ -227,10 +247,20 @@ function ReferralPage() {
           </div>
           <ul className="mt-4 space-y-2 text-sm text-white/85">
             <li>• Cada indicação válida gera R$0,50.</li>
-            <li>• O usuário indicado deve concluir o cadastro e realizar pelo menos uma tarefa.</li>
-            <li>• Os bônus diários são liberados imediatamente após atingir cada meta.</li>
-            <li>• Os bônus semanais acumulam durante toda a semana.</li>
-            <li>• Os bônus devem ser resgatados antes do encerramento do prazo.</li>
+            <li>
+              • O usuário indicado deve concluir o cadastro e realizar pelo
+              menos uma tarefa.
+            </li>
+            <li>
+              • Os bônus diários são liberados imediatamente após atingir cada
+              meta.
+            </li>
+            <li>
+              • Os bônus semanais acumulam durante toda a semana.
+            </li>
+            <li>
+              • Os bônus devem ser resgatados antes do encerramento do prazo.
+            </li>
           </ul>
         </div>
       </section>
@@ -266,7 +296,9 @@ function ReferralPage() {
                 <t.icon size={18} className="text-white" />
               </div>
               <p className="mt-3 text-sm font-semibold">{t.title}</p>
-              <p className="mt-1 text-[11px] text-muted-foreground line-clamp-2">{t.short}</p>
+              <p className="mt-1 text-[11px] text-muted-foreground line-clamp-2">
+                {t.short}
+              </p>
             </Link>
           ))}
         </div>
@@ -314,7 +346,8 @@ function BonusCard({
       disabled
       className="inline-flex h-10 w-full items-center justify-center gap-1.5 rounded-xl bg-emerald-500 px-3 text-xs font-semibold text-white shadow-soft"
     >
-      <Check size={14} /> +R${bonus.toFixed(2).replace(".", ",")} Resgatado
+      <Check size={14} /> +R${bonus.toFixed(2).replace(".", ",")}{" "}
+      Resgatado
     </button>
   ) : atingida ? (
     <button
@@ -347,7 +380,9 @@ function BonusCard({
         <p className="text-xs text-muted-foreground">{convites} convites</p>
         <p className="truncate text-sm font-medium text-white/90">
           Comissão:{" "}
-          <span className="text-base font-extrabold text-white">{formatCurrency(comissao)}</span>
+          <span className="text-base font-extrabold text-white">
+            {formatCurrency(comissao)}
+          </span>
         </p>
       </div>
       {button}
@@ -360,7 +395,9 @@ function CopyLink({ link }: { link: string }) {
 
   return (
     <div className="glass flex items-center gap-2 rounded-2xl p-2 pl-4">
-      <span className="min-w-0 flex-1 truncate text-sm text-white/90">{link}</span>
+      <span className="min-w-0 flex-1 truncate text-sm text-white/90">
+        {link}
+      </span>
       <button
         onClick={() => {
           navigator.clipboard?.writeText(link);

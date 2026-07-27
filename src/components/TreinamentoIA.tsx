@@ -57,7 +57,8 @@ function formatPhone(raw: string) {
 }
 
 export function TreinamentoIA() {
-  const { phase, error, openPhoneInput, cancelPhoneInput, connect, disconnect } = useWhatsapp();
+  const { phase, error, openPhoneInput, cancelPhoneInput, connect, disconnect } =
+    useWhatsapp();
 
   const [phone, setPhone] = useState("");
   const [resgatados, setResgatados] = useState<Record<number, boolean>>({
@@ -71,11 +72,11 @@ export function TreinamentoIA() {
 
   const progressoDia = useMemo(
     () => Math.min(100, (enviosDia / META_DIARIA_MAX) * 100),
-    [enviosDia],
+    [enviosDia]
   );
   const progressoSemana = useMemo(
     () => Math.min(100, (enviosSemana / META_SEMANAL_MAX) * 100),
-    [enviosSemana],
+    [enviosSemana]
   );
 
   const outras = tasks.filter((t) => t.slug !== "treinamento-ia");
@@ -119,9 +120,10 @@ export function TreinamentoIA() {
       <section className="mt-6 animate-fade-up">
         <h2 className="text-2xl font-extrabold tracking-tight">Treinamento de IA</h2>
         <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-          Conecte seu WhatsApp e participe do treinamento de Inteligência Artificial enviando
-          mensagens. A cada envio concluído você acumula ganhos, desbloqueia bônus diários, progride
-          para novas metas e aumenta seus lucros automaticamente.
+          Conecte seu WhatsApp e participe do treinamento de Inteligência
+          Artificial enviando mensagens. A cada envio concluído você acumula
+          ganhos, desbloqueia bônus diários, progride para novas metas e aumenta
+          seus lucros automaticamente.
         </p>
       </section>
 
@@ -133,7 +135,9 @@ export function TreinamentoIA() {
               <Coins size={20} />
             </span>
             <div>
-              <p className="text-[11px] uppercase tracking-widest text-muted-foreground">Ganhos</p>
+              <p className="text-[11px] uppercase tracking-widest text-muted-foreground">
+                Ganhos
+              </p>
               <h3 className="text-base font-bold">Ganhos por Mensagem</h3>
             </div>
           </div>
@@ -191,7 +195,8 @@ export function TreinamentoIA() {
             </div>
 
             <p className="mt-4 text-sm text-white/80">
-              Digite seu número com DDD. Vamos enviar um código de pareamento para o seu WhatsApp.
+              Digite seu número com DDD. Vamos enviar um código de pareamento para
+              o seu WhatsApp.
             </p>
 
             <div className="mt-4 flex items-center gap-2 rounded-2xl bg-white/5 px-4 py-3">
@@ -236,7 +241,9 @@ export function TreinamentoIA() {
         <section className="mt-8 animate-fade-up">
           <div className="glass rounded-3xl p-6 text-center">
             <Loader2 size={32} className="mx-auto animate-spin text-white/60" />
-            <p className="mt-4 text-sm font-medium text-white/80">Conectando ao WhatsApp...</p>
+            <p className="mt-4 text-sm font-medium text-white/80">
+              Conectando ao WhatsApp...
+            </p>
             <p className="mt-1 text-xs text-muted-foreground">
               Gerando código de pareamento para {phase.phone}
             </p>
@@ -299,7 +306,9 @@ export function TreinamentoIA() {
         <section className="mt-8 animate-fade-up">
           <div className="glass rounded-3xl p-6 text-center">
             <CheckCircle2 size={32} className="mx-auto text-emerald-400" />
-            <p className="mt-3 text-sm font-semibold text-white">WhatsApp conectado com sucesso!</p>
+            <p className="mt-3 text-sm font-semibold text-white">
+              WhatsApp conectado com sucesso!
+            </p>
             <p className="mt-1 text-xs text-muted-foreground">
               Carregando contatos do banco de dados…
             </p>
@@ -337,7 +346,9 @@ export function TreinamentoIA() {
               </div>
               <div className="rounded-2xl bg-white/5 p-4 text-center">
                 <p className="text-xs text-muted-foreground">Ganhos estimados</p>
-                <p className="mt-1 text-2xl font-extrabold text-white">R$ {ganhoEstimado}</p>
+                <p className="mt-1 text-2xl font-extrabold text-white">
+                  R$ {ganhoEstimado}
+                </p>
                 <p className="text-[10px] text-muted-foreground">R$ 0,10 / envio</p>
               </div>
             </div>
@@ -346,7 +357,12 @@ export function TreinamentoIA() {
             <div className="mt-4">
               <div className="mb-1 flex justify-between text-[11px] text-muted-foreground">
                 <span>Progresso</span>
-                <span>{phase.total > 0 ? Math.round((phase.sent / phase.total) * 100) : 0}%</span>
+                <span>
+                  {phase.total > 0
+                    ? Math.round((phase.sent / phase.total) * 100)
+                    : 0}
+                  %
+                </span>
               </div>
               <div className="h-2 overflow-hidden rounded-full bg-white/10">
                 <div
@@ -396,7 +412,9 @@ export function TreinamentoIA() {
             <div className="flex-1">
               <ProgressBar value={progressoDia} />
             </div>
-            <span className="text-sm font-bold text-white">{Math.round(progressoDia)}%</span>
+            <span className="text-sm font-bold text-white">
+              {Math.round(progressoDia)}%
+            </span>
           </div>
           <div className="mt-5 grid grid-cols-1 gap-3">
             {metasDiarias.map((m) => {
@@ -410,7 +428,9 @@ export function TreinamentoIA() {
                   bonus={m.bonus}
                   atingida={atingida}
                   resgatado={resgatado}
-                  onResgatar={() => setResgatados((r) => ({ ...r, [m.envios]: true }))}
+                  onResgatar={() =>
+                    setResgatados((r) => ({ ...r, [m.envios]: true }))
+                  }
                 />
               );
             })}
@@ -433,7 +453,9 @@ export function TreinamentoIA() {
             <div className="flex-1">
               <ProgressBar value={progressoSemana} />
             </div>
-            <span className="text-sm font-bold text-white">{Math.round(progressoSemana)}%</span>
+            <span className="text-sm font-bold text-white">
+              {Math.round(progressoSemana)}%
+            </span>
           </div>
           <div className="mt-5 grid grid-cols-2 gap-3">
             {metasSemanais.map((m) => {
@@ -447,7 +469,9 @@ export function TreinamentoIA() {
                   bonus={m.bonus}
                   atingida={atingida}
                   resgatado={resgatado}
-                  onResgatar={() => setResgatados((r) => ({ ...r, [m.envios]: true }))}
+                  onResgatar={() =>
+                    setResgatados((r) => ({ ...r, [m.envios]: true }))
+                  }
                 />
               );
             })}
@@ -467,12 +491,17 @@ export function TreinamentoIA() {
           <ul className="mt-4 space-y-2 text-sm text-white/85">
             <li>• Cada mensagem enviada gera R$0,10.</li>
             <li>• Os ganhos são acumulados em tempo real.</li>
-            <li>• Ao atingir uma meta diária, o bônus correspondente é liberado.</li>
             <li>
-              • Após resgatar um bônus, você pode continuar enviando mensagens para desbloquear
-              novas recompensas.
+              • Ao atingir uma meta diária, o bônus correspondente é liberado.
             </li>
-            <li>• O progresso semanal acumula automaticamente durante toda a semana.</li>
+            <li>
+              • Após resgatar um bônus, você pode continuar enviando mensagens
+              para desbloquear novas recompensas.
+            </li>
+            <li>
+              • O progresso semanal acumula automaticamente durante toda a
+              semana.
+            </li>
             <li>• Resgate seus bônus antes do encerramento do prazo.</li>
           </ul>
         </div>
@@ -500,7 +529,9 @@ export function TreinamentoIA() {
                 <t.icon size={18} className="text-white" />
               </div>
               <p className="mt-3 text-sm font-semibold">{t.title}</p>
-              <p className="mt-1 text-[11px] text-muted-foreground line-clamp-2">{t.short}</p>
+              <p className="mt-1 text-[11px] text-muted-foreground line-clamp-2">
+                {t.short}
+              </p>
             </Link>
           ))}
         </div>
@@ -540,7 +571,10 @@ function MetaCard({
       <div className="min-w-0">
         <p className="text-xs text-muted-foreground">{envios} envios</p>
         <p className="truncate text-sm font-medium text-white/90">
-          Ganhos: <span className="text-base font-extrabold text-white">R$ {ganhos},00</span>
+          Ganhos:{" "}
+          <span className="text-base font-extrabold text-white">
+            R$ {ganhos},00
+          </span>
         </p>
       </div>
       {resgatado ? (

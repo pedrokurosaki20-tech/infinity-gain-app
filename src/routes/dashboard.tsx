@@ -6,6 +6,7 @@ import { Logo } from "@/components/Logo";
 import { PromoCarousel } from "@/components/PromoCarousel";
 import { tasks } from "@/lib/tasks";
 
+
 export const Route = createFileRoute("/dashboard")({
   head: () => ({
     meta: [
@@ -46,6 +47,8 @@ function Dashboard() {
       <section className="mt-5 animate-fade-up">
         <PromoCarousel />
       </section>
+
+
 
       <section className="mt-8">
         <div className="mb-3 flex items-center justify-between">
@@ -103,3 +106,4 @@ function Dashboard() {
     </AppShell>
   );
 }
+

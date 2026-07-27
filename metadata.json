@@ -1,6 +1,0 @@
-{
-  "name": "WhatsApp Master API",
-  "description": "Sistema independente de disparos em massa com conexão por Pairing Code, leitura direta de banco PostgreSQL/Supabase e mensagem padronizada.",
-  "requestFramePermissions": [],
-  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
-}

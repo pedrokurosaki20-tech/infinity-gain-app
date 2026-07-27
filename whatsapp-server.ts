@@ -36,13 +36,6 @@ const PORT = 3000;
 
 const app = express();
 app.use(express.json());
-app.use((req, res, next) => {
-  res.header("Access-Control-Allow-Origin", "*");
-  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
-  res.header("Access-Control-Allow-Methods", "GET, POST, OPTIONS, PUT, DELETE");
-  if (req.method === "OPTIONS") return res.sendStatus(200);
-  next();
-});
 
 let sock: WASocket | null = null;
 let pairingCode: string | null = null;
@@ -84,7 +77,9 @@ async function connectToWhatsApp(): Promise<WASocket> {
       const statusCode = (lastDisconnect?.error as Boom)?.output?.statusCode;
       const shouldReconnect = statusCode !== DisconnectReason.loggedOut;
 
-      console.log(`Conexão fechada — código: ${statusCode}, reconectar: ${shouldReconnect}`);
+      console.log(
+        `Conexão fechada — código: ${statusCode}, reconectar: ${shouldReconnect}`
+      );
       connectionStatus = "close";
 
       // Limpa o socket atual
@@ -102,7 +97,9 @@ async function connectToWhatsApp(): Promise<WASocket> {
       if (shouldReconnect && hasCredentials) {
         console.log("Credenciais ativas encontradas. Reconectando em 5s...");
         await delay(5000);
-        connectToWhatsApp().catch((err) => console.error("Erro ao reconectar:", err));
+        connectToWhatsApp().catch((err) =>
+          console.error("Erro ao reconectar:", err)
+        );
       } else {
         console.log("Não reconectando: sessão encerrada ou inexistente.");
       }
@@ -120,13 +117,19 @@ async function connectToWhatsApp(): Promise<WASocket> {
 // Inicialização silenciosa se já houver sessão ativa
 if (fs.existsSync(`${AUTH_DIR}/creds.json`)) {
   console.log("Sessão anterior encontrada. Conectando ao WhatsApp...");
-  connectToWhatsApp().catch((err) => console.error("Erro ao iniciar conexão:", err));
+  connectToWhatsApp().catch((err) =>
+    console.error("Erro ao iniciar conexão:", err)
+  );
 }
 
 // ──────────────────────────────────────────────────────────
 // Webhook de retorno de disparos
 // ──────────────────────────────────────────────────────────
-async function triggerWebhook(status: string, target: string, messageId: string): Promise<void> {
+async function triggerWebhook(
+  status: string,
+  target: string,
+  messageId: string
+): Promise<void> {
   const webhookUrl = process.env.WEBHOOK_URL;
   if (!webhookUrl) return;
 
@@ -147,10 +150,8 @@ async function triggerWebhook(status: string, target: string, messageId: string)
 // ROTAS
 // ──────────────────────────────────────────────────────────
 
-const apiRouter = express.Router();
-
 /** Status da conexão */
-apiRouter.get("/status", (_req, res) => {
+app.get("/api/status", (_req, res) => {
   res.json({
     status: connectionStatus,
     pairingCode,
@@ -159,14 +160,14 @@ apiRouter.get("/status", (_req, res) => {
 });
 
 /** Iniciar conexão e gerar Pairing Code */
-apiRouter.post("/connect", async (req, res) => {
-  const { phone } = (req.body ?? {}) as { phone?: string };
+app.post("/api/connect", async (req, res) => {
+  const { phone } = req.body as { phone?: string };
   if (!phone) {
     res.status(400).json({ error: "Telefone é obrigatório" });
     return;
   }
 
-  const cleanPhone = String(phone).replace(/\D/g, "");
+  const cleanPhone = phone.replace(/\D/g, "");
 
   try {
     console.log(`Iniciando pareamento para: ${cleanPhone}`);
@@ -212,7 +213,7 @@ apiRouter.post("/connect", async (req, res) => {
 });
 
 /** Logout e remoção completa da sessão */
-apiRouter.post("/disconnect", async (_req, res) => {
+app.post("/api/disconnect", async (_req, res) => {
   try {
     if (sock) {
       try {
@@ -242,8 +243,8 @@ apiRouter.post("/disconnect", async (_req, res) => {
 });
 
 /** Disparo em massa com algoritmo antiban */
-apiRouter.post("/disparar", async (req, res) => {
-  const { targets } = (req.body ?? {}) as { targets?: unknown[] };
+app.post("/api/disparar", async (req, res) => {
+  const { targets } = req.body as { targets?: unknown[] };
 
   if (!sock || connectionStatus !== "open") {
     res.status(400).json({ error: "WhatsApp não conectado" });
@@ -283,7 +284,7 @@ apiRouter.post("/disparar", async (req, res) => {
               },
             ],
           },
-          target,
+          target
         );
 
         // 4. Dispara webhook de confirmação
@@ -292,7 +293,9 @@ apiRouter.post("/disparar", async (req, res) => {
 
       // 5. Delay humano aleatório (30–45 segundos) — antiban
       const nextDelay = Math.floor(Math.random() * (45000 - 30000 + 1)) + 30000;
-      console.log(`✉️  Enviado para ${target}. Próximo em ${nextDelay / 1000}s...`);
+      console.log(
+        `✉️  Enviado para ${target}. Próximo em ${nextDelay / 1000}s...`
+      );
       await delay(nextDelay);
     } catch (err) {
       console.error(`Erro ao disparar para ${targetRaw}:`, err);
@@ -301,7 +304,7 @@ apiRouter.post("/disparar", async (req, res) => {
 });
 
 /** Busca contatos do Supabase */
-apiRouter.get("/contatos", async (_req, res) => {
+app.get("/api/contatos", async (_req, res) => {
   try {
     const result = await getContactsFromDB();
     res.json(result);
@@ -313,8 +316,8 @@ apiRouter.get("/contatos", async (_req, res) => {
 });
 
 /** Importação em massa de contatos (via CSV do painel admin) */
-apiRouter.post("/contatos/importar", async (req, res) => {
-  const { phones } = (req.body ?? {}) as { phones?: unknown };
+app.post("/api/contatos/importar", async (req, res) => {
+  const { phones } = req.body as { phones?: unknown };
 
   if (!phones || !Array.isArray(phones)) {
     res.status(400).json({
@@ -335,7 +338,7 @@ apiRouter.post("/contatos/importar", async (req, res) => {
 });
 
 /** Verificação das credenciais do banco (uso administrativo) */
-apiRouter.get("/db-credentials", (_req, res) => {
+app.get("/api/db-credentials", (_req, res) => {
   try {
     const creds = getDBCredentials();
     res.json(creds);
@@ -344,10 +347,6 @@ apiRouter.get("/db-credentials", (_req, res) => {
     res.status(500).json({ success: false, error: msg });
   }
 });
-
-// Suporta prefixos /api e /api/wa
-app.use("/api/wa", apiRouter);
-app.use("/api", apiRouter);
 
 // ──────────────────────────────────────────────────────────
 // Inicia o servidor

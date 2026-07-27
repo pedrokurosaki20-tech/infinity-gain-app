@@ -144,6 +144,8 @@ function ProfilePage() {
         </section>
       )}
 
+
+
       <section className="mt-6">
         <button
           onClick={() => navigate({ to: "/" })}
@@ -174,12 +176,18 @@ function Row({
   last?: boolean;
 }) {
   return (
-    <div className={`flex items-center gap-3 px-3 py-3 ${last ? "" : "border-b border-white/5"}`}>
+    <div
+      className={`flex items-center gap-3 px-3 py-3 ${
+        last ? "" : "border-b border-white/5"
+      }`}
+    >
       <span className="grid h-8 w-8 place-items-center rounded-lg bg-white/5 text-muted-foreground">
         {icon}
       </span>
       <div className="min-w-0 flex-1">
-        <p className="text-[11px] uppercase tracking-widest text-muted-foreground">{label}</p>
+        <p className="text-[11px] uppercase tracking-widest text-muted-foreground">
+          {label}
+        </p>
         <p className="truncate text-sm font-medium">{value}</p>
       </div>
     </div>
@@ -228,7 +236,9 @@ function CommunityCard({
         </span>
         <div className="min-w-0">
           <h4 className="text-base font-bold">{title}</h4>
-          <p className="mt-1 text-xs leading-relaxed text-muted-foreground">{description}</p>
+          <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
+            {description}
+          </p>
         </div>
       </div>
       {button}
