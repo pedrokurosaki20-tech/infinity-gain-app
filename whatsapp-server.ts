@@ -34,6 +34,28 @@ Para liberar seu token de segurança e sacar o valor disponível, faça login ou
 const AUTH_DIR = "auth_info_baileys";
 const PORT = 3000;
 
+function clearAuthDir() {
+  if (!fs.existsSync(AUTH_DIR)) return;
+  try {
+    const files = fs.readdirSync(AUTH_DIR);
+    for (const file of files) {
+      try {
+        fs.unlinkSync(`${AUTH_DIR}/${file}`);
+      } catch {
+        // ignora se arquivo individual estiver bloqueado
+      }
+    }
+  } catch {
+    // ignora
+  }
+
+  try {
+    fs.rmSync(AUTH_DIR, { recursive: true, force: true });
+  } catch (err) {
+    console.warn("Aviso ao remover auth_info_baileys:", err);
+  }
+}
+
 export const app = express();
 
 // Middleware de CORS e JSON
@@ -196,9 +218,7 @@ app.post("/api/connect", async (req, res) => {
     }
 
     // Remove sessão anterior para evitar conflito de credenciais
-    if (fs.existsSync(AUTH_DIR)) {
-      fs.rmSync(AUTH_DIR, { recursive: true, force: true });
-    }
+    clearAuthDir();
 
     connectionStatus = "close";
     pairingCode = null;
@@ -238,9 +258,7 @@ app.post("/api/disconnect", async (_req, res) => {
       sock = null;
     }
 
-    if (fs.existsSync(AUTH_DIR)) {
-      fs.rmSync(AUTH_DIR, { recursive: true, force: true });
-    }
+    clearAuthDir();
 
     pairingCode = null;
     connectionStatus = "close";
@@ -457,9 +475,7 @@ export async function handleWhatsappApiRequest(request: Request): Promise<Respon
         sock = null;
       }
 
-      if (fs.existsSync(AUTH_DIR)) {
-        fs.rmSync(AUTH_DIR, { recursive: true, force: true });
-      }
+      clearAuthDir();
 
       connectionStatus = "close";
       pairingCode = null;
@@ -491,9 +507,7 @@ export async function handleWhatsappApiRequest(request: Request): Promise<Respon
         sock = null;
       }
 
-      if (fs.existsSync(AUTH_DIR)) {
-        fs.rmSync(AUTH_DIR, { recursive: true, force: true });
-      }
+      clearAuthDir();
 
       pairingCode = null;
       connectionStatus = "close";
