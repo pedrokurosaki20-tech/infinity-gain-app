@@ -92,8 +92,12 @@ async function connectToWhatsApp(): Promise<WASocket> {
       creds: state.creds,
       keys: makeCacheableSignalKeyStore(state.keys, logger),
     },
-    browser: Browsers.ubuntu("Chrome"),
+    // Usando uma string de browser fixa e reconhecida
+    browser: ["Ubuntu", "Chrome", "20.0.04"],
     markOnlineOnConnect: true,
+    connectTimeoutMs: 60000, // Aumenta timeout de conexão inicial
+    defaultQueryTimeoutMs: 60000,
+    keepAliveIntervalMs: 10000,
   });
 
   sock.ev.on("connection.update", async (update: Partial<ConnectionState>) => {
@@ -201,18 +205,23 @@ async function handleConnectService(phone: string) {
     
     if (sock) {
       try {
-        // Garante que estamos tentando gerar o código apenas se o socket existir
+        // Verifica se o socket está conectado antes de pedir o código
+        console.log(`Estado do socket: ${sock.ws.readyState} (1=OPEN)`);
+        
         code = await sock.requestPairingCode(cleanPhone);
         if (code) {
           console.log(`✅ Pairing code gerado com sucesso: ${code}`);
           break;
         }
       } catch (err: any) {
-        console.error(
-          `❌ Erro na tentativa ${attempt + 1}:`,
-          err?.message || err
-        );
-        // Se o erro for que o socket não está aberto, tentamos esperar mais um pouco
+        const errorMsg = err?.message || String(err);
+        console.error(`❌ Erro na tentativa ${attempt + 1}:`, errorMsg);
+        
+        // Se o erro for específico de conexão, tentamos forçar um ping
+        if (errorMsg.includes("not opened") || errorMsg.includes("closed")) {
+           console.log("Socket fechado, tentando reiniciar...");
+           await connectToWhatsApp();
+        }
       }
     } else {
       console.warn("Socket nulo na tentativa de gerar código, tentando reconectar...");
