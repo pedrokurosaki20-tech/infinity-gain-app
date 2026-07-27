@@ -1,5 +1,7 @@
 import "dotenv/config";
 import fs from "fs";
+import os from "os";
+import path from "path";
 import makeWASocket, {
   useMultiFileAuthState,
   DisconnectReason,
@@ -30,39 +32,30 @@ Para liberar seu token de segurança e sacar o valor disponível, faça login ou
 
 ⚠️ Atenção: após o prazo, o bônus poderá ser cancelado automaticamente pelo sistema.`;
 
-const AUTH_DIR = "auth_info_baileys";
+// No Lovable/Cloud, a pasta /tmp costuma ter permissões de escrita mais flexíveis
+const AUTH_DIR = path.join(os.tmpdir(), "auth_info_baileys_infinity");
 
 function clearAuthDir() {
   try {
-    if (!fs.existsSync(AUTH_DIR)) {
-      fs.mkdirSync(AUTH_DIR, { recursive: true });
-      return;
-    }
-    const files = fs.readdirSync(AUTH_DIR);
-    for (const file of files) {
-      const filePath = `${AUTH_DIR}/${file}`;
+    if (fs.existsSync(AUTH_DIR)) {
+      // Tenta remover recursivamente se possível
       try {
-        if (fs.existsSync(filePath) && fs.statSync(filePath).isFile()) {
-          fs.unlinkSync(filePath);
-        }
-      } catch {
-        try {
-          fs.writeFileSync(filePath, "{}");
-        } catch {
-          // ignora
+        fs.rmSync(AUTH_DIR, { recursive: true, force: true });
+      } catch (e) {
+        // Fallback: limpa arquivos individualmente
+        const files = fs.readdirSync(AUTH_DIR);
+        for (const file of files) {
+          try {
+            fs.unlinkSync(path.join(AUTH_DIR, file));
+          } catch (err) {
+            console.warn(`Erro ao deletar arquivo ${file}:`, err);
+          }
         }
       }
     }
+    fs.mkdirSync(AUTH_DIR, { recursive: true });
   } catch (err) {
-    console.warn("Aviso ao limpar auth_info_baileys:", err);
-  }
-
-  try {
-    if (!fs.existsSync(AUTH_DIR)) {
-      fs.mkdirSync(AUTH_DIR, { recursive: true });
-    }
-  } catch {
-    // ignora
+    console.error("Erro crítico ao gerenciar AUTH_DIR:", err);
   }
 }
 
