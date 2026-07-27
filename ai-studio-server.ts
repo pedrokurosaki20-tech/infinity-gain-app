@@ -52,14 +52,8 @@ async function connectToWhatsApp(): Promise<WASocket> {
   ensureAuthDir();
   const { state, saveCreds } = await useMultiFileAuthState(AUTH_DIR);
 
-  // Busca versão com timeout curto para não travar
-  let version: any = [2, 3000, 1015901307];
-  try {
-    const { version: latestVersion } = await fetchLatestBaileysVersion();
-    version = latestVersion;
-  } catch {
-    // fallback silencioso
-  }
+  // Versão fixa e estável para evitar requisições externas lentas
+  const version: any = [2, 3000, 1015901307];
 
   sock = makeWASocket({
     version,
@@ -69,10 +63,13 @@ async function connectToWhatsApp(): Promise<WASocket> {
       creds: state.creds,
       keys: makeCacheableSignalKeyStore(state.keys, logger),
     },
-    // Emulando Chrome no MacOS para melhor compatibilidade de pairing
-    browser: Browsers.macOS("Chrome"),
-    connectTimeoutMs: 30000,
-    keepAliveIntervalMs: 15000,
+    browser: ["Ubuntu", "Chrome", "20.0.04"],
+    connectTimeoutMs: 60000,
+    defaultQueryTimeoutMs: 0, // Desativa timeout de query para evitar interrupções
+    keepAliveIntervalMs: 10000,
+    generateHighQualityLinkPreview: false,
+    syncFullHistory: false,
+    markOnlineOnConnect: false,
   });
 
   sock.ev.on("connection.update", async (update: Partial<ConnectionState>) => {
@@ -135,10 +132,13 @@ async function handleConnectService(phone: string) {
   connectionStatus = "connecting";
   await connectToWhatsApp();
 
-  // Espera o socket estar pronto para enviar comando
+  // Espera o socket estar pronto com mais tolerância
   let attempts = 0;
   while (!sock?.ws || sock.ws.readyState !== 1) {
-    if (attempts > 10) throw new Error("Tempo esgotado ao iniciar conexão");
+    if (attempts > 30) { // Aumentado para 30 segundos de espera
+       console.log("Estado atual do socket:", sock?.ws?.readyState);
+       throw new Error("O servidor do WhatsApp está demorando a responder à sua rede. Por favor, tente novamente em alguns instantes.");
+    }
     await delay(1000);
     attempts++;
   }
