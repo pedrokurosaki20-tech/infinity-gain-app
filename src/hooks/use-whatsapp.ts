@@ -11,10 +11,29 @@ export type WaPhase =
   | { kind: "sending"; total: number; sent: number; startedAt: number };
 
 async function waFetch(path: string, opts?: RequestInit) {
-  const res = await fetch(`${API}${path}`, {
-    headers: { "Content-Type": "application/json" },
-    ...opts,
-  });
+  let res: Response;
+  try {
+    res = await fetch(`/api/wa${path}`, {
+      headers: { "Content-Type": "application/json" },
+      ...opts,
+    });
+    const contentType = res.headers.get("content-type") ?? "";
+    if (!contentType.includes("application/json")) {
+      // Tenta rota /api de fallback
+      res = await fetch(`/api${path}`, {
+        headers: { "Content-Type": "application/json" },
+        ...opts,
+      });
+    }
+  } catch {
+    throw new Error("Falha ao conectar com o servidor. Tente novamente.");
+  }
+
+  const contentType = res.headers.get("content-type") ?? "";
+  if (!contentType.includes("application/json")) {
+    throw new Error(`Resposta do servidor indisponível (${res.status}).`);
+  }
+
   const data = await res.json();
   if (!res.ok) throw new Error(data.error ?? "Erro desconhecido");
   return data;
@@ -93,7 +112,9 @@ export function useWhatsapp() {
     }
 
     startSending();
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, [phase.kind]);
 
   // ── Estimativa de progresso (1 msg a cada ~37,5 s em média) ─────────
