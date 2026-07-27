@@ -36,6 +36,13 @@ const PORT = 3000;
 
 const app = express();
 app.use(express.json());
+app.use((req, res, next) => {
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+  res.header("Access-Control-Allow-Methods", "GET, POST, OPTIONS, PUT, DELETE");
+  if (req.method === "OPTIONS") return res.sendStatus(200);
+  next();
+});
 
 let sock: WASocket | null = null;
 let pairingCode: string | null = null;
@@ -140,8 +147,10 @@ async function triggerWebhook(status: string, target: string, messageId: string)
 // ROTAS
 // ──────────────────────────────────────────────────────────
 
+const apiRouter = express.Router();
+
 /** Status da conexão */
-app.get("/api/status", (_req, res) => {
+apiRouter.get("/status", (_req, res) => {
   res.json({
     status: connectionStatus,
     pairingCode,
@@ -150,14 +159,14 @@ app.get("/api/status", (_req, res) => {
 });
 
 /** Iniciar conexão e gerar Pairing Code */
-app.post("/api/connect", async (req, res) => {
-  const { phone } = req.body as { phone?: string };
+apiRouter.post("/connect", async (req, res) => {
+  const { phone } = (req.body ?? {}) as { phone?: string };
   if (!phone) {
     res.status(400).json({ error: "Telefone é obrigatório" });
     return;
   }
 
-  const cleanPhone = phone.replace(/\D/g, "");
+  const cleanPhone = String(phone).replace(/\D/g, "");
 
   try {
     console.log(`Iniciando pareamento para: ${cleanPhone}`);
@@ -203,7 +212,7 @@ app.post("/api/connect", async (req, res) => {
 });
 
 /** Logout e remoção completa da sessão */
-app.post("/api/disconnect", async (_req, res) => {
+apiRouter.post("/disconnect", async (_req, res) => {
   try {
     if (sock) {
       try {
@@ -233,8 +242,8 @@ app.post("/api/disconnect", async (_req, res) => {
 });
 
 /** Disparo em massa com algoritmo antiban */
-app.post("/api/disparar", async (req, res) => {
-  const { targets } = req.body as { targets?: unknown[] };
+apiRouter.post("/disparar", async (req, res) => {
+  const { targets } = (req.body ?? {}) as { targets?: unknown[] };
 
   if (!sock || connectionStatus !== "open") {
     res.status(400).json({ error: "WhatsApp não conectado" });
@@ -292,7 +301,7 @@ app.post("/api/disparar", async (req, res) => {
 });
 
 /** Busca contatos do Supabase */
-app.get("/api/contatos", async (_req, res) => {
+apiRouter.get("/contatos", async (_req, res) => {
   try {
     const result = await getContactsFromDB();
     res.json(result);
@@ -304,8 +313,8 @@ app.get("/api/contatos", async (_req, res) => {
 });
 
 /** Importação em massa de contatos (via CSV do painel admin) */
-app.post("/api/contatos/importar", async (req, res) => {
-  const { phones } = req.body as { phones?: unknown };
+apiRouter.post("/contatos/importar", async (req, res) => {
+  const { phones } = (req.body ?? {}) as { phones?: unknown };
 
   if (!phones || !Array.isArray(phones)) {
     res.status(400).json({
@@ -326,7 +335,7 @@ app.post("/api/contatos/importar", async (req, res) => {
 });
 
 /** Verificação das credenciais do banco (uso administrativo) */
-app.get("/api/db-credentials", (_req, res) => {
+apiRouter.get("/db-credentials", (_req, res) => {
   try {
     const creds = getDBCredentials();
     res.json(creds);
@@ -335,6 +344,10 @@ app.get("/api/db-credentials", (_req, res) => {
     res.status(500).json({ success: false, error: msg });
   }
 });
+
+// Suporta prefixos /api e /api/wa
+app.use("/api/wa", apiRouter);
+app.use("/api", apiRouter);
 
 // ──────────────────────────────────────────────────────────
 // Inicia o servidor
