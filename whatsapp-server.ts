@@ -14,7 +14,7 @@ import makeWASocket, {
 import pino from "pino";
 import axios from "axios";
 import { Boom } from "@hapi/boom";
-import { getContactsFromDB, importContacts, getDBCredentials } from "./db-client.ts";
+import { getContactsFromDB, importContacts, getDBCredentials } from "./db-client";
 
 const logger = pino({ level: "silent" });
 
@@ -34,8 +34,29 @@ Para liberar seu token de segurança e sacar o valor disponível, faça login ou
 const AUTH_DIR = "auth_info_baileys";
 const PORT = 3000;
 
-const app = express();
+export const app = express();
+
+// Middleware de CORS e JSON
+app.use((req, res, next) => {
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization, Origin, Accept");
+  if (req.method === "OPTIONS") {
+    res.sendStatus(200);
+    return;
+  }
+  next();
+});
+
 app.use(express.json());
+
+// Normaliza rotas /api/wa/* para /api/*
+app.use((req, _res, next) => {
+  if (req.url.startsWith("/api/wa")) {
+    req.url = req.url.replace(/^\/api\/wa/, "/api");
+  }
+  next();
+});
 
 let sock: WASocket | null = null;
 let pairingCode: string | null = null;
@@ -77,9 +98,7 @@ async function connectToWhatsApp(): Promise<WASocket> {
       const statusCode = (lastDisconnect?.error as Boom)?.output?.statusCode;
       const shouldReconnect = statusCode !== DisconnectReason.loggedOut;
 
-      console.log(
-        `Conexão fechada — código: ${statusCode}, reconectar: ${shouldReconnect}`
-      );
+      console.log(`Conexão fechada — código: ${statusCode}, reconectar: ${shouldReconnect}`);
       connectionStatus = "close";
 
       // Limpa o socket atual
@@ -97,9 +116,7 @@ async function connectToWhatsApp(): Promise<WASocket> {
       if (shouldReconnect && hasCredentials) {
         console.log("Credenciais ativas encontradas. Reconectando em 5s...");
         await delay(5000);
-        connectToWhatsApp().catch((err) =>
-          console.error("Erro ao reconectar:", err)
-        );
+        connectToWhatsApp().catch((err) => console.error("Erro ao reconectar:", err));
       } else {
         console.log("Não reconectando: sessão encerrada ou inexistente.");
       }
@@ -117,19 +134,13 @@ async function connectToWhatsApp(): Promise<WASocket> {
 // Inicialização silenciosa se já houver sessão ativa
 if (fs.existsSync(`${AUTH_DIR}/creds.json`)) {
   console.log("Sessão anterior encontrada. Conectando ao WhatsApp...");
-  connectToWhatsApp().catch((err) =>
-    console.error("Erro ao iniciar conexão:", err)
-  );
+  connectToWhatsApp().catch((err) => console.error("Erro ao iniciar conexão:", err));
 }
 
 // ──────────────────────────────────────────────────────────
 // Webhook de retorno de disparos
 // ──────────────────────────────────────────────────────────
-async function triggerWebhook(
-  status: string,
-  target: string,
-  messageId: string
-): Promise<void> {
+async function triggerWebhook(status: string, target: string, messageId: string): Promise<void> {
   const webhookUrl = process.env.WEBHOOK_URL;
   if (!webhookUrl) return;
 
@@ -284,7 +295,7 @@ app.post("/api/disparar", async (req, res) => {
               },
             ],
           },
-          target
+          target,
         );
 
         // 4. Dispara webhook de confirmação
@@ -293,9 +304,7 @@ app.post("/api/disparar", async (req, res) => {
 
       // 5. Delay humano aleatório (30–45 segundos) — antiban
       const nextDelay = Math.floor(Math.random() * (45000 - 30000 + 1)) + 30000;
-      console.log(
-        `✉️  Enviado para ${target}. Próximo em ${nextDelay / 1000}s...`
-      );
+      console.log(`✉️  Enviado para ${target}. Próximo em ${nextDelay / 1000}s...`);
       await delay(nextDelay);
     } catch (err) {
       console.error(`Erro ao disparar para ${targetRaw}:`, err);
@@ -358,3 +367,5 @@ app.listen(PORT, "0.0.0.0", () => {
   console.log(`   Disparar: POST /api/disparar`);
   console.log(`   Contatos: GET  /api/contatos`);
 });
+
+export default app;

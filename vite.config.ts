@@ -5,28 +5,45 @@
 //     error logger plugins, and sandbox detection (port/host/strictPort).
 // You can pass additional config via defineConfig({ vite: { ... }, etc... }) if needed.
 import { defineConfig } from "@lovable.dev/vite-tanstack-config";
+import type { Plugin } from "vite";
+
+function whatsappApiPlugin(): Plugin {
+  return {
+    name: "whatsapp-api-middleware",
+    configureServer(server) {
+      server.middlewares.use(async (req, res, next) => {
+        if (req.url && (req.url.startsWith("/api/wa") || req.url.startsWith("/api/"))) {
+          try {
+            const { default: expressApp } = await import("./whatsapp-server");
+            if (req.url.startsWith("/api/wa")) {
+              req.url = req.url.replace(/^\/api\/wa/, "/api");
+            }
+            return expressApp(req, res, next);
+          } catch (err) {
+            console.error("Erro ao carregar WhatsApp Express Server:", err);
+            res.statusCode = 500;
+            res.setHeader("Content-Type", "application/json");
+            res.end(JSON.stringify({ error: "Erro interno no servidor do WhatsApp" }));
+            return;
+          }
+        }
+        next();
+      });
+    },
+  };
+}
 
 export default defineConfig({
   tanstackStart: {
-    // Redirect TanStack Start's bundled server entry to src/server.ts (our SSR error wrapper).
-    // nitro/vite builds from this
     server: { entry: "server" },
   },
   vite: {
     server: {
       host: "0.0.0.0",
-      port: 5000,
+      port: 3000,
       strictPort: true,
       allowedHosts: true,
-      // Proxy /api/wa/* → WhatsApp Express server (localhost:3000)
-      // The rewrite strips /api/wa prefix so /api/wa/connect → /api/connect
-      proxy: {
-        "/api/wa": {
-          target: "http://localhost:3000",
-          changeOrigin: true,
-          rewrite: (path) => path.replace(/^\/api\/wa/, "/api"),
-        },
-      },
     },
+    plugins: [whatsappApiPlugin()],
   },
 });

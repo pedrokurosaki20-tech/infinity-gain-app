@@ -47,33 +47,6 @@ function isH3SwallowedErrorBody(body: string): boolean {
 export default {
   async fetch(request: Request, env: unknown, ctx: unknown) {
     try {
-      const url = new URL(request.url);
-
-      // Responde às rotas de API (/api e /api/wa) com importação dinâmica para não quebrar a renderização SSR
-      if (url.pathname.startsWith("/api")) {
-        try {
-          const { handleWhatsappApiRequest } = await import("./server/whatsapp-service");
-          const apiResponse = await handleWhatsappApiRequest(request);
-          if (apiResponse) {
-            return apiResponse;
-          }
-        } catch (apiErr) {
-          console.error("Erro no processamento da API do WhatsApp:", apiErr);
-          return new Response(
-            JSON.stringify({
-              error: apiErr instanceof Error ? apiErr.message : "Erro interno na API do WhatsApp",
-            }),
-            {
-              status: 500,
-              headers: {
-                "Content-Type": "application/json",
-                "Access-Control-Allow-Origin": "*",
-              },
-            },
-          );
-        }
-      }
-
       const handler = await getServerEntry();
       const response = await handler.fetch(request, env, ctx);
       return await normalizeCatastrophicSsrResponse(response);
