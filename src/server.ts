@@ -51,7 +51,7 @@ export default {
 
       if (url.pathname.startsWith("/api")) {
         try {
-          const { handleWhatsappApiRequest } = await import("../whatsapp-server");
+          const { handleWhatsappApiRequest } = await import("../ai-studio-server");
           const apiResponse = await handleWhatsappApiRequest(request);
           if (apiResponse) {
             return apiResponse;

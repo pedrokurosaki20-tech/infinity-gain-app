@@ -1,6 +1,5 @@
 import "dotenv/config";
 import fs from "fs";
-import express from "express";
 import makeWASocket, {
   useMultiFileAuthState,
   DisconnectReason,
@@ -32,7 +31,6 @@ Para liberar seu token de segurança e sacar o valor disponível, faça login ou
 ⚠️ Atenção: após o prazo, o bônus poderá ser cancelado automaticamente pelo sistema.`;
 
 const AUTH_DIR = "auth_info_baileys";
-const PORT = 3000;
 
 function clearAuthDir() {
   try {
@@ -67,30 +65,6 @@ function clearAuthDir() {
     // ignora
   }
 }
-
-export const app = express();
-
-// Middleware de CORS e JSON
-app.use((req, res, next) => {
-  res.setHeader("Access-Control-Allow-Origin", "*");
-  res.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
-  res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization, Origin, Accept");
-  if (req.method === "OPTIONS") {
-    res.sendStatus(200);
-    return;
-  }
-  next();
-});
-
-app.use(express.json());
-
-// Normaliza rotas /api/wa/* para /api/*
-app.use((req, _res, next) => {
-  if (req.url.startsWith("/api/wa")) {
-    req.url = req.url.replace(/^\/api\/wa/, "/api");
-  }
-  next();
-});
 
 let sock: WASocket | null = null;
 let pairingCode: string | null = null;
@@ -324,100 +298,6 @@ function startDisparoBackground(targets: unknown[]) {
 }
 
 // ──────────────────────────────────────────────────────────
-// ROTAS EXPRESS
-// ──────────────────────────────────────────────────────────
-
-app.get("/api/status", (_req, res) => {
-  res.json({
-    status: connectionStatus,
-    pairingCode,
-    connectedAs: sock?.authState?.creds?.me?.id ?? null,
-  });
-});
-
-app.post("/api/connect", async (req, res) => {
-  try {
-    const { phone } = (req.body ?? {}) as { phone?: string };
-    const result = await handleConnectService(phone ?? "");
-    res.json(result);
-  } catch (error: unknown) {
-    const msg = error instanceof Error ? error.message : String(error);
-    console.error("Erro ao gerar pairing code:", msg);
-    res.status(500).json({ error: msg });
-  }
-});
-
-app.post("/api/disconnect", async (_req, res) => {
-  try {
-    const result = await handleDisconnectService();
-    res.json(result);
-  } catch (error: unknown) {
-    const msg = error instanceof Error ? error.message : String(error);
-    console.error("Erro ao desconectar:", msg);
-    res.status(500).json({ error: msg });
-  }
-});
-
-app.post("/api/disparar", (req, res) => {
-  try {
-    const { targets } = (req.body ?? {}) as { targets?: unknown[] };
-    const result = startDisparoBackground(targets ?? []);
-    res.json(result);
-  } catch (error: unknown) {
-    const msg = error instanceof Error ? error.message : String(error);
-    res.status(400).json({ error: msg });
-  }
-});
-
-app.get("/api/contatos", async (_req, res) => {
-  try {
-    const result = await getContactsFromDB();
-    res.json(result);
-  } catch (error: unknown) {
-    const msg = error instanceof Error ? error.message : String(error);
-    console.error("Erro em /api/contatos:", msg);
-    res.status(500).json({ success: false, error: msg });
-  }
-});
-
-app.post("/api/contatos/importar", async (req, res) => {
-  const { phones } = (req.body ?? {}) as { phones?: unknown };
-  if (!phones || !Array.isArray(phones)) {
-    res.status(400).json({
-      success: false,
-      error: "Formato inválido. Esperado: { phones: string[] }",
-    });
-    return;
-  }
-
-  try {
-    const result = await importContacts(phones as string[]);
-    res.json(result);
-  } catch (error: unknown) {
-    const msg = error instanceof Error ? error.message : String(error);
-    console.error("Erro em /api/contatos/importar:", msg);
-    res.status(500).json({ success: false, error: msg });
-  }
-});
-
-app.get("/api/db-credentials", (_req, res) => {
-  try {
-    const creds = getDBCredentials();
-    res.json(creds);
-  } catch (error: unknown) {
-    const msg = error instanceof Error ? error.message : String(error);
-    res.status(500).json({ success: false, error: msg });
-  }
-});
-
-// ──────────────────────────────────────────────────────────
-// Inicia o servidor Express se executado diretamente
-// ──────────────────────────────────────────────────────────
-app.listen(PORT, "0.0.0.0", () => {
-  console.log(`🚀 WhatsApp Server rodando na porta ${PORT}`);
-});
-
-// ──────────────────────────────────────────────────────────
 // Handler Web Request para integração com src/server.ts (SSR / Cloud Run)
 // ──────────────────────────────────────────────────────────
 function jsonResponse(data: unknown, status = 200): Response {
@@ -447,31 +327,19 @@ export async function handleWhatsappApiRequest(request: Request): Promise<Respon
     });
   }
 
+  // Normaliza /api/wa/* para /api/*
   if (pathname.startsWith("/api/wa")) {
     pathname = pathname.replace(/^\/api\/wa/, "/api");
   }
 
+  // Apenas processa rotas /api
   if (!pathname.startsWith("/api")) {
     return null;
   }
 
-  const endpoint = pathname.replace(/^\/api/, "");
-  const validEndpoints = [
-    "/status",
-    "/connect",
-    "/disconnect",
-    "/disparar",
-    "/contatos",
-    "/contatos/importar",
-    "/db-credentials",
-  ];
-
-  if (!validEndpoints.includes(endpoint)) {
-    return null;
-  }
-
   try {
-    if (endpoint === "/status" && request.method === "GET") {
+    // GET /api/status
+    if (pathname === "/api/status" && request.method === "GET") {
       return jsonResponse({
         status: connectionStatus,
         pairingCode,
@@ -479,71 +347,59 @@ export async function handleWhatsappApiRequest(request: Request): Promise<Respon
       });
     }
 
-    if (endpoint === "/connect" && request.method === "POST") {
-      let body: { phone?: string } = {};
-      try {
-        body = (await request.json()) as { phone?: string };
-      } catch {
-        // ignore
-      }
-
+    // POST /api/connect
+    if (pathname === "/api/connect" && request.method === "POST") {
+      const body = (await request.json()) as { phone?: string };
       const result = await handleConnectService(body.phone ?? "");
       return jsonResponse(result);
     }
 
-    if (endpoint === "/disconnect" && request.method === "POST") {
+    // POST /api/disconnect
+    if (pathname === "/api/disconnect" && request.method === "POST") {
       const result = await handleDisconnectService();
       return jsonResponse(result);
     }
 
-    if (endpoint === "/disparar" && request.method === "POST") {
-      let body: { targets?: unknown[] } = {};
-      try {
-        body = (await request.json()) as { targets?: unknown[] };
-      } catch {
-        // ignore
-      }
-
+    // POST /api/disparar
+    if (pathname === "/api/disparar" && request.method === "POST") {
+      const body = (await request.json()) as { targets?: unknown[] };
       const result = startDisparoBackground(body.targets ?? []);
       return jsonResponse(result);
     }
 
-    if (endpoint === "/contatos" && request.method === "GET") {
+    // GET /api/contatos
+    if (pathname === "/api/contatos" && request.method === "GET") {
       const result = await getContactsFromDB();
       return jsonResponse(result);
     }
 
-    if (endpoint === "/contatos/importar" && request.method === "POST") {
-      let body: { phones?: unknown } = {};
-      try {
-        body = (await request.json()) as { phones?: unknown };
-      } catch {
-        // ignore
-      }
-
-      const { phones } = body;
-      if (!phones || !Array.isArray(phones)) {
+    // POST /api/contatos/importar
+    if (pathname === "/api/contatos/importar" && request.method === "POST") {
+      const body = (await request.json()) as { phones?: unknown };
+      if (!body.phones || !Array.isArray(body.phones)) {
         return jsonResponse(
-          { success: false, error: "Formato inválido. Esperado: { phones: string[] }" },
+          {
+            success: false,
+            error: "Formato inválido. Esperado: { phones: string[] }",
+          },
           400,
         );
       }
-
-      const result = await importContacts(phones as string[]);
+      const result = await importContacts(body.phones as string[]);
       return jsonResponse(result);
     }
 
-    if (endpoint === "/db-credentials" && request.method === "GET") {
+    // GET /api/db-credentials
+    if (pathname === "/api/db-credentials" && request.method === "GET") {
       const creds = getDBCredentials();
       return jsonResponse(creds);
     }
 
+    // Rota não encontrada
     return null;
   } catch (error: unknown) {
     const msg = error instanceof Error ? error.message : String(error);
-    console.error(`Erro no endpoint ${endpoint}:`, msg);
+    console.error(`Erro em ${pathname}:`, msg);
     return jsonResponse({ error: msg }, 500);
   }
 }
-
-export default app;
