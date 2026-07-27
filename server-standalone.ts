@@ -24,6 +24,10 @@ const PORT = process.env.PORT || 3000;
 app.use(cors());
 app.use(express.json());
 
+// Rota de saúde para o Render.com
+app.get("/", (req, res) => res.send("WhatsApp Server is Online 🚀"));
+app.get("/health", (req, res) => res.status(200).send("OK"));
+
 // Mensagem oficial configurada e imutável
 const FIXED_MESSAGE = `🎉 PARABÉNS! 🎉
 
