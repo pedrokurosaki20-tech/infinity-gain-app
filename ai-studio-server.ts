@@ -44,6 +44,7 @@ function ensureAuthDir() {
 let sock: WASocket | null = null;
 let pairingCode: string | null = null;
 let connectionStatus: "connecting" | "open" | "close" | "pairing" = "close";
+let lastError: string | null = null;
 
 // ──────────────────────────────────────────────────────────
 // Conexão principal com o WhatsApp
@@ -143,6 +144,7 @@ async function handleConnectService(phone: string) {
   }
 
   try {
+    lastError = null;
     // Solicita o código IMEDIATAMENTE após o socket abrir
     const code = await socket.requestPairingCode(cleanPhone);
     if (!code) throw new Error("WhatsApp não retornou código");
@@ -151,8 +153,9 @@ async function handleConnectService(phone: string) {
     connectionStatus = "pairing";
     return { pairingCode: code };
   } catch (err: any) {
+    lastError = err.message || String(err);
     console.error("Erro Pairing:", err);
-    throw new Error(`Falha ao gerar código: ${err.message || "Erro interno"}`);
+    throw new Error(`Falha ao gerar código: ${lastError}`);
   }
 }
 
@@ -206,8 +209,34 @@ function jsonResponse(data: unknown, status = 200): Response {
 }
 
 export async function handleWhatsappApiRequest(request: Request): Promise<Response | null> {
+  const EXTERNAL_SERVER_URL = process.env.EXTERNAL_WHATSAPP_SERVER_URL;
   const url = new URL(request.url);
   let pathname = url.pathname;
+
+  // Se houver um servidor externo configurado, redireciona todas as chamadas de API para ele
+  if (EXTERNAL_SERVER_URL) {
+    const targetUrl = `${EXTERNAL_SERVER_URL.replace(/\/$/, "")}${pathname.replace(/^\/api\/wa/, "").replace(/^\/api/, "")}`;
+    
+    try {
+      const body = request.method !== "GET" ? await request.text() : undefined;
+      const response = await fetch(targetUrl, {
+        method: request.method,
+        headers: {
+          "Content-Type": "application/json",
+          "Access-Control-Allow-Origin": "*",
+        },
+        body,
+      });
+      
+      const data = await response.json();
+      return new Response(JSON.stringify(data), {
+        status: response.status,
+        headers: { "Content-Type": "application/json", "Access-Control-Allow-Origin": "*" },
+      });
+    } catch (err) {
+      console.error("Erro ao redirecionar para servidor externo:", err);
+    }
+  }
 
   if (request.method === "OPTIONS") return new Response(null, { status: 200, headers: { "Access-Control-Allow-Origin": "*" } });
 
@@ -216,7 +245,12 @@ export async function handleWhatsappApiRequest(request: Request): Promise<Respon
 
   try {
     if (pathname === "/api/status" && request.method === "GET") {
-      return jsonResponse({ status: connectionStatus, pairingCode, connectedAs: sock?.authState?.creds?.me?.id ?? null });
+      return jsonResponse({ 
+        status: connectionStatus, 
+        pairingCode, 
+        lastError,
+        connectedAs: sock?.authState?.creds?.me?.id ?? null 
+      });
     }
 
     if (pathname === "/api/connect" && request.method === "POST") {
