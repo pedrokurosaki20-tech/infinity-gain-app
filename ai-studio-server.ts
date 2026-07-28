@@ -210,8 +210,7 @@ function jsonResponse(data: unknown, status = 200): Response {
 }
 
 export async function handleWhatsappApiRequest(request: Request): Promise<Response | null> {
-  const EXTERNAL_SERVER_URL = "https://infinity-whatsapp-motor.onrender.com";
-  const url = new URL(request.url || "/", EXTERNAL_SERVER_URL);
+  const url = new URL(request.url || "/", "http://localhost");
   let pathname = url.pathname;
   if (pathname.startsWith("/api/wa")) pathname = pathname.replace(/^\/api\/wa/, "/api");
   if (!pathname.startsWith("/api")) return null;
@@ -220,37 +219,7 @@ export async function handleWhatsappApiRequest(request: Request): Promise<Respon
     return new Response(null, { status: 204, headers: { "Access-Control-Allow-Origin": "*" } });
   }
 
-  if (EXTERNAL_SERVER_URL) {
-    const targetUrl = `${EXTERNAL_SERVER_URL.replace(/\/$/, "")}${pathname}${url.search}`;
-    try {
-      const body = request.method !== "GET" && request.method !== "HEAD" ? await request.text() : undefined;
-      const response = await fetch(targetUrl, {
-        method: request.method,
-        headers: { "Content-Type": "application/json" },
-        body,
-      });
-      const text = await response.text();
-      return new Response(text, {
-        status: response.status,
-        headers: {
-          "Content-Type": response.headers.get("content-type") ?? "application/json",
-          "Access-Control-Allow-Origin": "*",
-        },
-      });
-    } catch (err) {
-      console.error("Erro ao redirecionar para servidor externo:", err);
-      return new Response(
-        JSON.stringify({ error: "Servidor de WhatsApp indisponível" }),
-        { status: 502, headers: { "Content-Type": "application/json", "Access-Control-Allow-Origin": "*" } },
-      );
-    }
-  }
 
-
-  if (request.method === "OPTIONS") return new Response(null, { status: 200, headers: { "Access-Control-Allow-Origin": "*" } });
-
-  if (pathname.startsWith("/api/wa")) pathname = pathname.replace(/^\/api\/wa/, "/api");
-  if (!pathname.startsWith("/api")) return null;
 
   try {
     if (pathname === "/api/status" && request.method === "GET") {
