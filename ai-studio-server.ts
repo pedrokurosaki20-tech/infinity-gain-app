@@ -304,6 +304,6 @@ const server = createServer(async (req, res) => {
   }
 });
 
-server.listen(PORT, "0.0.0.0", () => {
+server.listen(Number(PORT), "0.0.0.0", () => {
   console.log(`Motor de disparo ativo na porta ${PORT}`);
 });
