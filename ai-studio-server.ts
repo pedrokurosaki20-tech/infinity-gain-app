@@ -264,23 +264,3 @@ export async function handleWhatsappApiRequest(request: Request): Promise<Respon
     return jsonResponse({ error: error.message }, 500);
   }
 }
-
-// Inicializador nativo do Servidor HTTP para manter o Bun ativo no Render
-const PORT = process.env.PORT || 3000;
-import { createServer } from "http";
-
-const server = createServer(async (req, res) => {
-  // Encaminha as requisições da web direto para a nossa lógica de rotas
-  const response = await handleWhatsappApiRequest(req as any);
-  if (response) {
-    res.writeHead(response.status, response.headers as any);
-    res.end(await response.text());
-  } else {
-    res.writeHead(404);
-    res.end("Não encontrado");
-  }
-});
-
-server.listen(Number(PORT), "0.0.0.0", () => {
-  console.log(`Motor de disparo ativo na porta ${PORT}`);
-});
