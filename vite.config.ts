@@ -16,26 +16,50 @@ function whatsappApiPlugin(): Plugin {
     name: "whatsapp-api-middleware",
     configureServer(server) {
       server.middlewares.use(async (req, res, next) => {
-        if (req.url && (req.url.startsWith("/api/wa") || req.url.startsWith("/api/"))) {
-          try {
-            const { default: expressApp } = await import("./whatsapp-server");
-            if (req.url.startsWith("/api/wa")) {
-              req.url = req.url.replace(/^\/api\/wa/, "/api");
-            }
-            return expressApp(req, res, next);
-          } catch (err) {
-            console.error("Erro ao carregar WhatsApp Express Server:", err);
-            res.statusCode = 500;
-            res.setHeader("Content-Type", "application/json");
-            res.end(JSON.stringify({ error: "Erro interno no servidor do WhatsApp" }));
-            return;
-          }
+        if (!req.url || !(req.url.startsWith("/api/wa") || req.url.startsWith("/api/"))) {
+          return next();
         }
-        next();
+        try {
+          const { handleWhatsappApiRequest } = await import("./ai-studio-server");
+          const host = req.headers.host ?? "localhost";
+          const url = new URL(req.url, `http://${host}`);
+          const method = req.method ?? "GET";
+
+          let body: string | undefined;
+          if (method !== "GET" && method !== "HEAD") {
+            body = await new Promise<string>((resolve, reject) => {
+              const chunks: Buffer[] = [];
+              req.on("data", (c) => chunks.push(Buffer.from(c)));
+              req.on("end", () => resolve(Buffer.concat(chunks).toString("utf8")));
+              req.on("error", reject);
+            });
+          }
+
+          const headers: Record<string, string> = {};
+          for (const [k, v] of Object.entries(req.headers)) {
+            if (typeof v === "string") headers[k] = v;
+            else if (Array.isArray(v)) headers[k] = v.join(", ");
+          }
+
+          const request = new Request(url.toString(), { method, headers, body });
+          const response = await handleWhatsappApiRequest(request);
+          if (!response) return next();
+
+          res.statusCode = response.status;
+          response.headers.forEach((value, key) => res.setHeader(key, value));
+          const text = await response.text();
+          res.end(text);
+        } catch (err) {
+          console.error("Erro no middleware WhatsApp:", err);
+          res.statusCode = 500;
+          res.setHeader("Content-Type", "application/json");
+          res.end(JSON.stringify({ error: "Erro interno no servidor do WhatsApp" }));
+        }
       });
     },
   };
 }
+
 
 export default defineConfig({
   tanstackStart: {
