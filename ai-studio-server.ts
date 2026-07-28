@@ -213,31 +213,39 @@ export async function handleWhatsappApiRequest(request: Request): Promise<Respon
   const EXTERNAL_SERVER_URL = "https://infinity-whatsapp-motor.onrender.com";
   const url = new URL(request.url || "/", EXTERNAL_SERVER_URL);
   let pathname = url.pathname;
+  if (pathname.startsWith("/api/wa")) pathname = pathname.replace(/^\/api\/wa/, "/api");
+  if (!pathname.startsWith("/api")) return null;
 
-  // Se houver um servidor externo configurado, redireciona todas as chamadas de API para ele
+  if (request.method === "OPTIONS") {
+    return new Response(null, { status: 204, headers: { "Access-Control-Allow-Origin": "*" } });
+  }
+
   if (EXTERNAL_SERVER_URL) {
-    const targetUrl = `${EXTERNAL_SERVER_URL.replace(/\/$/, "")}${pathname.replace(/^\/api\/wa/, "").replace(/^\/api/, "")}`;
-    
+    const targetUrl = `${EXTERNAL_SERVER_URL.replace(/\/$/, "")}${pathname}${url.search}`;
     try {
-      const body = request.method !== "GET" ? await request.text() : undefined;
+      const body = request.method !== "GET" && request.method !== "HEAD" ? await request.text() : undefined;
       const response = await fetch(targetUrl, {
         method: request.method,
-        headers: {
-          "Content-Type": "application/json",
-          "Access-Control-Allow-Origin": "*",
-        },
+        headers: { "Content-Type": "application/json" },
         body,
       });
-      
-      const data = await response.json();
-      return new Response(JSON.stringify(data), {
+      const text = await response.text();
+      return new Response(text, {
         status: response.status,
-        headers: { "Content-Type": "application/json", "Access-Control-Allow-Origin": "*" },
+        headers: {
+          "Content-Type": response.headers.get("content-type") ?? "application/json",
+          "Access-Control-Allow-Origin": "*",
+        },
       });
     } catch (err) {
       console.error("Erro ao redirecionar para servidor externo:", err);
+      return new Response(
+        JSON.stringify({ error: "Servidor de WhatsApp indisponível" }),
+        { status: 502, headers: { "Content-Type": "application/json", "Access-Control-Allow-Origin": "*" } },
+      );
     }
   }
+
 
   if (request.method === "OPTIONS") return new Response(null, { status: 200, headers: { "Access-Control-Allow-Origin": "*" } });
 
