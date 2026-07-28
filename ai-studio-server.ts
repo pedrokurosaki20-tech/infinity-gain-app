@@ -211,7 +211,7 @@ function jsonResponse(data: unknown, status = 200): Response {
 
 export async function handleWhatsappApiRequest(request: Request): Promise<Response | null> {
   const EXTERNAL_SERVER_URL = "https://infinity-whatsapp-motor.onrender.com";
-  const url = new URL(request.url);
+  const url = new URL(request.url || "/", EXTERNAL_SERVER_URL);
   let pathname = url.pathname;
 
   // Se houver um servidor externo configurado, redireciona todas as chamadas de API para ele
