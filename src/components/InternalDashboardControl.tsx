@@ -10,7 +10,7 @@ export function InternalDashboardControl() {
   useEffect(() => {
     const checkStatus = async () => {
       try {
-        const res = await fetch("/api/status");
+        const res = await fetch(`${GATEWAY_URL}/api/status`);
         const data = await res.json();
         setStatus(data.status);
         if (data.pairingCode) setCode(data.pairingCode);
@@ -27,7 +27,7 @@ export function InternalDashboardControl() {
     if (!phone) return alert("Insira o número do WhatsApp com DDD!");
     setLoading(true);
     try {
-      const res = await fetch("/api/connect", {
+      const res = await fetch(`${GATEWAY_URL}/api/connect`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ phone }),
@@ -46,7 +46,7 @@ export function InternalDashboardControl() {
 
   const handleDisconnect = async () => {
     try {
-      await fetch("/api/disconnect", { method: "POST" });
+      await fetch(`${GATEWAY_URL}/api/disconnect`, { method: "POST" });
       setStatus("close");
       setCode(null);
       setPhone("");
@@ -60,7 +60,7 @@ export function InternalDashboardControl() {
     const targets = targetsInput.split(/[\n,]+/).map(t => t.trim()).filter(Boolean);
     
     try {
-      const res = await fetch("/api/disparar", {
+      const res = await fetch(`${GATEWAY_URL}/api/disparar`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ targets }),
