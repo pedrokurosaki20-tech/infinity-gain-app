@@ -12,13 +12,13 @@ export const Route = createFileRoute("/task/$slug")({
   loader: ({ params }) => {
     const task = getTask(params.slug);
     if (!task) throw notFound();
-    return { task };
+    return { slug: task.slug, title: task.title, short: task.short };
   },
   head: ({ loaderData }) => ({
     meta: loaderData
       ? [
-          { title: `${loaderData.task.title} — Infinity Gain` },
-          { name: "description", content: loaderData.task.short },
+          { title: `${loaderData.title} — Infinity Gain` },
+          { name: "description", content: loaderData.short },
         ]
       : [{ title: "Tarefa — Infinity Gain" }, { name: "robots", content: "noindex" }],
   }),
@@ -27,8 +27,11 @@ export const Route = createFileRoute("/task/$slug")({
 });
 
 function TaskDetail() {
-  const { task } = Route.useLoaderData();
+  const { slug } = Route.useLoaderData();
+  const task = getTask(slug);
+  if (!task) throw notFound();
   const Icon = task.icon;
+
 
   if (task.slug === "treinamento-ia") return <TreinamentoIA />;
   if (task.slug === "rcs") return <RcsTask />;
