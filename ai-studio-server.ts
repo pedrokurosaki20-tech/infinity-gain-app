@@ -264,10 +264,48 @@ export async function handleWhatsappApiRequest(request: Request): Promise<Respon
     return jsonResponse({ error: error.message }, 500);
   }
 }
+import { createServer } from "http";
+
 const PORT = process.env.PORT || 3000;
 
 const server = createServer(async (req, res) => {
-  ...
+  const host = req.headers.host ?? "localhost";
+  const url = new URL(req.url ?? "/", `http://${host}`);
+
+  const headers: Record<string, string> = {};
+  for (const [k, v] of Object.entries(req.headers)) {
+    if (typeof v === "string") headers[k] = v;
+    else if (Array.isArray(v)) headers[k] = v.join(", ");
+  }
+
+  let body: string | undefined;
+
+  if (req.method !== "GET" && req.method !== "HEAD") {
+    body = await new Promise<string>((resolve, reject) => {
+      const chunks: Buffer[] = [];
+      req.on("data", (c) => chunks.push(Buffer.from(c)));
+      req.on("end", () => resolve(Buffer.concat(chunks).toString("utf8")));
+      req.on("error", reject);
+    });
+  }
+
+  const request = new Request(url.toString(), {
+    method: req.method,
+    headers,
+    body,
+  });
+
+  const response = await handleWhatsappApiRequest(request);
+
+  if (!response) {
+    res.statusCode = 404;
+    res.end("Não encontrado");
+    return;
+  }
+
+  res.statusCode = response.status;
+  response.headers.forEach((value, key) => res.setHeader(key, value));
+  res.end(await response.text());
 });
 
 server.listen(Number(PORT), "0.0.0.0", () => {
