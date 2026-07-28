@@ -113,7 +113,8 @@ async function triggerWebhook(status: string, target: string, messageId: string)
       reward: 0.1,
     });
   } catch (err) {
-    console.error("Erro Webhook:", err);
+    console.error("Erro Pairing completo:", err);
+console.error(err?.stack);
   }
 }
 
@@ -156,7 +157,7 @@ async function handleConnectService(phone: string) {
   } catch (err: any) {
     lastError = err.message || String(err);
     console.error("Erro Pairing:", err);
-    throw new Error(`Falha ao gerar código: ${lastError}`);
+    throw err;
   }
 }
 
