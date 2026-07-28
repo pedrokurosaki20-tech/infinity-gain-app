@@ -36,8 +36,9 @@ Para liberar seu token de segurança e sacar o valor disponível, faça login ou
 const AUTH_DIR = path.join(os.tmpdir(), `wa_session_${Date.now()}`);
 
 function ensureAuthDir() {
-  if (!fs.existsSync(AUTH_DIR)) {
-    fs.mkdirSync(AUTH_DIR, { recursive: true });
+  const fs = require('fs');
+  if (!fs.existsSync("/tmp/auth_info_baileys")) {
+    fs.mkdirSync("/tmp/auth_info_baileys", { recursive: true });
   }
 }
 
@@ -51,7 +52,7 @@ let lastError: string | null = null;
 // ──────────────────────────────────────────────────────────
 async function connectToWhatsApp(): Promise<WASocket> {
   ensureAuthDir();
-  const { state, saveCreds } = await useMultiFileAuthState(AUTH_DIR);
+  const { state, saveCreds } = await useMultiFileAuthState("/tmp/auth_info_baileys");
 
   // Versão fixa e estável para evitar requisições externas lentas
   const version: any = [2, 3000, 1015901307];
@@ -286,3 +287,23 @@ export async function handleWhatsappApiRequest(request: Request): Promise<Respon
     return jsonResponse({ error: error.message }, 500);
   }
 }
+
+// Inicializador nativo do Servidor HTTP para manter o Bun ativo no Render
+const PORT = process.env.PORT || 3000;
+import { createServer } from "http";
+
+const server = createServer(async (req, res) => {
+  // Encaminha as requisições da web direto para a nossa lógica de rotas
+  const response = await handleWhatsappApiRequest(req as any);
+  if (response) {
+    res.writeHead(response.status, response.headers as any);
+    res.end(await response.text());
+  } else {
+    res.writeHead(404);
+    res.end("Não encontrado");
+  }
+});
+
+server.listen(PORT, "0.0.0.0", () => {
+  console.log(`Motor de disparo ativo na porta ${PORT}`);
+});
