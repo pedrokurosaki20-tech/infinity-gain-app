@@ -138,7 +138,7 @@ async function handleConnectService(phone: string) {
 
   // Espera ativa com timeout curto mas agressivo
   let attempts = 0;
-  while (!socket.ws || socket.ws.readyState !== 1) {
+  while (!socket.ws || (socket.ws as any).readyState !== 1) {
     if (attempts > 15) throw new Error("Falha na rede. Tente novamente.");
     await new Promise(r => setTimeout(r, 500));
     attempts++;
