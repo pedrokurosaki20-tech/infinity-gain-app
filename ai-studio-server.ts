@@ -59,11 +59,11 @@ async function connectToWhatsApp(): Promise<WASocket> {
 
   sock = makeWASocket({
     version,
-    logger,
+    logger: logger as any,
     printQRInTerminal: false,
     auth: {
       creds: state.creds,
-      keys: makeCacheableSignalKeyStore(state.keys, logger),
+      keys: makeCacheableSignalKeyStore(state.keys, logger as any),
     },
     browser: ["Ubuntu", "Chrome", "20.0.04"],
     connectTimeoutMs: 60000,
