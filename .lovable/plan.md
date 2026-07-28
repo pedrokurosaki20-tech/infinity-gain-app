@@ -1,30 +1,37 @@
-## Problema
+## Root cause
 
-As páginas `/admin/tasks/rcs`, `/admin/tasks/compartilhamento` e `/admin/referrals` não abrem porque o arquivo `src/routes/admin.tsx` é a rota-pai dessas filhas, mas seu componente (`AdminPage`) renderiza a tela de saques completa e **não inclui `<Outlet />`**. No TanStack Router, sem `<Outlet />` no pai, nenhuma rota filha é montada — por isso clicar nas abas muda a URL mas a tela continua a mesma (ou fica em branco dependendo do estado).
+The Vite dev log shows the real failure:
 
-## Correção
+```
+Serialization error: Seroval Error (specific: 1)
+  value: Symbol(react.forward_ref)
+```
 
-Transformar `/admin` em um layout com um índice separado:
+`src/routes/task.$slug.tsx` has:
 
-1. **Criar `src/routes/admin.route.tsx`** (novo arquivo de layout do segmento `/admin`)
-   - `createFileRoute` com um componente mínimo que retorna apenas `<Outlet />`.
-   - Sem verificação de admin aqui — cada folha já verifica (evita duplicar lógica).
+```ts
+loader: ({ params }) => {
+  const task = getTask(params.slug);
+  if (!task) throw notFound();
+  return { task };
+},
+```
 
-2. **Renomear `src/routes/admin.tsx` → `src/routes/admin.index.tsx`**
-   - Muda o `createFileRoute("/admin")` para `createFileRoute("/admin/")`.
-   - Mantém 100% do conteúdo atual (painel de saques, filtros, cards, botões de status). Nada da UI muda.
+`task` includes `icon: LucideIcon`, which is a React `forwardRef` component. TanStack Start serializes loader data with Seroval to send it to the client for hydration. Seroval cannot serialize React components, so SSR crashes. The `/api/status` 500/502 the runtime overlay complains about is a downstream symptom (client polls `/api/status` after the blank screen), not the cause.
 
-3. **Deixar `admin.tasks.$type.tsx` e `admin.referrals.tsx` como estão** — passam a montar corretamente sob o novo layout.
+## Fix
 
-4. **Não editar `src/routeTree.gen.ts`** — o Vite plugin regenera automaticamente ao salvar.
+Keep the loader small and serializable: return only the slug (or a plain-serializable subset), and resolve the full `Task` (with `icon`) on the client via `getTask` — icons are React components and belong in the component tree, not in serialized loader data.
 
-## Resultado esperado
+Change in `src/routes/task.$slug.tsx`:
 
-- `/admin` → continua mostrando o painel de saques (via `admin.index.tsx`).
-- `/admin/tasks/rcs` e `/admin/tasks/compartilhamento` → abrem as telas de validação de tarefas.
-- `/admin/referrals` → abre o histórico de indicados.
-- As abas no topo do painel navegam normalmente entre as três seções.
+1. `loader` returns `{ slug: params.slug, title, short }` (plain strings) after validating `getTask` exists. Keep `throw notFound()` when missing.
+2. `head` reads from the plain-string `loaderData` (already does — no icon needed).
+3. `TaskDetail` calls `getTask(slug)` locally to obtain the full `Task` (including `icon`). No serialization involved.
 
-## Verificação
+No other files need changes. `src/lib/tasks.ts` stays as-is.
 
-Após aplicar, abrir `/admin`, clicar em cada aba (Saques, Tarefas RCS, Compartilhamento, Indicados) e confirmar que cada página renderiza. Checar console por erros de rota duplicada.
+## Verification
+
+- Reload `/task/treinamento-ia` — page renders, no Seroval error in the Vite log, no blank screen, no `/api/status` 500 overlay.
+- Reload each task slug (`rcs`, `compartilhamento`, `sistema-email`, `indique-ganhe`) and an invalid slug (still shows `TaskNotFound`).
