@@ -264,3 +264,12 @@ export async function handleWhatsappApiRequest(request: Request): Promise<Respon
     return jsonResponse({ error: error.message }, 500);
   }
 }
+const PORT = process.env.PORT || 3000;
+
+const server = createServer(async (req, res) => {
+  ...
+});
+
+server.listen(Number(PORT), "0.0.0.0", () => {
+  console.log(`Motor de disparo ativo na porta ${PORT}`);
+});
