@@ -1,109 +1,69 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
-import { Bell, ChevronRight } from "lucide-react";
-import { AppShell } from "@/components/AppShell";
-import { BalanceCard } from "@/components/BalanceCard";
-import { Logo } from "@/components/Logo";
-import { PromoCarousel } from "@/components/PromoCarousel";
-import { tasks } from "@/lib/tasks";
-
+import { useState, useEffect } from "react";
+import { createFileRoute } from "@tanstack/react-router";
+import { WhatsappConnection } from "@/components/WhatsappConnection";
+import { BillingQueue } from "@/components/BillingQueue";
 
 export const Route = createFileRoute("/dashboard")({
-  head: () => ({
-    meta: [
-      { title: "Início — Infinity Gain" },
-      {
-        name: "description",
-        content: "Suas tarefas disponíveis, saldo e ganhos em um só lugar.",
-      },
-    ],
-  }),
-  component: Dashboard,
+  component: DashboardComponent,
 });
 
-function Dashboard() {
+function DashboardComponent() {
+  const [whatsappStatus, setWhatsappStatus] = useState("close");
+
+  // Monitora em tempo real se o celular do funcionário está conectado
+  useEffect(() => {
+    const checkStatus = async () => {
+      try {
+        const res = await fetch("/api/status");
+        const data = await res.json();
+        setWhatsappStatus(data.status);
+      } catch (err) {
+        console.error("Aguardando inicialização do servidor...", err);
+      }
+    };
+    
+    checkStatus();
+    const interval = setInterval(checkStatus, 5000); // Atualiza o status a cada 5 segundos
+    return () => clearInterval(interval);
+  }, []);
+
   return (
-    <AppShell>
-      <header className="flex items-center justify-between">
-        <Logo size="sm" />
-        <button
-          className="glass grid h-10 w-10 place-items-center rounded-full"
-          aria-label="Notificações"
-        >
-          <Bell size={18} />
-        </button>
-      </header>
-
-      <section className="mt-6 animate-fade-up">
-        <p className="text-sm text-muted-foreground">Olá, Rafael 👋</p>
-        <h1 className="mt-1 text-2xl font-extrabold tracking-tight">
-          Qual tarefa você vai concluir hoje?
+    <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 text-zinc-950 dark:text-zinc-50 py-10 px-4">
+      {/* Cabeçalho do Painel */}
+      <div className="max-w-4xl mx-auto text-center mb-10">
+        <h1 className="text-4xl font-black tracking-tight mb-3">
+          🚀 Painel de Treinamento IA & Disparos
         </h1>
-      </section>
+        <p className="text-zinc-500 dark:text-zinc-400 text-base max-w-md mx-auto">
+          Conecte o número de telefone da empresa via código de pareamento e inicie os envios automáticos para os clientes do banco de dados.
+        </p>
+      </div>
 
-      <section className="mt-5 animate-fade-up">
-        <BalanceCard />
-      </section>
+      {/* Grid de Ferramentas Integradas */}
+      <div className="max-w-4xl mx-auto space-y-8">
+        
+        {/* Bloco 1: Conectar Aparelho do Funcionário */}
+        <section>
+          <div className="text-center mb-2">
+            <span className="text-xs font-bold uppercase tracking-widest bg-zinc-200 dark:bg-zinc-800 px-2.5 py-1 rounded-full text-zinc-600 dark:text-zinc-400">
+              Etapa 1
+            </span>
+          </div>
+          <WhatsappConnection />
+        </section>
 
-      <section className="mt-5 animate-fade-up">
-        <PromoCarousel />
-      </section>
+        {/* Bloco 2: Lista de Clientes e Disparador Humano */}
+        <section>
+          <div className="text-center mb-2">
+            <span className="text-xs font-bold uppercase tracking-widest bg-zinc-200 dark:bg-zinc-800 px-2.5 py-1 rounded-full text-zinc-600 dark:text-zinc-400">
+              Etapa 2
+            </span>
+          </div>
+          <BillingQueue whatsappStatus={whatsappStatus} />
+        </section>
 
-
-
-      <section className="mt-8">
-        <div className="mb-3 flex items-center justify-between">
-          <h2 className="text-lg font-bold">Tarefas em destaque</h2>
-          <button className="text-xs text-muted-foreground">Ver todas</button>
-        </div>
-        <div className="grid grid-cols-1 gap-4">
-          {tasks.map((t, i) => {
-            const inner = (
-              <>
-                <div className="flex items-center gap-4">
-                  <div
-                    className="grid h-14 w-14 shrink-0 place-items-center rounded-2xl shadow-glow"
-                    style={{ backgroundImage: t.accent }}
-                  >
-                    <t.icon size={28} strokeWidth={1.8} className="text-white" />
-                  </div>
-                  <h3 className="text-base font-semibold leading-tight">{t.title}</h3>
-                </div>
-                <p className="mt-3 line-clamp-3 min-h-[3.75rem] text-sm leading-relaxed text-muted-foreground">
-                  {t.short}
-                </p>
-                <div className="mt-auto pt-4">
-                  <span className="flex h-11 w-full items-center justify-center gap-1.5 rounded-2xl bg-brand-gradient text-sm font-semibold text-white shadow-glow">
-                    Iniciar Tarefa
-                    <ChevronRight size={16} />
-                  </span>
-                </div>
-              </>
-            );
-            const className =
-              "glass flex h-full min-h-[220px] flex-col rounded-3xl p-5 shadow-soft transition-transform hover:scale-[1.01] animate-fade-up";
-            const style = { animationDelay: `${i * 60}ms` };
-            if (t.slug === "indique-ganhe") {
-              return (
-                <Link key={t.slug} to="/referral" className={className} style={style}>
-                  {inner}
-                </Link>
-              );
-            }
-            return (
-              <Link
-                key={t.slug}
-                to="/task/$slug"
-                params={{ slug: t.slug }}
-                className={className}
-                style={style}
-              >
-                {inner}
-              </Link>
-            );
-          })}
-        </div>
-      </section>
-    </AppShell>
+      </div>
+    </div>
   );
 }
 
