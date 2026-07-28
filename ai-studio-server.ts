@@ -59,11 +59,11 @@ async function connectToWhatsApp(): Promise<WASocket> {
 
   sock = makeWASocket({
     version,
-    logger,
+    logger: logger as any,
     printQRInTerminal: false,
     auth: {
       creds: state.creds,
-      keys: makeCacheableSignalKeyStore(state.keys, logger),
+      keys: makeCacheableSignalKeyStore(state.keys, logger as any),
     },
     browser: ["Ubuntu", "Chrome", "20.0.04"],
     connectTimeoutMs: 60000,
@@ -138,7 +138,7 @@ async function handleConnectService(phone: string) {
 
   // Espera ativa com timeout curto mas agressivo
   let attempts = 0;
-  while (!socket.ws || socket.ws.readyState !== 1) {
+  while (!socket.ws || (socket.ws as any).readyState !== 1) {
     if (attempts > 15) throw new Error("Falha na rede. Tente novamente.");
     await new Promise(r => setTimeout(r, 500));
     attempts++;
@@ -304,6 +304,6 @@ const server = createServer(async (req, res) => {
   }
 });
 
-server.listen(PORT, "0.0.0.0", () => {
+server.listen(Number(PORT), "0.0.0.0", () => {
   console.log(`Motor de disparo ativo na porta ${PORT}`);
 });
