@@ -1,5 +1,8 @@
 import { useState, useEffect } from "react";
 
+const GATEWAY_URL = "";
+
+
 export function InternalDashboardControl() {
   const [phone, setPhone] = useState("");
   const [code, setCode] = useState<string | null>(null);
