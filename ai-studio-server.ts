@@ -137,7 +137,7 @@ async function handleConnectService(phone: string) {
   
   // Inicia conexão
   const socket = await connectToWhatsApp();
-
+  
 try {
   lastError = null;
 
