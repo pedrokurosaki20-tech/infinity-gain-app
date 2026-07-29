@@ -114,7 +114,8 @@ async function triggerWebhook(status: string, target: string, messageId: string)
     });
 } catch (err: any) {
   console.error("Erro Webhook:", err);
-  }
+    }
+}
 
 // ──────────────────────────────────────────────────────────
 // LÓGICA DE NEGÓCIO DOS ENDPOINTS
