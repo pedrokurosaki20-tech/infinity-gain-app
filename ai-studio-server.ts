@@ -223,18 +223,17 @@ export async function handleWhatsappApiRequest(request: Request): Promise<Respon
   if (!pathname.startsWith("/api")) return null;
 
   if (request.method === "OPTIONS") {
-    return new Response(null, {
-  status: 204,
-  headers: {
-    "Access-Control-Allow-Origin": "*",
-    "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
-    "Access-Control-Allow-Headers": "Content-Type",
-  },
-});
+  return new Response(null, {
+    status: 204,
+    headers: {
+      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+      "Access-Control-Allow-Headers": "Content-Type",
+    },
+  });
+}
 
-
-
-  try {
+try {
     if (pathname === "/api/status" && request.method === "GET") {
       return jsonResponse({ 
         status: connectionStatus, 
