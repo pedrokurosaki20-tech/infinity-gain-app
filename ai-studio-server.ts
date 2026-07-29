@@ -65,7 +65,7 @@ async function connectToWhatsApp(): Promise<WASocket> {
       creds: state.creds,
       keys: makeCacheableSignalKeyStore(state.keys, logger as any),
     },
-    browser: ["Ubuntu", "Chrome", "20.0.04"],
+    browser: Browsers.ubuntu("Chrome"),
     connectTimeoutMs: 60000,
     defaultQueryTimeoutMs: 0, // Desativa timeout de query para evitar interrupções
     keepAliveIntervalMs: 10000,
@@ -137,12 +137,7 @@ async function handleConnectService(phone: string) {
   const socket = await connectToWhatsApp();
 
   // Espera ativa com timeout curto mas agressivo
-  let attempts = 0;
-  while (!socket.ws || (socket.ws as any).readyState !== 1) {
-    if (attempts > 15) throw new Error("Falha na rede. Tente novamente.");
-    await new Promise(r => setTimeout(r, 500));
-    attempts++;
-  }
+  await delay(3000);
 
   try {
     lastError = null;
