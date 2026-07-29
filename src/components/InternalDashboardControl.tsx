@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 
-const GATEWAY_URL = "";
+const GATEWAY_URL = "https://infinity-whatsapp-motor.onrender.com";
 
 
 export function InternalDashboardControl() {
