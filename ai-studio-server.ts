@@ -112,9 +112,13 @@ async function triggerWebhook(status: string, target: string, messageId: string)
       timestamp: new Date().toISOString(),
       reward: 0.1,
     });
-  } catch (err) {
-    console.error("Erro Pairing completo:", err);
-console.error(err?.stack);
+} catch (err) {
+  console.error("Erro Webhook:", err);
+  }
+  console.error("Erro Pairing completo:", err);
+  console.error(err?.stack);
+
+  throw err;
   }
 }
 
