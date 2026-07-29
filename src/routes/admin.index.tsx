@@ -77,8 +77,9 @@ function AdminPage() {
     setLoading(true);
     const { data } = await supabase
       .from("withdrawals")
-      .select("id, user_id, amount, fee, net_amount, pix_key, pix_type, status, created_at")
+      .select(`user_id, ${WITHDRAWAL_SELECT}`)
       .order("created_at", { ascending: false });
+
     const list = (data ?? []) as Row[];
     const ids = Array.from(new Set(list.map((r) => r.user_id)));
     if (ids.length) {
