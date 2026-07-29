@@ -115,7 +115,7 @@ function AdminPage() {
     const { error } = await supabase.rpc("review_withdrawal", {
       _id: id,
       _status: status,
-      _reason: reason ?? null,
+      _reason: reason ?? undefined,
     });
     if (error) alert("Falha ao atualizar: " + error.message);
     else await load();
