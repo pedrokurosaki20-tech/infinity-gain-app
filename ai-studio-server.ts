@@ -15,7 +15,7 @@ import makeWASocket, {
 import pino from "pino";
 import axios from "axios";
 import { Boom } from "@hapi/boom";
-import { getContactsFromDB, importContacts, getDBCredentials } from "./db-client";
+import { getContactsFromDB, importContacts, getDBCredentials } from "./db-client.ts";
 
 const logger = pino({ level: "silent" });
 
