@@ -138,15 +138,17 @@ function AdminPage() {
   }, [rows, filter, q]);
 
   const counts = useMemo(() => {
+    const pending = rows.filter(
+      (r) => r.status === "requested" || r.status === "processing",
+    );
     return {
-      processing: rows.filter((r) => r.status === "processing").length,
+      processing: pending.length,
       completed: rows.filter((r) => r.status === "completed").length,
       rejected: rows.filter((r) => r.status === "rejected").length,
-      pendingAmount: rows
-        .filter((r) => r.status === "processing")
-        .reduce((s, r) => s + Number(r.amount), 0),
+      pendingAmount: pending.reduce((s, r) => s + Number(r.amount), 0),
     };
   }, [rows]);
+
 
   if (checking) {
     return (
