@@ -110,15 +110,18 @@ function AdminPage() {
     };
   }, [isAdmin]);
 
-  async function updateStatus(id: string, status: WithdrawalStatus) {
+  async function updateStatus(id: string, status: WithdrawalStatus, reason?: string) {
     setUpdatingId(id);
-    const { error } = await supabase
-      .from("withdrawals")
-      .update({ status })
-      .eq("id", id);
+    const { error } = await supabase.rpc("review_withdrawal", {
+      _id: id,
+      _status: status,
+      _reason: reason ?? null,
+    });
     if (error) alert("Falha ao atualizar: " + error.message);
+    else await load();
     setUpdatingId(null);
   }
+
 
   const filtered = useMemo(() => {
     const term = q.trim().toLowerCase();
