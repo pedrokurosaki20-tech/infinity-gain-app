@@ -208,9 +208,11 @@ function jsonResponse(data: unknown, status = 200): Response {
   return new Response(JSON.stringify(data), {
     status,
     headers: {
-      "Content-Type": "application/json",
-      "Access-Control-Allow-Origin": "*",
-    },
+  "Content-Type": "application/json",
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+  "Access-Control-Allow-Headers": "Content-Type",
+},
   });
 }
 
@@ -221,8 +223,14 @@ export async function handleWhatsappApiRequest(request: Request): Promise<Respon
   if (!pathname.startsWith("/api")) return null;
 
   if (request.method === "OPTIONS") {
-    return new Response(null, { status: 204, headers: { "Access-Control-Allow-Origin": "*" } });
-  }
+    return new Response(null, {
+  status: 204,
+  headers: {
+    "Access-Control-Allow-Origin": "*",
+    "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+    "Access-Control-Allow-Headers": "Content-Type",
+  },
+});
 
 
 
