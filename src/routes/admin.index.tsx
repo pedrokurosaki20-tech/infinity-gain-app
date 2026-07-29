@@ -247,72 +247,15 @@ function AdminPage() {
             Nenhum saque encontrado.
           </div>
         ) : (
-          filtered.map((r) => {
-            const meta = statusMeta[r.status];
-            const Icon = meta.Icon;
-            const busy = updatingId === r.id;
-            return (
-              <div key={r.id} className="glass rounded-2xl p-4">
-                <div className="flex items-start justify-between gap-3">
-                  <div className="min-w-0">
-                    <p className="truncate text-sm font-semibold">
-                      {r.profile?.name || "Usuário"}
-                    </p>
-                    <p className="text-[11px] text-muted-foreground">
-                      {r.profile?.phone || "—"} · {fmtDate(r.created_at)}
-                    </p>
-                  </div>
-                  <span
-                    className={`inline-flex shrink-0 items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold ${meta.className}`}
-                  >
-                    <Icon size={10} />
-                    {meta.label}
-                  </span>
-                </div>
+          filtered.map((r) => (
+            <AdminWithdrawalCard
+              key={r.id}
+              row={r}
+              busy={updatingId === r.id}
+              onUpdate={updateStatus}
+            />
+          ))
 
-                <div className="mt-3 grid grid-cols-3 gap-2 text-center">
-                  <Info label="Solicitado" value={BRL(Number(r.amount))} />
-                  <Info label="Taxa" value={BRL(Number(r.fee))} />
-                  <Info label="Líquido" value={BRL(Number(r.net_amount))} highlight />
-                </div>
-
-                <div className="mt-3 rounded-xl bg-white/[0.03] px-3 py-2 text-xs">
-                  <p className="text-muted-foreground">Chave PIX ({r.pix_type})</p>
-                  <p className="mt-0.5 truncate font-mono text-white">{r.pix_key}</p>
-                </div>
-
-                <div className="mt-3 flex gap-2">
-                  {r.status !== "completed" && (
-                    <button
-                      disabled={busy}
-                      onClick={() => updateStatus(r.id, "completed")}
-                      className="flex-1 rounded-xl bg-emerald-500/90 px-3 py-2 text-xs font-semibold text-white disabled:opacity-50"
-                    >
-                      Concluir
-                    </button>
-                  )}
-                  {r.status !== "processing" && (
-                    <button
-                      disabled={busy}
-                      onClick={() => updateStatus(r.id, "processing")}
-                      className="flex-1 rounded-xl bg-[color:var(--brand-blue)]/90 px-3 py-2 text-xs font-semibold text-white disabled:opacity-50"
-                    >
-                      Processar
-                    </button>
-                  )}
-                  {r.status !== "rejected" && (
-                    <button
-                      disabled={busy}
-                      onClick={() => updateStatus(r.id, "rejected")}
-                      className="flex-1 rounded-xl bg-red-500/90 px-3 py-2 text-xs font-semibold text-white disabled:opacity-50"
-                    >
-                      Rejeitar
-                    </button>
-                  )}
-                </div>
-              </div>
-            );
-          })
         )}
       </section>
     </AppShell>
