@@ -83,8 +83,12 @@ async function connectToWhatsApp(): Promise<WASocket> {
       connectionStatus = "close";
 
       if (shouldReconnect) {
-        console.log("Tentando reconectar...");
-        setTimeout(() => connectToWhatsApp().catch(() => {}), 5000);
+  console.log("Tentando reconectar...");
+  setTimeout(() => {
+    if (connectionStatus !== "pairing") {
+      connectToWhatsApp().catch(() => {});
+    }
+  }, 5000);
       }
     } else if (connection === "open") {
       connectionStatus = "open";
@@ -138,6 +142,10 @@ async function handleConnectService(phone: string) {
 
   // Espera ativa com timeout curto mas agressivo
   await delay(3000);
+
+  if (socket.authState.creds.registered) {
+  throw new Error("Número já conectado");
+  }
 
   try {
     lastError = null;
