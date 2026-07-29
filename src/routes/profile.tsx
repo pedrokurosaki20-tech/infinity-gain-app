@@ -101,21 +101,21 @@ function ProfilePage() {
             title="Grupo de Suporte"
             description="Tire dúvidas, receba ajuda da equipe e acompanhe informações importantes."
             cta="Entrar no Grupo"
-            href="https://t.me/"
+            href="https://t.me/+vkD_hVDF1y81YmYx"
           />
           <CommunityCard
             icon={<Megaphone size={20} />}
             title="Canal Oficial"
             description="Receba comunicados oficiais, novidades, eventos e anúncios da Infinity Gain."
             cta="Abrir Canal"
-            href="https://t.me/"
+            href="https://t.me/infinitygainbr"
           />
           <CommunityCard
             icon={<Instagram size={20} />}
             title="Instagram Oficial"
             description="Acompanhe novidades, dicas, atualizações e conteúdos exclusivos."
             cta="Seguir Instagram"
-            href="https://instagram.com/"
+            href="https://www.instagram.com/infinitygainoficial?igsh=b2lyNXZvejZoYjQ3"
           />
           <CommunityCard
             icon={<HelpCircle size={20} />}
