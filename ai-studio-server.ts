@@ -141,16 +141,7 @@ async function handleConnectService(phone: string) {
 try {
   lastError = null;
 
-  let attempts = 0;
-
-  while (socket.ws?.readyState !== 1) {
-    await delay(1000);
-    attempts++;
-
-    if (attempts > 15) {
-      throw new Error("WhatsApp não abriu conexão");
-    }
-  }
+await delay(3000);
 
   if (socket.authState.creds.registered) {
     throw new Error("Número já conectado");
