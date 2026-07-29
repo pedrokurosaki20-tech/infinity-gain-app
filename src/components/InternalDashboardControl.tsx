@@ -40,8 +40,9 @@ export function InternalDashboardControl() {
         setCode(data.pairingCode);
         setStatus("pairing");
       }
-    } catch (err) {
-      alert("Erro ao conectar com o servidor.");
+     } catch (err) {
+  console.log(err);
+  alert(String(err));
     } finally {
       setLoading(false);
     }
