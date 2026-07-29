@@ -112,15 +112,10 @@ async function triggerWebhook(status: string, target: string, messageId: string)
       timestamp: new Date().toISOString(),
       reward: 0.1,
     });
-} catch (err) {
+} catch (err: any) {
   console.error("Erro Webhook:", err);
-  }
-  console.error("Erro Pairing completo:", err);
   console.error(err?.stack);
-
-  throw err;
   }
-}
 
 // ──────────────────────────────────────────────────────────
 // LÓGICA DE NEGÓCIO DOS ENDPOINTS
@@ -158,10 +153,15 @@ async function handleConnectService(phone: string) {
     pairingCode = code;
     connectionStatus = "pairing";
     return { pairingCode: code };
-  } catch (err: any) {
-    lastError = err.message || String(err);
-    console.error("Erro Pairing:", err);
-    throw err;
+} catch (err: any) {
+  lastError = err.message || String(err);
+
+  console.error("========== ERRO PAIRING ==========");
+  console.error(err);
+  console.error(err?.stack);
+  console.error("==================================");
+
+  throw err;
   }
 }
 
