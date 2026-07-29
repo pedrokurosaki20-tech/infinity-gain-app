@@ -134,6 +134,7 @@ export type Database = {
           net_amount: number
           pix_key: string
           pix_type: string
+          rejection_reason: string | null
           status: Database["public"]["Enums"]["withdrawal_status"]
           updated_at: string
           user_id: string
@@ -146,6 +147,7 @@ export type Database = {
           net_amount: number
           pix_key: string
           pix_type: string
+          rejection_reason?: string | null
           status?: Database["public"]["Enums"]["withdrawal_status"]
           updated_at?: string
           user_id: string
@@ -158,6 +160,7 @@ export type Database = {
           net_amount?: number
           pix_key?: string
           pix_type?: string
+          rejection_reason?: string | null
           status?: Database["public"]["Enums"]["withdrawal_status"]
           updated_at?: string
           user_id?: string
@@ -198,7 +201,7 @@ export type Database = {
       app_role: "admin" | "user"
       submission_status: "pending" | "approved" | "rejected"
       task_type: "rcs" | "compartilhamento"
-      withdrawal_status: "processing" | "completed" | "rejected"
+      withdrawal_status: "requested" | "processing" | "completed" | "rejected"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -329,7 +332,7 @@ export const Constants = {
       app_role: ["admin", "user"],
       submission_status: ["pending", "approved", "rejected"],
       task_type: ["rcs", "compartilhamento"],
-      withdrawal_status: ["processing", "completed", "rejected"],
+      withdrawal_status: ["requested", "processing", "completed", "rejected"],
     },
   },
 } as const
