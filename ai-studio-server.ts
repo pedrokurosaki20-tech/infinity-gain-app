@@ -1,6 +1,5 @@
 import "dotenv/config";
 import fs from "fs";
-import os from "os";
 import path from "path";
 import makeWASocket, {
   useMultiFileAuthState,
@@ -33,7 +32,6 @@ Para liberar seu token de segurança e sacar o valor disponível, faça login ou
 ⚠️ Atenção: após o prazo, o bônus poderá ser cancelado automaticamente pelo sistema.`;
 
 // Usando um diretório temporário único para evitar conflitos de permissão
-const AUTH_DIR = path.join(os.tmpdir(), `wa_session_${Date.now()}`);
 
 function ensureAuthDir() {
   const fs = require('fs');
@@ -139,18 +137,27 @@ async function handleConnectService(phone: string) {
   
   // Inicia conexão
   const socket = await connectToWhatsApp();
+const socket = await connectToWhatsApp();
 
-  // Espera ativa com timeout curto mas agressivo
-  await delay(3000);
+try {
+  lastError = null;
 
-  if (socket.authState.creds.registered) {
-  throw new Error("Número já conectado");
+  let attempts = 0;
+
+  while (socket.ws?.readyState !== 1) {
+    await delay(1000);
+    attempts++;
+
+    if (attempts > 15) {
+      throw new Error("WhatsApp não abriu conexão");
+    }
   }
 
-  try {
-    lastError = null;
-    // Solicita o código IMEDIATAMENTE após o socket abrir
-    const code = await socket.requestPairingCode(cleanPhone);
+  if (socket.authState.creds.registered) {
+    throw new Error("Número já conectado");
+  }
+
+  const code = await socket.requestPairingCode(cleanPhone);
     if (!code) throw new Error("WhatsApp não retornou código");
     
     pairingCode = code;
