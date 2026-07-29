@@ -1,9 +1,15 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowDownToLine, ArrowLeft, ArrowUpRight, Clock, CheckCircle2, XCircle } from "lucide-react";
+import { ArrowDownToLine, ArrowLeft, ArrowUpRight } from "lucide-react";
 import { useEffect, useState } from "react";
 import { AppShell } from "@/components/AppShell";
 import { BalanceCard } from "@/components/BalanceCard";
 import { supabase } from "@/integrations/supabase/client";
+import {
+  BRL,
+  WITHDRAWAL_SELECT,
+  statusMeta,
+  type WithdrawalRow,
+} from "@/components/WithdrawTracking";
 
 export const Route = createFileRoute("/wallet")({
   head: () => ({
@@ -18,53 +24,20 @@ export const Route = createFileRoute("/wallet")({
   component: WalletPage,
 });
 
-type WithdrawalStatus = "processing" | "completed" | "rejected";
-type Withdrawal = {
-  id: string;
-  amount: number;
-  fee: number;
-  net_amount: number;
-  pix_key: string;
-  pix_type: string;
-  status: WithdrawalStatus;
-  created_at: string;
-};
-
-function formatBRL(v: number) {
-  return v.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
-}
-
 function formatDate(iso: string) {
   const d = new Date(iso);
   return d.toLocaleString("pt-BR", {
     day: "2-digit",
     month: "2-digit",
+    year: "2-digit",
     hour: "2-digit",
     minute: "2-digit",
   });
 }
 
-const statusMeta: Record<WithdrawalStatus, { label: string; className: string; Icon: typeof Clock }> = {
-  processing: {
-    label: "Processando",
-    className: "bg-[color:var(--brand-blue)]/15 text-[color:var(--brand-blue)]",
-    Icon: Clock,
-  },
-  completed: {
-    label: "Concluído",
-    className: "bg-emerald-500/15 text-emerald-400",
-    Icon: CheckCircle2,
-  },
-  rejected: {
-    label: "Rejeitado",
-    className: "bg-red-500/15 text-red-400",
-    Icon: XCircle,
-  },
-};
-
 function WalletPage() {
   const [loading, setLoading] = useState(true);
-  const [items, setItems] = useState<Withdrawal[]>([]);
+  const [items, setItems] = useState<WithdrawalRow[]>([]);
 
   useEffect(() => {
     let active = true;
@@ -76,16 +49,27 @@ function WalletPage() {
       }
       const { data } = await supabase
         .from("withdrawals")
-        .select("id, amount, fee, net_amount, pix_key, pix_type, status, created_at")
+        .select(WITHDRAWAL_SELECT)
         .order("created_at", { ascending: false })
-        .returns<Withdrawal[]>();
+        .returns<WithdrawalRow[]>();
       if (!active) return;
       setItems(data ?? []);
       setLoading(false);
     }
     load();
+
+    const channel = supabase
+      .channel("wallet-withdrawals")
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "withdrawals" },
+        () => load(),
+      )
+      .subscribe();
+
     return () => {
       active = false;
+      supabase.removeChannel(channel);
     };
   }, []);
 
@@ -112,7 +96,7 @@ function WalletPage() {
       </section>
 
       <section className="mt-4 grid grid-cols-2 gap-3 animate-fade-up">
-        <Stat label="Saques Concluídos" value={formatBRL(totalWithdrawn)} tone="blue" />
+        <Stat label="Saques Concluídos" value={BRL(totalWithdrawn)} tone="blue" />
         <Stat label="Solicitações" value={String(items.length)} tone="pink" />
       </section>
 
@@ -126,7 +110,7 @@ function WalletPage() {
         </Link>
       </section>
 
-      <section className="mt-8">
+      <section className="mt-8 pb-4">
         <h2 className="mb-3 text-lg font-bold">Histórico de Saques</h2>
         {loading ? (
           <div className="glass rounded-3xl px-4 py-6 text-center text-sm text-muted-foreground">
@@ -137,7 +121,7 @@ function WalletPage() {
             Você ainda não solicitou nenhum saque.
           </div>
         ) : (
-          <div className="glass divide-y divide-white/5 rounded-3xl">
+          <div className="space-y-3">
             {items.map((t) => {
               const meta = statusMeta[t.status];
               const Icon = meta.Icon;
@@ -146,43 +130,70 @@ function WalletPage() {
                   key={t.id}
                   to="/withdraw/$id"
                   params={{ id: t.id }}
-                  className="flex items-center gap-3 px-4 py-3.5 transition hover:bg-white/[0.03]"
+                  className="glass block rounded-2xl p-4 transition hover:bg-white/[0.05]"
                 >
-                  <div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-[color:var(--brand-pink)]/15 text-[color:var(--brand-pink)]">
-                    <ArrowUpRight size={18} />
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <p className="truncate text-sm font-medium">
-                      Saque via PIX · {t.pix_type}
-                    </p>
-                    <div className="mt-0.5 flex items-center gap-2">
-                      <p className="text-xs text-muted-foreground">
+                  <div className="flex items-center gap-3">
+                    <div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-[color:var(--brand-pink)]/15 text-[color:var(--brand-pink)]">
+                      <ArrowUpRight size={18} />
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate text-sm font-medium">
+                        Solicitação #{t.id.slice(0, 8).toUpperCase()}
+                      </p>
+                      <p className="mt-0.5 text-xs text-muted-foreground">
                         {formatDate(t.created_at)}
                       </p>
-                      <span
-                        className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold ${meta.className}`}
-                      >
-                        <Icon size={10} />
-                        {meta.label}
-                      </span>
                     </div>
+                    <span
+                      className={`inline-flex shrink-0 items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold ${meta.className}`}
+                    >
+                      <Icon size={10} />
+                      {meta.label}
+                    </span>
                   </div>
-                  <div className="shrink-0 text-right">
-                    <p className="text-sm font-semibold text-white">
-                      −{formatBRL(Number(t.amount))}
-                    </p>
-                    <p className="text-[10px] text-muted-foreground">
-                      Líquido {formatBRL(Number(t.net_amount))}
-                    </p>
-                  </div>
-                </Link>
 
+                  <div className="mt-3 grid grid-cols-3 gap-2 text-center">
+                    <MiniInfo label="Solicitado" value={BRL(Number(t.amount))} />
+                    <MiniInfo label="Taxa (5%)" value={BRL(Number(t.fee))} />
+                    <MiniInfo label="Líquido" value={BRL(Number(t.net_amount))} highlight />
+                  </div>
+
+                  <p className="mt-2 truncate text-[11px] text-muted-foreground">
+                    Chave PIX ({t.pix_type}): <span className="font-mono text-white/80">{t.pix_key}</span>
+                  </p>
+                  {t.status === "rejected" && t.rejection_reason && (
+                    <p className="mt-1 text-[11px] text-red-400">
+                      Motivo: {t.rejection_reason}
+                    </p>
+                  )}
+                </Link>
               );
             })}
           </div>
         )}
       </section>
     </AppShell>
+  );
+}
+
+function MiniInfo({
+  label,
+  value,
+  highlight,
+}: {
+  label: string;
+  value: string;
+  highlight?: boolean;
+}) {
+  return (
+    <div className="rounded-xl bg-white/[0.03] px-2 py-2">
+      <p className="text-[10px] text-muted-foreground">{label}</p>
+      <p
+        className={`mt-0.5 text-xs font-semibold ${highlight ? "text-[color:var(--brand-blue)]" : "text-white"}`}
+      >
+        {value}
+      </p>
+    </div>
   );
 }
 

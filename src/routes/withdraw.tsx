@@ -1,8 +1,14 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { ArrowLeft, Info } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { AppShell } from "@/components/AppShell";
 import { supabase } from "@/integrations/supabase/client";
+import {
+  NextWithdrawCountdown,
+  WITHDRAWAL_SELECT,
+  WithdrawTracking,
+  type WithdrawalRow,
+} from "@/components/WithdrawTracking";
 
 
 export const Route = createFileRoute("/withdraw")({
@@ -27,13 +33,68 @@ function WithdrawPage() {
   const [amount, setAmount] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [balance, setBalance] = useState<number | null>(null);
+  const [latest, setLatest] = useState<WithdrawalRow | null>(null);
+
+  useEffect(() => {
+    let active = true;
+
+    async function load() {
+      const { data: userData } = await supabase.auth.getUser();
+      if (!userData.user) return;
+      const [{ data: profile }, { data: last }] = await Promise.all([
+        supabase.from("profiles").select("balance").eq("id", userData.user.id).maybeSingle(),
+        supabase
+          .from("withdrawals")
+          .select(WITHDRAWAL_SELECT)
+          .order("created_at", { ascending: false })
+          .limit(1)
+          .maybeSingle()
+          .returns<WithdrawalRow>(),
+      ]);
+      if (!active) return;
+      if (profile) setBalance(Number((profile as { balance: number }).balance));
+      setLatest((last as WithdrawalRow) ?? null);
+    }
+
+    load();
+
+    const channel = supabase
+      .channel("withdraw-page")
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "withdrawals" },
+        () => load(),
+      )
+      .subscribe();
+
+    return () => {
+      active = false;
+      supabase.removeChannel(channel);
+    };
+  }, []);
+
+  const lockedUntil = latest
+    ? new Date(latest.created_at).getTime() + 24 * 3600 * 1000
+    : 0;
+  const locked = lockedUntil > Date.now();
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
+    if (locked) {
+      setError(
+        "Você já possui um saque recente. Aguarde o término da contagem regressiva para realizar uma nova solicitação.",
+      );
+      return;
+    }
     const value = Number(amount.replace(",", "."));
     if (!Number.isFinite(value) || value < 10) {
       setError("O valor mínimo de saque é R$ 10,00.");
+      return;
+    }
+    if (value > 100) {
+      setError("O valor máximo por saque é R$ 100,00.");
       return;
     }
     if (!key.trim()) {
@@ -74,8 +135,20 @@ function WithdrawPage() {
         <p className="text-xs uppercase tracking-widest text-white/70">
           Saldo Disponível
         </p>
-        <p className="mt-1 text-3xl font-extrabold">R$ 1.284,50</p>
+        <p className="mt-1 text-3xl font-extrabold">
+          {balance === null
+            ? "—"
+            : balance.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
+        </p>
       </section>
+
+      {latest && <NextWithdrawCountdown createdAt={latest.created_at} />}
+
+      {latest && (
+        <div className="mt-4">
+          <WithdrawTracking item={latest} />
+        </div>
+      )}
 
       <form
         onSubmit={handleSubmit}
@@ -140,6 +213,14 @@ function WithdrawPage() {
             </li>
             <li className="flex items-start gap-2">
               <span className="mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-[color:var(--brand-pink)]" />
+              <span>Saque máximo: <strong className="text-white">R$ 100,00</strong> por solicitação</span>
+            </li>
+            <li className="flex items-start gap-2">
+              <span className="mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-[color:var(--brand-blue)]" />
+              <span>Limite de <strong className="text-white">1 saque a cada 24 horas</strong>.</span>
+            </li>
+            <li className="flex items-start gap-2">
+              <span className="mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-[color:var(--brand-pink)]" />
               <span>Taxa de processamento: <strong className="text-white">5%</strong></span>
             </li>
             <li className="flex items-start gap-2">
@@ -189,10 +270,10 @@ function WithdrawPage() {
         )}
         <button
           type="submit"
-          disabled={submitting}
+          disabled={submitting || locked}
           className="mt-2 flex w-full items-center justify-center gap-2 rounded-2xl bg-brand-gradient px-6 py-4 text-base font-semibold text-white shadow-glow transition-transform hover:scale-[1.01] disabled:opacity-60"
         >
-          {submitting ? "Enviando…" : "Solicitar Saque"}
+          {submitting ? "Enviando…" : locked ? "Aguarde 24 horas" : "Solicitar Saque"}
         </button>
 
       </form>

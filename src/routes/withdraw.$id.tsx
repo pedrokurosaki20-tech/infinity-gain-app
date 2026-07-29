@@ -1,16 +1,16 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import {
-  ArrowLeft,
-  CheckCircle2,
-  Clock,
-  Copy,
-  Loader2,
-  ShieldCheck,
-  XCircle,
-} from "lucide-react";
+import { ArrowLeft, Copy, Loader2, ShieldCheck } from "lucide-react";
 import { useEffect, useState } from "react";
 import { AppShell } from "@/components/AppShell";
 import { supabase } from "@/integrations/supabase/client";
+import {
+  BRL,
+  NextWithdrawCountdown,
+  WITHDRAWAL_SELECT,
+  WithdrawTracking,
+  statusMeta,
+  type WithdrawalRow,
+} from "@/components/WithdrawTracking";
 
 export const Route = createFileRoute("/withdraw/$id")({
   head: () => ({
@@ -25,64 +25,10 @@ export const Route = createFileRoute("/withdraw/$id")({
   component: WithdrawDetailPage,
 });
 
-type WithdrawalStatus = "processing" | "completed" | "rejected";
-type Withdrawal = {
-  id: string;
-  amount: number;
-  fee: number;
-  net_amount: number;
-  pix_key: string;
-  pix_type: string;
-  status: WithdrawalStatus;
-  created_at: string;
-  updated_at: string;
-};
-
-const statusMeta: Record<
-  WithdrawalStatus,
-  { label: string; className: string; Icon: typeof Clock; description: string }
-> = {
-  processing: {
-    label: "Processando",
-    className: "bg-[color:var(--brand-blue)]/15 text-[color:var(--brand-blue)]",
-    Icon: Clock,
-    description:
-      "Seu saque está sendo processado. O prazo é de até 24 horas úteis.",
-  },
-  completed: {
-    label: "Concluído",
-    className: "bg-emerald-500/15 text-emerald-400",
-    Icon: CheckCircle2,
-    description:
-      "Pagamento enviado com sucesso para a sua chave PIX cadastrada.",
-  },
-  rejected: {
-    label: "Rejeitado",
-    className: "bg-red-500/15 text-red-400",
-    Icon: XCircle,
-    description:
-      "Não foi possível processar este saque. O valor foi devolvido ao seu saldo.",
-  },
-};
-
-function formatBRL(v: number) {
-  return v.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
-}
-
-function formatDateTime(iso: string) {
-  return new Date(iso).toLocaleString("pt-BR", {
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  });
-}
-
 function WithdrawDetailPage() {
   const { id } = Route.useParams();
   const navigate = useNavigate();
-  const [item, setItem] = useState<Withdrawal | null>(null);
+  const [item, setItem] = useState<WithdrawalRow | null>(null);
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
   const [copied, setCopied] = useState(false);
@@ -93,12 +39,10 @@ function WithdrawDetailPage() {
     async function load() {
       const { data, error } = await supabase
         .from("withdrawals")
-        .select(
-          "id, amount, fee, net_amount, pix_key, pix_type, status, created_at, updated_at",
-        )
+        .select(WITHDRAWAL_SELECT)
         .eq("id", id)
         .maybeSingle()
-        .returns<Withdrawal>();
+        .returns<WithdrawalRow>();
       if (!active) return;
       if (error || !data) {
         setNotFound(true);
@@ -122,7 +66,7 @@ function WithdrawDetailPage() {
         },
         (payload) => {
           if (!active) return;
-          setItem((prev) => ({ ...(prev ?? {}), ...(payload.new as Withdrawal) }));
+          setItem((prev) => ({ ...(prev ?? {}), ...(payload.new as WithdrawalRow) }));
         },
       )
       .subscribe();
@@ -202,7 +146,7 @@ function WithdrawDetailPage() {
         >
           <StatusIcon size={12} />
           {meta.label}
-          {item.status === "processing" && (
+          {(item.status === "processing" || item.status === "requested") && (
             <span className="ml-1 inline-block h-1.5 w-1.5 animate-pulse rounded-full bg-current" />
           )}
         </div>
@@ -210,27 +154,26 @@ function WithdrawDetailPage() {
           Valor solicitado
         </p>
         <p className="mt-1 text-4xl font-extrabold tracking-tight">
-          {formatBRL(Number(item.amount))}
-        </p>
-        <p className="mt-3 text-xs leading-relaxed text-muted-foreground">
-          {meta.description}
+          {BRL(Number(item.amount))}
         </p>
       </section>
+
+      <NextWithdrawCountdown createdAt={item.created_at} />
+
+      <div className="mt-4">
+        <WithdrawTracking item={item} />
+      </div>
 
       <section className="mt-4 animate-fade-up">
         <div className="glass rounded-3xl p-5">
           <h2 className="text-sm font-bold">Resumo</h2>
           <div className="mt-3 space-y-2.5 text-sm">
-            <Row label="Valor bruto" value={formatBRL(Number(item.amount))} />
-            <Row
-              label="Taxa (5%)"
-              value={`− ${formatBRL(Number(item.fee))}`}
-              muted
-            />
+            <Row label="Valor bruto" value={BRL(Number(item.amount))} />
+            <Row label="Taxa (5%)" value={`− ${BRL(Number(item.fee))}`} muted />
             <div className="h-px bg-white/10" />
             <Row
               label="Você recebe"
-              value={formatBRL(Number(item.net_amount))}
+              value={BRL(Number(item.net_amount))}
               highlight
             />
           </div>
@@ -243,35 +186,6 @@ function WithdrawDetailPage() {
           <div className="mt-3 space-y-2.5 text-sm">
             <Row label="Tipo de chave" value={item.pix_type} />
             <Row label="Chave PIX" value={item.pix_key} />
-          </div>
-        </div>
-      </section>
-
-      <section className="mt-4 animate-fade-up">
-        <div className="glass rounded-3xl p-5">
-          <h2 className="text-sm font-bold">Linha do tempo</h2>
-          <div className="mt-4 space-y-4">
-            <Timeline
-              done
-              title="Solicitação recebida"
-              time={formatDateTime(item.created_at)}
-            />
-            <Timeline
-              done={item.status !== "processing"}
-              active={item.status === "processing"}
-              title={
-                item.status === "rejected"
-                  ? "Análise concluída"
-                  : item.status === "completed"
-                    ? "Pagamento enviado"
-                    : "Em processamento"
-              }
-              time={
-                item.status === "processing"
-                  ? "Em até 24 horas úteis"
-                  : formatDateTime(item.updated_at)
-              }
-            />
           </div>
         </div>
       </section>
@@ -327,44 +241,6 @@ function Row({
       >
         {value}
       </span>
-    </div>
-  );
-}
-
-function Timeline({
-  title,
-  time,
-  done,
-  active,
-}: {
-  title: string;
-  time: string;
-  done?: boolean;
-  active?: boolean;
-}) {
-  return (
-    <div className="flex items-start gap-3">
-      <div
-        className={`mt-1 grid h-6 w-6 shrink-0 place-items-center rounded-full ${
-          done
-            ? "bg-brand-gradient text-white"
-            : active
-              ? "bg-[color:var(--brand-blue)]/20 text-[color:var(--brand-blue)]"
-              : "bg-white/10 text-muted-foreground"
-        }`}
-      >
-        {done ? (
-          <CheckCircle2 size={14} />
-        ) : active ? (
-          <Loader2 size={12} className="animate-spin" />
-        ) : (
-          <Clock size={12} />
-        )}
-      </div>
-      <div className="min-w-0 flex-1">
-        <p className="text-sm font-medium">{title}</p>
-        <p className="text-xs text-muted-foreground">{time}</p>
-      </div>
     </div>
   );
 }
