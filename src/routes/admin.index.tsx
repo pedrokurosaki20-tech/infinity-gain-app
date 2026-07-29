@@ -221,7 +221,7 @@ function AdminPage() {
           />
         </div>
         <div className="mt-3 flex gap-2 overflow-x-auto">
-          {(["all", "processing", "completed", "rejected"] as const).map((f) => (
+          {(["all", "requested", "processing", "completed", "rejected"] as const).map((f) => (
             <button
               key={f}
               onClick={() => setFilter(f)}
