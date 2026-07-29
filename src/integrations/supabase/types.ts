@@ -187,6 +187,14 @@ export type Database = {
         Args: { _approve: boolean; _id: string; _reason?: string }
         Returns: undefined
       }
+      review_withdrawal: {
+        Args: {
+          _id: string
+          _reason?: string
+          _status: Database["public"]["Enums"]["withdrawal_status"]
+        }
+        Returns: undefined
+      }
       submit_task_proof: {
         Args: {
           _link?: string
