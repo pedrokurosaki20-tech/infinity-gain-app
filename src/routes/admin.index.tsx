@@ -1,8 +1,14 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { ArrowLeft, ShieldCheck, Clock, CheckCircle2, XCircle, RefreshCw, Search } from "lucide-react";
+import { ArrowLeft, ShieldCheck, RefreshCw, Search } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { AppShell } from "@/components/AppShell";
 import { supabase } from "@/integrations/supabase/client";
+import {
+  WITHDRAWAL_SELECT,
+  statusMeta,
+  type WithdrawalRow,
+  type WithdrawalStatus,
+} from "@/components/WithdrawTracking";
 
 export const Route = createFileRoute("/admin/")({
   head: () => ({
@@ -14,17 +20,8 @@ export const Route = createFileRoute("/admin/")({
   component: AdminPage,
 });
 
-type WithdrawalStatus = "processing" | "completed" | "rejected";
-type Row = {
-  id: string;
+type Row = WithdrawalRow & {
   user_id: string;
-  amount: number;
-  fee: number;
-  net_amount: number;
-  pix_key: string;
-  pix_type: string;
-  status: WithdrawalStatus;
-  created_at: string;
   profile?: { name: string | null; phone: string | null } | null;
 };
 
@@ -35,27 +32,18 @@ const fmtDate = (iso: string) =>
   new Date(iso).toLocaleString("pt-BR", {
     day: "2-digit",
     month: "2-digit",
+    year: "2-digit",
     hour: "2-digit",
     minute: "2-digit",
   });
 
-const statusMeta: Record<WithdrawalStatus, { label: string; className: string; Icon: typeof Clock }> = {
-  processing: {
-    label: "Processando",
-    className: "bg-[color:var(--brand-blue)]/15 text-[color:var(--brand-blue)]",
-    Icon: Clock,
-  },
-  completed: {
-    label: "Concluído",
-    className: "bg-emerald-500/15 text-emerald-400",
-    Icon: CheckCircle2,
-  },
-  rejected: {
-    label: "Rejeitado",
-    className: "bg-red-500/15 text-red-400",
-    Icon: XCircle,
-  },
-};
+const statusOptions: { value: WithdrawalStatus; label: string }[] = [
+  { value: "requested", label: "Solicitado" },
+  { value: "processing", label: "Aprovado (Processando)" },
+  { value: "completed", label: "Concluído" },
+  { value: "rejected", label: "Rejeitado" },
+];
+
 
 function AdminPage() {
   const navigate = useNavigate();
