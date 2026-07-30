@@ -190,7 +190,7 @@ try {
 
   throw err;
 }
-
+}
 async function handleDisconnectService() {
   if (sock) {
     try { await sock.logout(); sock.end(undefined); } catch {}
