@@ -58,6 +58,7 @@ async function connectToWhatsApp(): Promise<WASocket> {
   const { version } = await fetchLatestBaileysVersion();
   console.log("4 - versão:", version);
 
+  try {
   sock = makeWASocket({
     version,
     logger: logger as any,
@@ -66,9 +67,15 @@ async function connectToWhatsApp(): Promise<WASocket> {
       creds: state.creds,
       keys: makeCacheableSignalKeyStore(state.keys, logger as any),
     },
-});
+  });
 
-console.log("5 - socket criado");
+  console.log("5 - socket criado");
+} catch (err) {
+  console.error("========== ERRO NO makeWASocket ==========");
+  console.error(err);
+  console.error("==========================================");
+  throw err;
+  }
   sock.ev.on("connection.update", async (update: Partial<ConnectionState>) => {
     const { connection, lastDisconnect } = update;
 
