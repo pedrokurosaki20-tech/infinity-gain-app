@@ -137,23 +137,49 @@ async function handleConnectService(phone: string) {
   connectionStatus = "connecting";
   
   // Inicia conexão
-  const socket = await connectToWhatsApp();
-  
+const socket = await connectToWhatsApp();
+
 try {
   lastError = null;
 
-await delay(3000);
+  console.log("Aguardando conexão WebSocket...");
+
+  let tentativas = 0;
+
+  while (socket.ws.readyState !== 1) {
+    await delay(1000);
+    tentativas++;
+
+    console.log("WS:", socket.ws.readyState);
+
+    if (tentativas >= 30) {
+      throw new Error("WebSocket não conectou.");
+    }
+  }
+
+  console.log("WebSocket conectado.");
 
   if (socket.authState.creds.registered) {
     throw new Error("Número já conectado");
   }
 
+  console.log("Solicitando pairing code...");
+
   const code = await socket.requestPairingCode(cleanPhone);
-    if (!code) throw new Error("WhatsApp não retornou código");
-    
-    pairingCode = code;
-    connectionStatus = "pairing";
-    return { pairingCode: code };
+
+  console.log("Resposta do WhatsApp:", code);
+
+  if (!code) {
+    throw new Error("WhatsApp não retornou código");
+  }
+
+  pairingCode = code;
+  connectionStatus = "pairing";
+
+  return {
+    pairingCode: code,
+  };
+
 } catch (err: any) {
   lastError = err.message || String(err);
 
@@ -163,7 +189,6 @@ await delay(3000);
   console.error("==================================");
 
   throw err;
-  }
 }
 
 async function handleDisconnectService() {
