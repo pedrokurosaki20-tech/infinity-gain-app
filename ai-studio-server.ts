@@ -49,11 +49,15 @@ let lastError: string | null = null;
 // Conexão principal com o WhatsApp
 // ──────────────────────────────────────────────────────────
 async function connectToWhatsApp(): Promise<WASocket> {
+  console.log("1 - entrou em connectToWhatsApp");
   ensureAuthDir();
+  console.log("2 - auth dir ok");
   const { state, saveCreds } = await useMultiFileAuthState("/tmp/auth_info_baileys");
+  console.log("3 - auth carregada");
 
   // Versão fixa e estável para evitar requisições externas lentas
   const { version } = await fetchLatestBaileysVersion();
+  console.log("4 - versão:", version);
 
   sock = makeWASocket({
     version,
@@ -70,7 +74,7 @@ async function connectToWhatsApp(): Promise<WASocket> {
     generateHighQualityLinkPreview: false,
     syncFullHistory: false,
     markOnlineOnConnect: false,
-  });
+  });console.log("5 - socket criado");
 
   sock.ev.on("connection.update", async (update: Partial<ConnectionState>) => {
     const { connection, lastDisconnect } = update;
