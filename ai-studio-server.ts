@@ -66,13 +66,6 @@ async function connectToWhatsApp(): Promise<WASocket> {
       creds: state.creds,
       keys: makeCacheableSignalKeyStore(state.keys, logger as any),
     },
-    sock = makeWASocket({
-  version,
-  auth: {
-    creds: state.creds,
-    keys: makeCacheableSignalKeyStore(state.keys, logger as any),
-  },
-  logger: logger as any,
 });
 
 console.log("5 - socket criado");
