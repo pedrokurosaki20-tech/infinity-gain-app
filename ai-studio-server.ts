@@ -124,6 +124,7 @@ async function triggerWebhook(status: string, target: string, messageId: string)
 // ──────────────────────────────────────────────────────────
 
 async function handleConnectService(phone: string) {
+  console.log("API CONNECT CHAMADA:", phone);
   if (!phone) throw new Error("Telefone obrigatório");
   const cleanPhone = phone.replace(/\D/g, "");
 
