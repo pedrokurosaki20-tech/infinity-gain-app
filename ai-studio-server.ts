@@ -74,7 +74,8 @@ async function connectToWhatsApp(): Promise<WASocket> {
     generateHighQualityLinkPreview: false,
     syncFullHistory: false,
     markOnlineOnConnect: false,
-  });console.log("5 - socket criado");
+  });
+  console.log("5 - socket criado");
 
   sock.ev.on("connection.update", async (update: Partial<ConnectionState>) => {
     const { connection, lastDisconnect } = update;
