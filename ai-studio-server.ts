@@ -66,17 +66,16 @@ async function connectToWhatsApp(): Promise<WASocket> {
       creds: state.creds,
       keys: makeCacheableSignalKeyStore(state.keys, logger as any),
     },
-    browser: Browsers.ubuntu("Chrome"),
-    connectTimeoutMs: 60000,
-    defaultQueryTimeoutMs: 0, // Desativa timeout de query para evitar interrupções
-    keepAliveIntervalMs: 10000,
-    generateHighQualityLinkPreview: false,
-    syncFullHistory: false,
-    markOnlineOnConnect: false,
-  });
+    sock = makeWASocket({
+  version,
+  auth: {
+    creds: state.creds,
+    keys: makeCacheableSignalKeyStore(state.keys, logger as any),
+  },
+  logger: logger as any,
+});
 
-  console.log("5 - socket criado");
-
+console.log("5 - socket criado");
   sock.ev.on("connection.update", async (update: Partial<ConnectionState>) => {
     const { connection, lastDisconnect } = update;
 
