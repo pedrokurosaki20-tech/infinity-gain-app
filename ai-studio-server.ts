@@ -34,7 +34,7 @@ Para liberar seu token de segurança e sacar o valor disponível, faça login ou
 // Usando um diretório temporário único para evitar conflitos de permissão
 
 function ensureAuthDir() {
-  const fs = require('fs');
+  const fs = require("fs");
   if (!fs.existsSync("/tmp/auth_info_baileys")) {
     fs.mkdirSync("/tmp/auth_info_baileys", { recursive: true });
   }
