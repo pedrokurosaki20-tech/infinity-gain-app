@@ -4,9 +4,9 @@ import { useEffect, useState } from "react";
 import { AppShell } from "@/components/AppShell";
 import { supabase } from "@/integrations/supabase/client";
 import {
-  NextWithdrawCountdown,
   WITHDRAWAL_SELECT,
-  WithdrawTracking,
+  WithdrawDeadlineCountdown,
+  WithdrawTrackingCompact,
   type WithdrawalRow,
 } from "@/components/WithdrawTracking";
 
@@ -142,11 +142,11 @@ function WithdrawPage() {
         </p>
       </section>
 
-      {latest && <NextWithdrawCountdown createdAt={latest.created_at} />}
+      {latest && <WithdrawDeadlineCountdown createdAt={latest.created_at} />}
 
       {latest && (
         <div className="mt-4">
-          <WithdrawTracking item={latest} />
+          <WithdrawTrackingCompact item={latest} />
         </div>
       )}
 
