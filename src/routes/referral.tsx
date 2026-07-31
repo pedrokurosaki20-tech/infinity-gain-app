@@ -2,15 +2,24 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import {
   ArrowLeft,
   Check,
+  Clock,
   Coins,
   Gift,
   Info,
+  Loader2,
   Lock,
   UsersRound,
 } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { AppShell } from "@/components/AppShell";
 import { tasks } from "@/lib/tasks";
+import { supabase } from "@/integrations/supabase/client";
+import {
+  inviteLink,
+  isClaimed,
+  loadReferralData,
+  type BonusClaim,
+} from "@/lib/referral";
 import heroAsset from "@/assets/banner-indique-ganhe-novo.png.asset.json";
 
 type Meta = {
@@ -48,9 +57,6 @@ const metasSemanais: Meta[] = [
 
 const META_DIARIA_MAX = 100;
 const META_SEMANAL_MAX = 500;
-const CONVITES_DIA = 22;
-const CONVITES_SEMANA = 130;
-const LINK = "https://infinitygain.app/i/INF-RSILVA";
 
 export const Route = createFileRoute("/referral")({
   head: () => ({
@@ -67,21 +73,65 @@ export const Route = createFileRoute("/referral")({
 });
 
 function ReferralPage() {
-  const [resgatados, setResgatados] = useState<Record<string, boolean>>({
-    "daily-5": true,
-    "weekly-50": true,
+  const [code, setCode] = useState("");
+  const [claims, setClaims] = useState<BonusClaim[]>([]);
+  const [stats, setStats] = useState({
+    valid_total: 0,
+    pending_total: 0,
+    daily_valid: 0,
+    weekly_valid: 0,
+    total_commission: 0,
   });
+  const [claiming, setClaiming] = useState<string | null>(null);
+  const [erro, setErro] = useState<string | null>(null);
 
-  const progressoDia = useMemo(
-    () => Math.min(100, (CONVITES_DIA / META_DIARIA_MAX) * 100),
-    []
-  );
-  const progressoSemana = useMemo(
-    () => Math.min(100, (CONVITES_SEMANA / META_SEMANAL_MAX) * 100),
-    []
-  );
+  const load = useCallback(async () => {
+    const data = await loadReferralData();
+    if (!data) return;
+    setCode(data.inviteCode);
+    setClaims(data.claims);
+    setStats(data.stats);
+  }, []);
+
+  useEffect(() => {
+    load();
+    const channel = supabase
+      .channel("referral-live")
+      .on("postgres_changes", { event: "*", schema: "public", table: "referrals" }, () => load())
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "referral_bonus_claims" },
+        () => load(),
+      )
+      .on("postgres_changes", { event: "*", schema: "public", table: "profiles" }, () => load())
+      .subscribe();
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [load]);
+
+  const LINK = code ? inviteLink(code) : "Carregando seu link…";
+
+  const convitesDia = stats.daily_valid;
+  const convitesSemana = stats.weekly_valid;
+  const progressoDia = Math.min(100, (convitesDia / META_DIARIA_MAX) * 100);
+  const progressoSemana = Math.min(100, (convitesSemana / META_SEMANAL_MAX) * 100);
 
   const outras = tasks.filter((t) => t.slug !== "indique-ganhe");
+
+  async function resgatar(period: "daily" | "weekly", target: number, amount: number) {
+    const key = `${period}-${target}`;
+    setClaiming(key);
+    setErro(null);
+    const { error } = await supabase.rpc("claim_referral_bonus", {
+      _period: period,
+      _target: target,
+      _amount: amount,
+    });
+    if (error) setErro(error.message);
+    await load();
+    setClaiming(null);
+  }
 
   return (
     <AppShell>
@@ -143,13 +193,41 @@ function ReferralPage() {
         </div>
       </section>
 
-      {/* Link de convite */}
+      {/* Contadores */}
+      <section className="mt-4 grid grid-cols-2 gap-3 animate-fade-up">
+        <div className="glass rounded-2xl p-4">
+          <div className="flex items-center gap-1.5 text-emerald-400">
+            <Check size={14} />
+            <p className="text-[11px] uppercase tracking-widest">Convites válidos</p>
+          </div>
+          <p className="mt-1.5 text-2xl font-extrabold text-white">{stats.valid_total}</p>
+        </div>
+        <div className="glass rounded-2xl p-4">
+          <div className="flex items-center gap-1.5 text-amber-400">
+            <Clock size={14} />
+            <p className="text-[11px] uppercase tracking-widest">Convites pendentes</p>
+          </div>
+          <p className="mt-1.5 text-2xl font-extrabold text-white">{stats.pending_total}</p>
+        </div>
+      </section>
+
+      {/* Código + Link de convite */}
       <section className="mt-6 animate-fade-up">
         <p className="mb-2 text-xs uppercase tracking-widest text-muted-foreground">
+          Seu código de convite
+        </p>
+        <CopyLink link={code || "…"} mono />
+        <p className="mb-2 mt-4 text-xs uppercase tracking-widest text-muted-foreground">
           Seu link de convite
         </p>
         <CopyLink link={LINK} />
       </section>
+
+      {erro && (
+        <p className="mt-4 rounded-2xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-xs text-red-300">
+          {erro}
+        </p>
+      )}
 
       {/* Progresso Diário */}
       <section className="mt-6 animate-fade-up">
@@ -158,7 +236,7 @@ function ReferralPage() {
             Progresso Diário
           </h3>
           <span className="text-xs text-white/70">
-            {CONVITES_DIA} / {META_DIARIA_MAX} convites
+            {convitesDia} / {META_DIARIA_MAX} convites
           </span>
         </div>
         <div className="glass rounded-3xl p-5">
@@ -170,22 +248,22 @@ function ReferralPage() {
               {Math.round(progressoDia)}%
             </span>
           </div>
+          <p className="mt-2 text-[11px] text-muted-foreground">
+            Os bônus diários expiram às 23:59.
+          </p>
           <div className="mt-5 grid grid-cols-1 gap-3">
             {metasDiarias.map((m) => {
               const key = `daily-${m.convites}`;
-              const atingida = CONVITES_DIA >= m.convites;
-              const resgatado = !!resgatados[key];
               return (
                 <BonusCard
                   key={key}
                   convites={m.convites}
                   comissao={m.comissao}
                   bonus={m.bonus}
-                  atingida={atingida}
-                  resgatado={resgatado}
-                  onResgatar={() =>
-                    setResgatados((r) => ({ ...r, [key]: true }))
-                  }
+                  atingida={convitesDia >= m.convites}
+                  resgatado={isClaimed(claims, "daily", m.convites)}
+                  loading={claiming === key}
+                  onResgatar={() => resgatar("daily", m.convites, m.bonus)}
                 />
               );
             })}
@@ -200,7 +278,7 @@ function ReferralPage() {
             Progresso Semanal
           </h3>
           <span className="text-xs text-white/70">
-            {CONVITES_SEMANA} / {META_SEMANAL_MAX} convites
+            {convitesSemana} / {META_SEMANAL_MAX} convites
           </span>
         </div>
         <div className="glass rounded-3xl p-5">
@@ -212,23 +290,23 @@ function ReferralPage() {
               {Math.round(progressoSemana)}%
             </span>
           </div>
+          <p className="mt-2 text-[11px] text-muted-foreground">
+            Os bônus semanais expiram domingo às 23:59.
+          </p>
           <div className="mt-5 grid grid-cols-2 gap-3">
             {metasSemanais.map((m) => {
               const key = `weekly-${m.convites}`;
-              const atingida = CONVITES_SEMANA >= m.convites;
-              const resgatado = !!resgatados[key];
               return (
                 <BonusCard
                   key={key}
                   convites={m.convites}
                   comissao={m.comissao}
                   bonus={m.bonus}
-                  atingida={atingida}
-                  resgatado={resgatado}
+                  atingida={convitesSemana >= m.convites}
+                  resgatado={isClaimed(claims, "weekly", m.convites)}
+                  loading={claiming === key}
                   hideCommission
-                  onResgatar={() =>
-                    setResgatados((r) => ({ ...r, [key]: true }))
-                  }
+                  onResgatar={() => resgatar("weekly", m.convites, m.bonus)}
                 />
               );
             })}
@@ -268,7 +346,7 @@ function ReferralPage() {
       {/* CTA */}
       <section className="mt-8 animate-fade-up">
         <button
-          onClick={() => navigator.clipboard?.writeText(LINK)}
+          onClick={() => code && navigator.clipboard?.writeText(inviteLink(code))}
           className="group relative flex w-full items-center justify-center gap-2 overflow-hidden rounded-2xl bg-brand-gradient px-6 py-4 text-base font-semibold text-white shadow-glow transition-all duration-200 hover:scale-[1.01] hover:shadow-[0_0_30px_rgba(30,94,255,0.45)] active:scale-[0.97]"
         >
           <span className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/20 to-transparent transition-transform duration-700 group-hover:translate-x-full" />
@@ -324,6 +402,7 @@ function BonusCard({
   bonus,
   atingida,
   resgatado,
+  loading,
   hideCommission,
   onResgatar,
 }: {
@@ -332,6 +411,7 @@ function BonusCard({
   bonus: number;
   atingida: boolean;
   resgatado: boolean;
+  loading?: boolean;
   hideCommission?: boolean;
   onResgatar: () => void;
 }) {
@@ -352,9 +432,11 @@ function BonusCard({
   ) : atingida ? (
     <button
       onClick={onResgatar}
-      className="inline-flex h-10 w-full items-center justify-center gap-1.5 rounded-xl bg-brand-gradient px-3 text-xs font-semibold text-white shadow-glow transition-transform active:scale-[0.97]"
+      disabled={loading}
+      className="inline-flex h-10 w-full items-center justify-center gap-1.5 rounded-xl bg-brand-gradient px-3 text-xs font-semibold text-white shadow-glow transition-transform active:scale-[0.97] disabled:opacity-60"
     >
-      <Gift size={14} /> +R${bonus.toFixed(2).replace(".", ",")} Resgatar
+      {loading ? <Loader2 size={14} className="animate-spin" /> : <Gift size={14} />}{" "}
+      +R${bonus.toFixed(2).replace(".", ",")} Resgatar
     </button>
   ) : (
     <button
@@ -390,12 +472,14 @@ function BonusCard({
   );
 }
 
-function CopyLink({ link }: { link: string }) {
+function CopyLink({ link, mono }: { link: string; mono?: boolean }) {
   const [copied, setCopied] = useState(false);
 
   return (
     <div className="glass flex items-center gap-2 rounded-2xl p-2 pl-4">
-      <span className="min-w-0 flex-1 truncate text-sm text-white/90">
+      <span
+        className={`min-w-0 flex-1 truncate text-sm text-white/90 ${mono ? "font-mono tracking-widest" : ""}`}
+      >
         {link}
       </span>
       <button
