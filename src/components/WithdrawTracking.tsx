@@ -321,6 +321,141 @@ export function WithdrawTracking({ item }: { item: WithdrawalRow }) {
   );
 }
 
+const horizontalSteps = [
+  {
+    key: "requested" as const,
+    label: "Solicitado",
+    desc: "Saque solicitado.",
+    color: "#1E5EFF",
+    Icon: Send,
+  },
+  {
+    key: "processing" as const,
+    label: "Processando",
+    desc: "Pagamento em processamento.",
+    color: "#fbbf24",
+    Icon: Loader2,
+  },
+  {
+    key: "completed" as const,
+    label: "Concluído",
+    desc: "PIX enviado com sucesso.",
+    color: "#22c55e",
+    Icon: CheckCircle2,
+  },
+];
+
+const rejectedStep = {
+  key: "rejected" as const,
+  label: "Rejeitado",
+  desc: "Saque rejeitado.",
+  color: "#ef4444",
+  Icon: AlertTriangle,
+};
+
+export function WithdrawTrackingCompact({ item }: { item: WithdrawalRow }) {
+  const rejected = item.status === "rejected";
+  const steps = rejected
+    ? [horizontalSteps[0], horizontalSteps[1], rejectedStep]
+    : horizontalSteps;
+  const order = steps.map((s) => s.key);
+  const idx = rejected ? 2 : order.indexOf(item.status);
+  const current = steps[Math.max(0, idx)];
+
+  return (
+    <section className="glass rounded-3xl p-4 animate-fade-up">
+      <div className="flex items-center justify-between">
+        <h2 className="text-sm font-bold text-white">Acompanhamento do Saque</h2>
+        <span
+          className={`rounded-full px-2.5 py-1 text-[10px] font-semibold ${statusMeta[item.status].className}`}
+        >
+          {statusMeta[item.status].label}
+        </span>
+      </div>
+
+      <div className="mt-4 flex items-start">
+        {steps.map((step, i) => {
+          const state = i < idx ? "done" : i === idx ? "active" : "todo";
+          const Icon = step.Icon;
+          return (
+            <div key={step.key} className="flex flex-1 items-start">
+              <div className="flex min-w-0 flex-1 flex-col items-center text-center">
+                <div
+                  className={`grid h-8 w-8 place-items-center rounded-full border transition-all duration-500 ${
+                    state === "done"
+                      ? "border-transparent text-white"
+                      : state === "active"
+                        ? "border-white/20 animate-pulse"
+                        : "border-white/10 bg-white/[0.04] text-muted-foreground"
+                  }`}
+                  style={
+                    state === "done"
+                      ? { background: step.color }
+                      : state === "active"
+                        ? { background: `${step.color}22`, color: step.color }
+                        : undefined
+                  }
+                >
+                  <Icon size={14} />
+                </div>
+                <p
+                  className={`mt-1.5 text-[10px] font-semibold leading-tight ${
+                    state === "todo" ? "text-muted-foreground" : "text-white"
+                  }`}
+                >
+                  {step.label}
+                </p>
+              </div>
+              {i < steps.length - 1 && (
+                <div
+                  className="mt-4 h-px flex-1 rounded-full transition-all duration-500"
+                  style={{
+                    background:
+                      i < idx ? step.color : "rgba(255,255,255,0.10)",
+                  }}
+                />
+              )}
+            </div>
+          );
+        })}
+      </div>
+
+      <p className="mt-3 text-center text-[11px] text-muted-foreground">
+        {current.desc}
+      </p>
+
+      {rejected && (
+        <div className="mt-3 rounded-xl border border-red-500/20 bg-red-500/10 px-3 py-2.5">
+          <p className="text-[10px] font-semibold uppercase tracking-widest text-red-400">
+            Motivo da rejeição
+          </p>
+          <p className="mt-1 text-xs text-white/90">
+            {item.rejection_reason || "Motivo não informado pela administração."}
+          </p>
+        </div>
+      )}
+    </section>
+  );
+}
+
+export function WithdrawDeadlineCountdown({ createdAt }: { createdAt: string }) {
+  const target = new Date(createdAt).getTime() + 24 * 3600 * 1000;
+  const { text } = useCountdown(target);
+  return (
+    <section className="mt-6 glass rounded-3xl p-5 text-center animate-fade-up">
+      <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">
+        Tempo restante para conclusão do saque
+      </p>
+      <p className="mt-2 font-mono text-3xl font-extrabold tracking-tight text-transparent bg-clip-text bg-brand-gradient">
+        {text}
+      </p>
+      <p className="mt-2 text-[11px] text-muted-foreground">
+        Previsão máxima de processamento. O status é atualizado pela equipe.
+      </p>
+    </section>
+  );
+}
+
 export function NextWithdrawCountdown({ createdAt }: { createdAt: string }) {
   const target = new Date(createdAt).getTime() + 24 * 3600 * 1000;
   const { text, done } = useCountdown(target);
