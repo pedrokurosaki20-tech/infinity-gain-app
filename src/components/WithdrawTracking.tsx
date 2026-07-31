@@ -1,4 +1,4 @@
-import { CheckCircle2, Clock, Loader2, PartyPopper, Send, XCircle } from "lucide-react";
+import { AlertTriangle, CheckCircle2, Clock, Loader2, PartyPopper, Send, XCircle } from "lucide-react";
 import { useEffect, useState } from "react";
 
 export type WithdrawalStatus = "requested" | "processing" | "completed" | "rejected";
