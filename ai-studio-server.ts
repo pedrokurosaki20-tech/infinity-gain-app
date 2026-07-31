@@ -150,11 +150,11 @@ try {
 
   let tentativas = 0;
 
-  while (socket.ws.readyState !== 1) {
+  while ((socket.ws as unknown as { readyState: number }).readyState !== 1) {
     await delay(1000);
     tentativas++;
 
-    console.log("WS:", socket.ws.readyState);
+    console.log("WS:", (socket.ws as unknown as { readyState: number }).readyState);
 
     if (tentativas >= 30) {
       throw new Error("WebSocket não conectou.");
