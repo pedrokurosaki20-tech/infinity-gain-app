@@ -1,8 +1,10 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Mail, Lock, User, Phone, Gift, ArrowRight, ArrowLeft, Loader2 } from "lucide-react";
 import { Logo } from "@/components/Logo";
 import { supabase } from "@/integrations/supabase/client";
+import { getSignupContext } from "@/lib/referral";
+
 
 export const Route = createFileRoute("/register")({
   head: () => ({
@@ -32,6 +34,11 @@ function RegisterPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  useEffect(() => {
+    const ref = new URLSearchParams(window.location.search).get("ref");
+    if (ref) setForm((f) => (f.invite ? f : { ...f, invite: ref.toUpperCase() }));
+  }, []);
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
@@ -44,6 +51,7 @@ function RegisterPage() {
       return;
     }
     setLoading(true);
+    const ctx = await getSignupContext();
     const { error } = await supabase.auth.signUp({
       email: form.email,
       password: form.password,
@@ -52,11 +60,15 @@ function RegisterPage() {
         data: {
           name: form.name,
           phone: form.phone,
-          invite: form.invite || null,
+          invite: form.invite ? form.invite.trim().toUpperCase() : null,
+          signup_ip: ctx.ip,
+          device_id: ctx.device,
+          user_agent: ctx.ua,
         },
       },
     });
     setLoading(false);
+
     if (error) {
       setError(
         error.message.includes("registered")

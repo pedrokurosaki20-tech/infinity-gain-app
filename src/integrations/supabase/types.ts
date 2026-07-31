@@ -16,8 +16,11 @@ export type Database = {
     Tables: {
       profiles: {
         Row: {
+          account_status: Database["public"]["Enums"]["account_status"]
           balance: number
           created_at: string
+          device_id: string | null
+          email: string | null
           id: string
           invite_code: string | null
           name: string | null
@@ -25,12 +28,18 @@ export type Database = {
           pix_key: string | null
           pix_type: string | null
           referred_by: string | null
+          signup_ip: string | null
+          status_reason: string | null
           total_earnings: number
           updated_at: string
+          user_agent: string | null
         }
         Insert: {
+          account_status?: Database["public"]["Enums"]["account_status"]
           balance?: number
           created_at?: string
+          device_id?: string | null
+          email?: string | null
           id: string
           invite_code?: string | null
           name?: string | null
@@ -38,12 +47,18 @@ export type Database = {
           pix_key?: string | null
           pix_type?: string | null
           referred_by?: string | null
+          signup_ip?: string | null
+          status_reason?: string | null
           total_earnings?: number
           updated_at?: string
+          user_agent?: string | null
         }
         Update: {
+          account_status?: Database["public"]["Enums"]["account_status"]
           balance?: number
           created_at?: string
+          device_id?: string | null
+          email?: string | null
           id?: string
           invite_code?: string | null
           name?: string | null
@@ -51,8 +66,86 @@ export type Database = {
           pix_key?: string | null
           pix_type?: string | null
           referred_by?: string | null
+          signup_ip?: string | null
+          status_reason?: string | null
           total_earnings?: number
           updated_at?: string
+          user_agent?: string | null
+        }
+        Relationships: []
+      }
+      referral_bonus_claims: {
+        Row: {
+          amount: number
+          created_at: string
+          id: string
+          period: string
+          period_key: string
+          target: number
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          id?: string
+          period: string
+          period_key: string
+          target: number
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          id?: string
+          period?: string
+          period_key?: string
+          target?: number
+          user_id?: string
+        }
+        Relationships: []
+      }
+      referrals: {
+        Row: {
+          commission_amount: number
+          created_at: string
+          first_task_at: string | null
+          fraud_reason: string | null
+          id: string
+          invite_code: string
+          referred_id: string
+          referrer_id: string
+          review_reason: string | null
+          status: Database["public"]["Enums"]["referral_status"]
+          updated_at: string
+          validated_at: string | null
+        }
+        Insert: {
+          commission_amount?: number
+          created_at?: string
+          first_task_at?: string | null
+          fraud_reason?: string | null
+          id?: string
+          invite_code: string
+          referred_id: string
+          referrer_id: string
+          review_reason?: string | null
+          status?: Database["public"]["Enums"]["referral_status"]
+          updated_at?: string
+          validated_at?: string | null
+        }
+        Update: {
+          commission_amount?: number
+          created_at?: string
+          first_task_at?: string | null
+          fraud_reason?: string | null
+          id?: string
+          invite_code?: string
+          referred_id?: string
+          referrer_id?: string
+          review_reason?: string | null
+          status?: Database["public"]["Enums"]["referral_status"]
+          updated_at?: string
+          validated_at?: string | null
         }
         Relationships: []
       }
@@ -100,6 +193,33 @@ export type Database = {
           status?: Database["public"]["Enums"]["submission_status"]
           task_type?: Database["public"]["Enums"]["task_type"]
           updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      transactions: {
+        Row: {
+          amount: number
+          created_at: string
+          description: string | null
+          id: string
+          type: Database["public"]["Enums"]["txn_type"]
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          description?: string | null
+          id?: string
+          type: Database["public"]["Enums"]["txn_type"]
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          description?: string | null
+          id?: string
+          type?: Database["public"]["Enums"]["txn_type"]
           user_id?: string
         }
         Relationships: []
@@ -172,12 +292,68 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      admin_list_referrals: {
+        Args: never
+        Returns: {
+          account_status: Database["public"]["Enums"]["account_status"]
+          created_at: string
+          first_task_at: string
+          fraud_reason: string
+          id: string
+          invite_code: string
+          referred_email: string
+          referred_id: string
+          referred_name: string
+          referred_phone: string
+          referrer_id: string
+          referrer_name: string
+          review_reason: string
+          status: Database["public"]["Enums"]["referral_status"]
+          status_reason: string
+        }[]
+      }
+      admin_review_referral: {
+        Args: { _action: string; _id: string; _reason?: string }
+        Returns: undefined
+      }
+      admin_set_account_status: {
+        Args: {
+          _reason?: string
+          _status: Database["public"]["Enums"]["account_status"]
+          _user_id: string
+        }
+        Returns: undefined
+      }
+      claim_referral_bonus: {
+        Args: { _amount: number; _period: string; _target: number }
+        Returns: undefined
+      }
+      credit_balance: {
+        Args: {
+          _amount: number
+          _description: string
+          _type: Database["public"]["Enums"]["txn_type"]
+          _user_id: string
+        }
+        Returns: undefined
+      }
+      gen_invite_code: { Args: never; Returns: string }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
           _user_id: string
         }
         Returns: boolean
+      }
+      referral_stats: {
+        Args: never
+        Returns: {
+          daily_valid: number
+          pending_total: number
+          total_commission: number
+          valid_total: number
+          weekly_valid: number
+        }[]
       }
       request_withdrawal: {
         Args: { _amount: number; _pix_key: string; _pix_type: string }
@@ -204,11 +380,25 @@ export type Database = {
         }
         Returns: string
       }
+      validate_referral_first_task: {
+        Args: { _user_id: string }
+        Returns: undefined
+      }
     }
     Enums: {
+      account_status: "active" | "suspended" | "blocked"
       app_role: "admin" | "user"
+      referral_status: "pending" | "valid" | "rejected" | "suspicious"
       submission_status: "pending" | "approved" | "rejected"
       task_type: "rcs" | "compartilhamento"
+      txn_type:
+        | "referral_commission"
+        | "referral_bonus"
+        | "task_reward"
+        | "withdrawal"
+        | "withdrawal_refund"
+        | "bonus_expired"
+        | "adjustment"
       withdrawal_status: "requested" | "processing" | "completed" | "rejected"
     }
     CompositeTypes: {
@@ -337,9 +527,20 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      account_status: ["active", "suspended", "blocked"],
       app_role: ["admin", "user"],
+      referral_status: ["pending", "valid", "rejected", "suspicious"],
       submission_status: ["pending", "approved", "rejected"],
       task_type: ["rcs", "compartilhamento"],
+      txn_type: [
+        "referral_commission",
+        "referral_bonus",
+        "task_reward",
+        "withdrawal",
+        "withdrawal_refund",
+        "bonus_expired",
+        "adjustment",
+      ],
       withdrawal_status: ["requested", "processing", "completed", "rejected"],
     },
   },
