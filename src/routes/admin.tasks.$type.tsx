@@ -260,23 +260,56 @@ function AdminTasksPage() {
                 )}
 
                 {r.status === "pending" && (
-                  <div className="mt-3 flex gap-2">
-                    <button
-                      disabled={busy}
-                      onClick={() => review(r.id, true)}
-                      className="flex-1 rounded-xl bg-emerald-500/90 px-3 py-2 text-xs font-semibold text-white disabled:opacity-50"
-                    >
-                      Aprovar
-                    </button>
-                    <button
-                      disabled={busy}
-                      onClick={() => review(r.id, false)}
-                      className="flex-1 rounded-xl bg-red-500/90 px-3 py-2 text-xs font-semibold text-white disabled:opacity-50"
-                    >
-                      Rejeitar
-                    </button>
-                  </div>
+                  <>
+                    {rewardFor === r.id && taskType === "compartilhamento" ? (
+                      <div className="mt-3">
+                        <p className="mb-2 text-[11px] uppercase tracking-widest text-muted-foreground">
+                          Escolha a recompensa
+                        </p>
+                        <div className="grid grid-cols-4 gap-2">
+                          {[0.3, 0.5, 0.7, 1].map((v) => (
+                            <button
+                              key={v}
+                              disabled={busy}
+                              onClick={() => review(r.id, true, v)}
+                              className="rounded-xl bg-emerald-500/90 px-2 py-2 text-xs font-semibold text-white disabled:opacity-50"
+                            >
+                              R$ {v.toFixed(2).replace(".", ",")}
+                            </button>
+                          ))}
+                        </div>
+                        <button
+                          onClick={() => setRewardFor(null)}
+                          className="mt-2 w-full rounded-xl bg-white/5 px-3 py-2 text-xs font-semibold text-muted-foreground"
+                        >
+                          Cancelar
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="mt-3 flex gap-2">
+                        <button
+                          disabled={busy}
+                          onClick={() =>
+                            taskType === "compartilhamento"
+                              ? setRewardFor(r.id)
+                              : review(r.id, true)
+                          }
+                          className="flex-1 rounded-xl bg-emerald-500/90 px-3 py-2 text-xs font-semibold text-white disabled:opacity-50"
+                        >
+                          Aprovar
+                        </button>
+                        <button
+                          disabled={busy}
+                          onClick={() => review(r.id, false)}
+                          className="flex-1 rounded-xl bg-red-500/90 px-3 py-2 text-xs font-semibold text-white disabled:opacity-50"
+                        >
+                          Reprovar
+                        </button>
+                      </div>
+                    )}
+                  </>
                 )}
+
               </div>
             );
           })
