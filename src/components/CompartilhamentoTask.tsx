@@ -388,9 +388,13 @@ export function CompartilhamentoTask() {
         </div>
         <div className="grid grid-cols-1 gap-4">
           {initialCampaigns.map((c) => {
+            const isFb = c.id === "facebook";
             const target = start + c.nextInSeconds * 1000;
-            const remaining = Math.max(0, Math.floor((target - now) / 1000));
-            const available = c.nextInSeconds === 0 || remaining === 0;
+            const staticRemaining = Math.max(0, Math.floor((target - now) / 1000));
+            const remaining = isFb ? fbRemaining : staticRemaining;
+            const available = isFb
+              ? fbAvailable
+              : c.nextInSeconds === 0 || staticRemaining === 0;
             return (
               <div
                 key={c.id}
@@ -424,18 +428,35 @@ export function CompartilhamentoTask() {
                 </div>
 
                 <div className="mt-4 grid grid-cols-3 gap-2">
-                  <CampaignAction icon={Copy} label="Copiar Texto" />
-                  <CampaignAction icon={Download} label="Salvar Imagem" />
+                  <CampaignAction
+                    icon={Copy}
+                    label="Copiar Texto"
+                    onClick={isFb ? copyCampaignText : undefined}
+                  />
+                  <CampaignAction
+                    icon={Download}
+                    label="Salvar Imagem"
+                    onClick={isFb ? downloadCampaignFile : undefined}
+                  />
                   <CampaignAction
                     icon={Share2}
                     label="Compartilhar Agora"
                     primary
                     disabled={!available}
+                    onClick={
+                      isFb
+                        ? () => {
+                            setPlatform("facebook");
+                            shareNow();
+                          }
+                        : undefined
+                    }
                   />
                 </div>
               </div>
             );
           })}
+
         </div>
       </section>
 
