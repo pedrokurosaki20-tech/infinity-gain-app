@@ -54,6 +54,7 @@ function AdminTasksPage() {
   const [filter, setFilter] = useState<"all" | SubmissionStatus>("pending");
   const [q, setQ] = useState("");
   const [busyId, setBusyId] = useState<string | null>(null);
+  const [rewardFor, setRewardFor] = useState<string | null>(null);
 
   useEffect(() => {
     (async () => {
