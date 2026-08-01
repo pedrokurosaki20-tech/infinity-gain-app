@@ -35,9 +35,40 @@ function formatDate(iso: string) {
   });
 }
 
+type TxnRow = {
+  id: string;
+  type: string;
+  amount: number;
+  description: string | null;
+  created_at: string;
+};
+
 function WalletPage() {
   const [loading, setLoading] = useState(true);
   const [items, setItems] = useState<WithdrawalRow[]>([]);
+  const [txns, setTxns] = useState<TxnRow[]>([]);
+
+  useEffect(() => {
+    let active = true;
+    async function loadTxns() {
+      const { data } = await supabase
+        .from("transactions")
+        .select("id, type, amount, description, created_at")
+        .order("created_at", { ascending: false })
+        .limit(50);
+      if (active) setTxns((data ?? []) as TxnRow[]);
+    }
+    loadTxns();
+    const ch = supabase
+      .channel("wallet-transactions")
+      .on("postgres_changes", { event: "*", schema: "public", table: "transactions" }, () => loadTxns())
+      .subscribe();
+    return () => {
+      active = false;
+      supabase.removeChannel(ch);
+    };
+  }, []);
+
 
   useEffect(() => {
     let active = true;
