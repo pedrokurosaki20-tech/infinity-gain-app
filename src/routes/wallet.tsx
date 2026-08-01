@@ -141,6 +141,35 @@ function WalletPage() {
         </Link>
       </section>
 
+      <section className="mt-8">
+        <h2 className="mb-3 text-lg font-bold">Histórico da Conta</h2>
+        {txns.length === 0 ? (
+          <div className="glass rounded-3xl px-4 py-8 text-center text-sm text-muted-foreground">
+            Nenhum lançamento por enquanto.
+          </div>
+        ) : (
+          <div className="space-y-2">
+            {txns.map((t) => {
+              const rejected = Number(t.amount) === 0;
+              return (
+                <div key={t.id} className="glass flex items-center gap-3 rounded-2xl p-4">
+                  <div className="min-w-0 flex-1">
+                    <p className={`truncate text-sm font-semibold ${rejected ? "text-red-400" : "text-white"}`}>
+                      {t.description || "Lançamento"}
+                    </p>
+                    <p className="mt-0.5 text-xs text-muted-foreground">{formatDate(t.created_at)}</p>
+                  </div>
+                  <p className={`shrink-0 text-sm font-extrabold ${rejected ? "text-red-400" : "text-emerald-400"}`}>
+                    {BRL(Number(t.amount))}
+                  </p>
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </section>
+
+
       <section className="mt-8 pb-4">
         <h2 className="mb-3 text-lg font-bold">Histórico de Saques</h2>
         {loading ? (
