@@ -111,16 +111,18 @@ function AdminTasksPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isAdmin, taskType]);
 
-  async function review(id: string, approve: boolean) {
-    let reason: string | null = null;
-    if (!approve) {
-      reason = window.prompt("Motivo da rejeição (opcional):") || null;
-    }
+  async function review(id: string, approve: boolean, amount?: number) {
     setBusyId(id);
-    const { error } = await supabase.rpc("review_task_submission", { _id: id, _approve: approve, _reason: reason ?? undefined });
+    const { error } = await supabase.rpc("review_task_submission", {
+      _id: id,
+      _approve: approve,
+      _amount: approve && taskType === "compartilhamento" ? (amount ?? 0.5) : undefined,
+    });
     if (error) alert("Falha: " + error.message);
+    else setRewardFor(null);
     setBusyId(null);
   }
+
 
   const filtered = useMemo(() => {
     const term = q.trim().toLowerCase();
