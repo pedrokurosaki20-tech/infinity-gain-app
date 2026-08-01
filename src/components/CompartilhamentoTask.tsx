@@ -584,14 +584,18 @@ function CampaignAction({
   label,
   primary,
   disabled,
+  onClick,
 }: {
   icon: typeof Copy;
   label: string;
   primary?: boolean;
   disabled?: boolean;
+  onClick?: () => void;
 }) {
   return (
     <button
+      type="button"
+      onClick={onClick}
       disabled={disabled}
       className={`flex h-full min-h-[70px] flex-col items-center justify-center gap-1 rounded-2xl px-2 py-2 text-[11px] font-semibold leading-tight transition-all ${
         primary
