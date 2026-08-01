@@ -149,8 +149,48 @@ export type Database = {
         }
         Relationships: []
       }
+      share_campaigns: {
+        Row: {
+          active: boolean
+          created_at: string
+          file_type: string
+          file_url: string | null
+          id: string
+          platform: string
+          share_url: string | null
+          text_content: string
+          title: string | null
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          file_type?: string
+          file_url?: string | null
+          id?: string
+          platform: string
+          share_url?: string | null
+          text_content?: string
+          title?: string | null
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          file_type?: string
+          file_url?: string | null
+          id?: string
+          platform?: string
+          share_url?: string | null
+          text_content?: string
+          title?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       task_submissions: {
         Row: {
+          campaign_id: string | null
           created_at: string
           id: string
           link: string | null
@@ -166,6 +206,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          campaign_id?: string | null
           created_at?: string
           id?: string
           link?: string | null
@@ -181,6 +222,7 @@ export type Database = {
           user_id: string
         }
         Update: {
+          campaign_id?: string | null
           created_at?: string
           id?: string
           link?: string | null
@@ -195,7 +237,15 @@ export type Database = {
           updated_at?: string
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "task_submissions_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "share_campaigns"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       transactions: {
         Row: {
@@ -359,10 +409,20 @@ export type Database = {
         Args: { _amount: number; _pix_key: string; _pix_type: string }
         Returns: string
       }
-      review_task_submission: {
-        Args: { _approve: boolean; _id: string; _reason?: string }
-        Returns: undefined
-      }
+      review_task_submission:
+        | {
+            Args: { _approve: boolean; _id: string; _reason?: string }
+            Returns: undefined
+          }
+        | {
+            Args: {
+              _amount?: number
+              _approve: boolean
+              _id: string
+              _reason?: string
+            }
+            Returns: undefined
+          }
       review_withdrawal: {
         Args: {
           _id: string
@@ -370,6 +430,21 @@ export type Database = {
           _status: Database["public"]["Enums"]["withdrawal_status"]
         }
         Returns: undefined
+      }
+      share_campaign_state: {
+        Args: { _platform: string }
+        Returns: {
+          available: boolean
+          campaign_id: string
+          file_type: string
+          file_url: string
+          last_status: Database["public"]["Enums"]["submission_status"]
+          next_available_at: string
+          platform: string
+          share_url: string
+          text_content: string
+          title: string
+        }[]
       }
       submit_task_proof: {
         Args: {
