@@ -17,7 +17,15 @@ import {
   XCircle,
 } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
+import {
+  SHARE_PLATFORMS,
+  defaultShareUrl,
+  loadCampaignState,
+  resolveCampaignFileUrl,
+  type ShareCampaignState,
+} from "@/lib/share-campaigns";
 import { SafetyNotice } from "@/components/SafetyNotice";
+
 import { tasks } from "@/lib/tasks";
 import { submitTaskProof } from "@/lib/task-submission";
 import { supabase } from "@/integrations/supabase/client";
@@ -99,7 +107,7 @@ const initialCampaigns: Campaign[] = [
     name: "Instagram",
     logo: <InstagramLogo />,
     accent: "linear-gradient(135deg,#feda75,#fa7e1e,#d62976,#962fbf,#4f5bd5)",
-    nextInSeconds: 5 * 60 * 60 + 12 * 60,
+    nextInSeconds: 0,
   },
   {
     id: "x",
@@ -113,32 +121,21 @@ const initialCampaigns: Campaign[] = [
     name: "TikTok",
     logo: <TikTokLogo />,
     accent: "linear-gradient(135deg,#000000,#111111)",
-    nextInSeconds: 12 * 60 * 60 + 47 * 60,
+    nextInSeconds: 0,
   },
   {
     id: "kwai",
     name: "Kwai",
     logo: <KwaiLogo />,
     accent: "linear-gradient(135deg,#FF7A00,#FF5500)",
-    nextInSeconds: 22 * 60 * 60 + 5 * 60,
+    nextInSeconds: 0,
   },
 ];
 
-type FbState = {
-  campaign_id: string | null;
-  text_content: string | null;
-  file_url: string | null;
-  file_type: string | null;
-  share_url: string | null;
-  available: boolean;
-  next_available_at: string | null;
-  last_status: "pending" | "approved" | "rejected" | null;
-};
 
 export function CompartilhamentoTask() {
   const outras = tasks.filter((t) => t.slug !== "compartilhamento");
 
-  const start = useMemo(() => Date.now(), []);
   const [now, setNow] = useState(Date.now());
   const [platform, setPlatform] = useState<string>("facebook");
   const [link, setLink] = useState("");
@@ -146,7 +143,7 @@ export function CompartilhamentoTask() {
   const [submitting, setSubmitting] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [lastStatus, setLastStatus] = useState<"pending" | "approved" | "rejected" | null>(null);
-  const [fb, setFb] = useState<FbState | null>(null);
+  const [states, setStates] = useState<Record<string, ShareCampaignState | null>>({});
   const fileRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -154,18 +151,23 @@ export function CompartilhamentoTask() {
     return () => clearInterval(id);
   }, []);
 
-  async function loadFacebook() {
-    const { data, error } = await supabase.rpc("share_campaign_state", { _platform: "facebook" });
-    if (error) return;
-    const row = Array.isArray(data) ? (data[0] as any) : (data as any);
-    if (row) setFb(row as FbState);
+  async function loadPlatform(p: string) {
+    const state = await loadCampaignState(p);
+    setStates((prev) => ({ ...prev, [p]: state }));
+  }
+
+  async function loadAll() {
+    const results = await Promise.all(SHARE_PLATFORMS.map((p) => loadCampaignState(p)));
+    const map: Record<string, ShareCampaignState | null> = {};
+    SHARE_PLATFORMS.forEach((p, i) => (map[p] = results[i] ?? null));
+    setStates(map);
   }
 
   useEffect(() => {
     (async () => {
       const { data: u } = await supabase.auth.getUser();
       if (!u.user) return;
-      await loadFacebook();
+      await loadAll();
       const { data } = await supabase
         .from("task_submissions")
         .select("status")
@@ -178,19 +180,40 @@ export function CompartilhamentoTask() {
     })();
   }, [submitting]);
 
-  // Libera automaticamente quando o cronômetro chega a zero
+  // Atualiza automaticamente quando o admin altera qualquer campanha
   useEffect(() => {
-    if (!fb || fb.available || !fb.next_available_at) return;
-    if (new Date(fb.next_available_at).getTime() - now <= 0) loadFacebook();
-  }, [now, fb]);
+    const ch = supabase
+      .channel("share-campaigns-live")
+      .on("postgres_changes", { event: "*", schema: "public", table: "share_campaigns" }, () => loadAll())
+      .subscribe();
+    return () => {
+      supabase.removeChannel(ch);
+    };
+  }, []);
 
-  const fbRemaining = fb?.next_available_at
-    ? Math.max(0, Math.floor((new Date(fb.next_available_at).getTime() - now) / 1000))
-    : 0;
-  const fbAvailable = !!fb && (fb.available || fbRemaining === 0);
+  const remainingFor = (p: string) => {
+    const s = states[p];
+    if (!s?.next_available_at) return 0;
+    return Math.max(0, Math.floor((new Date(s.next_available_at).getTime() - now) / 1000));
+  };
+  const availableFor = (p: string) => {
+    const s = states[p];
+    if (!s) return false;
+    return s.available || remainingFor(p) === 0;
+  };
 
-  async function copyCampaignText() {
-    const text = fb?.text_content?.trim();
+  // Libera automaticamente quando algum cronômetro chega a zero
+  useEffect(() => {
+    for (const p of SHARE_PLATFORMS) {
+      const s = states[p];
+      if (!s || s.available || !s.next_available_at) continue;
+      if (new Date(s.next_available_at).getTime() - now <= 0) loadPlatform(p);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [now]);
+
+  async function copyCampaignText(p: string) {
+    const text = states[p]?.text_content?.trim();
     if (!text) {
       toast.warning("⚠️ Texto da campanha ainda não cadastrado.");
       return;
@@ -208,8 +231,9 @@ export function CompartilhamentoTask() {
     toast.success("✅ Texto copiado com sucesso.");
   }
 
-  async function downloadCampaignFile() {
-    const url = fb?.file_url;
+  async function downloadCampaignFile(p: string) {
+    const state = states[p];
+    const url = await resolveCampaignFileUrl(state?.file_url);
     if (!url) {
       toast.warning("⚠️ Arquivo da campanha ainda não cadastrado.");
       return;
@@ -220,7 +244,9 @@ export function CompartilhamentoTask() {
       const objUrl = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = objUrl;
-      a.download = url.split("/").pop() || (fb?.file_type === "video" ? "campanha.mp4" : "campanha.jpg");
+      a.download =
+        (state?.file_url ?? url).split("/").pop()?.split("?")[0] ||
+        (state?.file_type === "video" ? "campanha.mp4" : "campanha.jpg");
       document.body.appendChild(a);
       a.click();
       a.remove();
@@ -231,17 +257,14 @@ export function CompartilhamentoTask() {
     toast.success("✅ Arquivo baixado com sucesso.");
   }
 
-  function shareNow() {
+  function shareNow(p: string) {
     const origin = typeof window !== "undefined" ? window.location.origin : "";
-    const url =
-      fb?.share_url && fb.share_url.includes("?")
-        ? fb.share_url
-        : `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(origin)}`;
-    window.open(url, "_blank", "noopener");
+    const custom = states[p]?.share_url?.trim();
+    window.open(custom || defaultShareUrl(p, origin), "_blank", "noopener");
   }
 
   async function handleSubmit() {
-    if (platform === "facebook" && !fbAvailable) {
+    if (!availableFor(platform)) {
       toast.warning("⚠️ Campanha já enviada. Aguarde a renovação.");
       return;
     }
@@ -260,11 +283,12 @@ export function CompartilhamentoTask() {
     try {
       await submitTaskProof({ taskType: "compartilhamento", file, link, platform });
       setMessage("Comprovante enviado! Aguarde a análise da equipe.");
-      toast.success("✅ Tarefa enviada com sucesso. Sua publicação será analisada em até 24 horas.");
+      toast.success("✅ Publicação enviada para análise. Sua recompensa será analisada em até 24 horas.");
       setLink("");
       setFile(null);
       if (fileRef.current) fileRef.current.value = "";
-      await loadFacebook();
+      await loadPlatform(platform);
+
     } catch (err: any) {
       const msg = err?.message || "Falha ao enviar comprovante.";
       setMessage(msg);
@@ -388,13 +412,9 @@ export function CompartilhamentoTask() {
         </div>
         <div className="grid grid-cols-1 gap-4">
           {initialCampaigns.map((c) => {
-            const isFb = c.id === "facebook";
-            const target = start + c.nextInSeconds * 1000;
-            const staticRemaining = Math.max(0, Math.floor((target - now) / 1000));
-            const remaining = isFb ? fbRemaining : staticRemaining;
-            const available = isFb
-              ? fbAvailable
-              : c.nextInSeconds === 0 || staticRemaining === 0;
+            const remaining = remainingFor(c.id);
+            const available = availableFor(c.id);
+
             return (
               <div
                 key={c.id}
@@ -431,28 +451,25 @@ export function CompartilhamentoTask() {
                   <CampaignAction
                     icon={Copy}
                     label="Copiar Texto"
-                    onClick={isFb ? copyCampaignText : undefined}
+                    onClick={() => copyCampaignText(c.id)}
                   />
                   <CampaignAction
                     icon={Download}
                     label="Salvar Imagem"
-                    onClick={isFb ? downloadCampaignFile : undefined}
+                    onClick={() => downloadCampaignFile(c.id)}
                   />
                   <CampaignAction
                     icon={Share2}
                     label="Compartilhar Agora"
                     primary
                     disabled={!available}
-                    onClick={
-                      isFb
-                        ? () => {
-                            setPlatform("facebook");
-                            shareNow();
-                          }
-                        : undefined
-                    }
+                    onClick={() => {
+                      setPlatform(c.id);
+                      shareNow(c.id);
+                    }}
                   />
                 </div>
+
               </div>
             );
           })}
