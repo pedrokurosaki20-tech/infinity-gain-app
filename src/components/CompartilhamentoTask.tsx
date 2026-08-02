@@ -17,7 +17,15 @@ import {
   XCircle,
 } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
+import {
+  SHARE_PLATFORMS,
+  defaultShareUrl,
+  loadCampaignState,
+  resolveCampaignFileUrl,
+  type ShareCampaignState,
+} from "@/lib/share-campaigns";
 import { SafetyNotice } from "@/components/SafetyNotice";
+
 import { tasks } from "@/lib/tasks";
 import { submitTaskProof } from "@/lib/task-submission";
 import { supabase } from "@/integrations/supabase/client";
