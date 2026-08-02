@@ -149,6 +149,47 @@ export type Database = {
         }
         Relationships: []
       }
+      share_campaign_logs: {
+        Row: {
+          action: string
+          admin_id: string | null
+          admin_name: string | null
+          campaign_id: string | null
+          created_at: string
+          details: string | null
+          id: string
+          platform: string
+        }
+        Insert: {
+          action: string
+          admin_id?: string | null
+          admin_name?: string | null
+          campaign_id?: string | null
+          created_at?: string
+          details?: string | null
+          id?: string
+          platform: string
+        }
+        Update: {
+          action?: string
+          admin_id?: string | null
+          admin_name?: string | null
+          campaign_id?: string | null
+          created_at?: string
+          details?: string | null
+          id?: string
+          platform?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "share_campaign_logs_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "share_campaigns"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       share_campaigns: {
         Row: {
           active: boolean
@@ -362,9 +403,42 @@ export type Database = {
           status_reason: string
         }[]
       }
+      admin_list_share_campaigns: {
+        Args: never
+        Returns: {
+          active: boolean
+          created_at: string
+          file_type: string
+          file_url: string | null
+          id: string
+          platform: string
+          share_url: string | null
+          text_content: string
+          title: string | null
+          updated_at: string
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "share_campaigns"
+          isOneToOne: false
+          isSetofReturn: true
+        }
+      }
       admin_review_referral: {
         Args: { _action: string; _id: string; _reason?: string }
         Returns: undefined
+      }
+      admin_save_share_campaign: {
+        Args: {
+          _active: boolean
+          _file_type: string
+          _file_url: string
+          _platform: string
+          _share_url: string
+          _text_content: string
+          _title: string
+        }
+        Returns: string
       }
       admin_set_account_status: {
         Args: {
