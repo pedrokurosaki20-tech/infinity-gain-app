@@ -22,6 +22,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
 import { Route as WithdrawIdRouteImport } from './routes/withdraw.$id'
 import { Route as TaskSlugRouteImport } from './routes/task.$slug'
+import { Route as AdminSharingRouteImport } from './routes/admin.sharing'
 import { Route as AdminReferralsRouteImport } from './routes/admin.referrals'
 import { Route as AdminTasksTypeRouteImport } from './routes/admin.tasks.$type'
 
@@ -90,6 +91,11 @@ const TaskSlugRoute = TaskSlugRouteImport.update({
   path: '/task/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminSharingRoute = AdminSharingRouteImport.update({
+  id: '/sharing',
+  path: '/sharing',
+  getParentRoute: () => AdminRouteRoute,
+} as any)
 const AdminReferralsRoute = AdminReferralsRouteImport.update({
   id: '/referrals',
   path: '/referrals',
@@ -113,6 +119,7 @@ export interface FileRoutesByFullPath {
   '/wallet': typeof WalletRoute
   '/withdraw': typeof WithdrawRouteWithChildren
   '/admin/referrals': typeof AdminReferralsRoute
+  '/admin/sharing': typeof AdminSharingRoute
   '/task/$slug': typeof TaskSlugRoute
   '/withdraw/$id': typeof WithdrawIdRoute
   '/admin/': typeof AdminIndexRoute
@@ -129,6 +136,7 @@ export interface FileRoutesByTo {
   '/wallet': typeof WalletRoute
   '/withdraw': typeof WithdrawRouteWithChildren
   '/admin/referrals': typeof AdminReferralsRoute
+  '/admin/sharing': typeof AdminSharingRoute
   '/task/$slug': typeof TaskSlugRoute
   '/withdraw/$id': typeof WithdrawIdRoute
   '/admin': typeof AdminIndexRoute
@@ -147,6 +155,7 @@ export interface FileRoutesById {
   '/wallet': typeof WalletRoute
   '/withdraw': typeof WithdrawRouteWithChildren
   '/admin/referrals': typeof AdminReferralsRoute
+  '/admin/sharing': typeof AdminSharingRoute
   '/task/$slug': typeof TaskSlugRoute
   '/withdraw/$id': typeof WithdrawIdRoute
   '/admin/': typeof AdminIndexRoute
@@ -166,6 +175,7 @@ export interface FileRouteTypes {
     | '/wallet'
     | '/withdraw'
     | '/admin/referrals'
+    | '/admin/sharing'
     | '/task/$slug'
     | '/withdraw/$id'
     | '/admin/'
@@ -182,6 +192,7 @@ export interface FileRouteTypes {
     | '/wallet'
     | '/withdraw'
     | '/admin/referrals'
+    | '/admin/sharing'
     | '/task/$slug'
     | '/withdraw/$id'
     | '/admin'
@@ -199,6 +210,7 @@ export interface FileRouteTypes {
     | '/wallet'
     | '/withdraw'
     | '/admin/referrals'
+    | '/admin/sharing'
     | '/task/$slug'
     | '/withdraw/$id'
     | '/admin/'
@@ -312,6 +324,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof TaskSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/sharing': {
+      id: '/admin/sharing'
+      path: '/sharing'
+      fullPath: '/admin/sharing'
+      preLoaderRoute: typeof AdminSharingRouteImport
+      parentRoute: typeof AdminRouteRoute
+    }
     '/admin/referrals': {
       id: '/admin/referrals'
       path: '/referrals'
@@ -331,12 +350,14 @@ declare module '@tanstack/react-router' {
 
 interface AdminRouteRouteChildren {
   AdminReferralsRoute: typeof AdminReferralsRoute
+  AdminSharingRoute: typeof AdminSharingRoute
   AdminIndexRoute: typeof AdminIndexRoute
   AdminTasksTypeRoute: typeof AdminTasksTypeRoute
 }
 
 const AdminRouteRouteChildren: AdminRouteRouteChildren = {
   AdminReferralsRoute: AdminReferralsRoute,
+  AdminSharingRoute: AdminSharingRoute,
   AdminIndexRoute: AdminIndexRoute,
   AdminTasksTypeRoute: AdminTasksTypeRoute,
 }
