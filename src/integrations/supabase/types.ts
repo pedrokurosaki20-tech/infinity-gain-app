@@ -407,22 +407,15 @@ export type Database = {
         Args: never
         Returns: {
           active: boolean
-          created_at: string
           file_type: string
-          file_url: string | null
+          file_url: string
           id: string
           platform: string
-          share_url: string | null
+          share_url: string
           text_content: string
-          title: string | null
+          title: string
           updated_at: string
         }[]
-        SetofOptions: {
-          from: "*"
-          to: "share_campaigns"
-          isOneToOne: false
-          isSetofReturn: true
-        }
       }
       admin_review_referral: {
         Args: { _action: string; _id: string; _reason?: string }
