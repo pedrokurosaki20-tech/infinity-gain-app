@@ -443,28 +443,25 @@ export function CompartilhamentoTask() {
                   <CampaignAction
                     icon={Copy}
                     label="Copiar Texto"
-                    onClick={isFb ? copyCampaignText : undefined}
+                    onClick={() => copyCampaignText(c.id)}
                   />
                   <CampaignAction
                     icon={Download}
                     label="Salvar Imagem"
-                    onClick={isFb ? downloadCampaignFile : undefined}
+                    onClick={() => downloadCampaignFile(c.id)}
                   />
                   <CampaignAction
                     icon={Share2}
                     label="Compartilhar Agora"
                     primary
                     disabled={!available}
-                    onClick={
-                      isFb
-                        ? () => {
-                            setPlatform("facebook");
-                            shareNow();
-                          }
-                        : undefined
-                    }
+                    onClick={() => {
+                      setPlatform(c.id);
+                      shareNow(c.id);
+                    }}
                   />
                 </div>
+
               </div>
             );
           })}
