@@ -99,7 +99,7 @@ const initialCampaigns: Campaign[] = [
     name: "Instagram",
     logo: <InstagramLogo />,
     accent: "linear-gradient(135deg,#feda75,#fa7e1e,#d62976,#962fbf,#4f5bd5)",
-    nextInSeconds: 5 * 60 * 60 + 12 * 60,
+    nextInSeconds: 0,
   },
   {
     id: "x",
@@ -113,27 +113,17 @@ const initialCampaigns: Campaign[] = [
     name: "TikTok",
     logo: <TikTokLogo />,
     accent: "linear-gradient(135deg,#000000,#111111)",
-    nextInSeconds: 12 * 60 * 60 + 47 * 60,
+    nextInSeconds: 0,
   },
   {
     id: "kwai",
     name: "Kwai",
     logo: <KwaiLogo />,
     accent: "linear-gradient(135deg,#FF7A00,#FF5500)",
-    nextInSeconds: 22 * 60 * 60 + 5 * 60,
+    nextInSeconds: 0,
   },
 ];
 
-type FbState = {
-  campaign_id: string | null;
-  text_content: string | null;
-  file_url: string | null;
-  file_type: string | null;
-  share_url: string | null;
-  available: boolean;
-  next_available_at: string | null;
-  last_status: "pending" | "approved" | "rejected" | null;
-};
 
 export function CompartilhamentoTask() {
   const outras = tasks.filter((t) => t.slug !== "compartilhamento");
