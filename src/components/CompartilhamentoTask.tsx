@@ -404,13 +404,9 @@ export function CompartilhamentoTask() {
         </div>
         <div className="grid grid-cols-1 gap-4">
           {initialCampaigns.map((c) => {
-            const isFb = c.id === "facebook";
-            const target = start + c.nextInSeconds * 1000;
-            const staticRemaining = Math.max(0, Math.floor((target - now) / 1000));
-            const remaining = isFb ? fbRemaining : staticRemaining;
-            const available = isFb
-              ? fbAvailable
-              : c.nextInSeconds === 0 || staticRemaining === 0;
+            const remaining = remainingFor(c.id);
+            const available = availableFor(c.id);
+
             return (
               <div
                 key={c.id}
