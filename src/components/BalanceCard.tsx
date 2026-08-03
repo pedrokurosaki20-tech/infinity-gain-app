@@ -37,6 +37,9 @@ export function BalanceCard() {
 
     load();
 
+    const onRefresh = () => load();
+    window.addEventListener("balance:refresh", onRefresh);
+
     const { data: sub } = supabase.auth.onAuthStateChange((event) => {
       if (event === "SIGNED_IN" || event === "SIGNED_OUT" || event === "USER_UPDATED") {
         load();
@@ -45,6 +48,7 @@ export function BalanceCard() {
 
     return () => {
       active = false;
+      window.removeEventListener("balance:refresh", onRefresh);
       sub.subscription.unsubscribe();
     };
   }, []);
