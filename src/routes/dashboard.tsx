@@ -43,6 +43,10 @@ function Dashboard() {
         <BalanceCard />
       </section>
 
+      <section className="mt-4 animate-fade-up">
+        <DailyCheckin />
+      </section>
+
       <section className="mt-5 animate-fade-up">
         <PromoCarousel />
       </section>
