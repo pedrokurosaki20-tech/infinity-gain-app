@@ -14,6 +14,84 @@ export type Database = {
   }
   public: {
     Tables: {
+      checkin_history: {
+        Row: {
+          amount: number
+          checkin_date: string
+          created_at: string
+          day: number
+          id: string
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          checkin_date: string
+          created_at?: string
+          day: number
+          id?: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          checkin_date?: string
+          created_at?: string
+          day?: number
+          id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      checkin_progress: {
+        Row: {
+          created_at: string
+          current_day: number
+          cycles_completed: number
+          last_checkin_date: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          current_day?: number
+          cycles_completed?: number
+          last_checkin_date?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          current_day?: number
+          cycles_completed?: number
+          last_checkin_date?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      checkin_settings: {
+        Row: {
+          active: boolean
+          created_at: string
+          id: boolean
+          rewards: number[]
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          id?: boolean
+          rewards?: number[]
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          id?: boolean
+          rewards?: number[]
+          updated_at?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           account_status: Database["public"]["Enums"]["account_status"]
@@ -383,6 +461,20 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      admin_checkin_overview: {
+        Args: never
+        Returns: {
+          checkins_today: number
+          current_day: number
+          cycles_completed: number
+          email: string
+          last_checkin_date: string
+          name: string
+          total_amount: number
+          total_checkins: number
+          user_id: string
+        }[]
+      }
       admin_list_referrals: {
         Args: never
         Returns: {
@@ -417,8 +509,13 @@ export type Database = {
           updated_at: string
         }[]
       }
+      admin_reset_checkin: { Args: { _user_id: string }; Returns: undefined }
       admin_review_referral: {
         Args: { _action: string; _id: string; _reason?: string }
+        Returns: undefined
+      }
+      admin_save_checkin_settings: {
+        Args: { _active: boolean; _rewards: number[] }
         Returns: undefined
       }
       admin_save_share_campaign: {
@@ -440,6 +537,25 @@ export type Database = {
           _user_id: string
         }
         Returns: undefined
+      }
+      checkin_state: {
+        Args: never
+        Returns: {
+          active: boolean
+          claimed_today: boolean
+          current_day: number
+          cycles_completed: number
+          last_checkin_date: string
+          rewards: number[]
+        }[]
+      }
+      claim_daily_checkin: {
+        Args: never
+        Returns: {
+          amount: number
+          cycle_completed: boolean
+          day: number
+        }[]
       }
       claim_referral_bonus: {
         Args: { _amount: number; _period: string; _target: number }
