@@ -175,6 +175,7 @@ function AdminTasksPage() {
         <Link to="/admin/tasks/$type" params={{ type: "compartilhamento" }} className={`shrink-0 rounded-full px-3.5 py-1.5 text-xs font-semibold ${taskType === "compartilhamento" ? "bg-brand-gradient text-white shadow-glow" : "glass text-muted-foreground"}`}>Compartilhamento</Link>
         <Link to="/admin/sharing" className="glass shrink-0 rounded-full px-3.5 py-1.5 text-xs font-semibold text-muted-foreground">Compartilhamentos</Link>
         <Link to="/admin/referrals" className="glass shrink-0 rounded-full px-3.5 py-1.5 text-xs font-semibold text-muted-foreground">Indicados</Link>
+        <Link to="/admin/checkin" className="glass shrink-0 rounded-full px-3.5 py-1.5 text-xs font-semibold text-muted-foreground">Check-in</Link>
       </nav>
 
       <section className="mt-5">

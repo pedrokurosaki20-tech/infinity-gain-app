@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { Bell, ChevronRight } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { BalanceCard } from "@/components/BalanceCard";
+import { DailyCheckin } from "@/components/DailyCheckin";
 import { Logo } from "@/components/Logo";
 import { PromoCarousel } from "@/components/PromoCarousel";
 import { tasks } from "@/lib/tasks";
@@ -41,6 +42,10 @@ function Dashboard() {
 
       <section className="mt-5 animate-fade-up">
         <BalanceCard />
+      </section>
+
+      <section className="mt-4 animate-fade-up">
+        <DailyCheckin />
       </section>
 
       <section className="mt-5 animate-fade-up">
