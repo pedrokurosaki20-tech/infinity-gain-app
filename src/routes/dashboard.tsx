@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { Bell, ChevronRight } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { BalanceCard } from "@/components/BalanceCard";
+import { DailyCheckin } from "@/components/DailyCheckin";
 import { Logo } from "@/components/Logo";
 import { PromoCarousel } from "@/components/PromoCarousel";
 import { tasks } from "@/lib/tasks";
