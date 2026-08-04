@@ -1,10 +1,13 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link, redirect, useNavigate } from "@tanstack/react-router";
 import { ArrowLeft, CheckCircle2, Clock, RefreshCw, Search, XCircle, ShieldCheck, ExternalLink } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { AppShell } from "@/components/AppShell";
 import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/admin/tasks/$type")({
+  beforeLoad: ({ params }) => {
+    if (params.type !== "rcs") throw redirect({ to: "/admin/sharing" });
+  },
   head: () => ({
     meta: [
       { title: "Validar Tarefas — Infinity Gain" },
@@ -54,7 +57,6 @@ function AdminTasksPage() {
   const [filter, setFilter] = useState<"all" | SubmissionStatus>("pending");
   const [q, setQ] = useState("");
   const [busyId, setBusyId] = useState<string | null>(null);
-  const [rewardFor, setRewardFor] = useState<string | null>(null);
 
   useEffect(() => {
     (async () => {
@@ -112,15 +114,13 @@ function AdminTasksPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isAdmin, taskType]);
 
-  async function review(id: string, approve: boolean, amount?: number) {
+  async function review(id: string, approve: boolean) {
     setBusyId(id);
     const { error } = await supabase.rpc("review_task_submission", {
       _id: id,
       _approve: approve,
-      _amount: approve && taskType === "compartilhamento" ? (amount ?? 0.5) : undefined,
     });
     if (error) alert("Falha: " + error.message);
-    else setRewardFor(null);
     setBusyId(null);
   }
 
@@ -172,7 +172,6 @@ function AdminTasksPage() {
       <nav className="mt-5 flex gap-2 overflow-x-auto pb-1">
         <Link to="/admin" className="glass shrink-0 rounded-full px-3.5 py-1.5 text-xs font-semibold text-muted-foreground">Saques</Link>
         <Link to="/admin/tasks/$type" params={{ type: "rcs" }} className={`shrink-0 rounded-full px-3.5 py-1.5 text-xs font-semibold ${taskType === "rcs" ? "bg-brand-gradient text-white shadow-glow" : "glass text-muted-foreground"}`}>Tarefas RCS</Link>
-        <Link to="/admin/tasks/$type" params={{ type: "compartilhamento" }} className={`shrink-0 rounded-full px-3.5 py-1.5 text-xs font-semibold ${taskType === "compartilhamento" ? "bg-brand-gradient text-white shadow-glow" : "glass text-muted-foreground"}`}>Compartilhamento</Link>
         <Link to="/admin/sharing" className="glass shrink-0 rounded-full px-3.5 py-1.5 text-xs font-semibold text-muted-foreground">Compartilhamentos</Link>
         <Link to="/admin/referrals" className="glass shrink-0 rounded-full px-3.5 py-1.5 text-xs font-semibold text-muted-foreground">Indicados</Link>
         <Link to="/admin/checkin" className="glass shrink-0 rounded-full px-3.5 py-1.5 text-xs font-semibold text-muted-foreground">Check-in</Link>
@@ -262,54 +261,22 @@ function AdminTasksPage() {
                 )}
 
                 {r.status === "pending" && (
-                  <>
-                    {rewardFor === r.id && taskType === "compartilhamento" ? (
-                      <div className="mt-3">
-                        <p className="mb-2 text-[11px] uppercase tracking-widest text-muted-foreground">
-                          Escolha a recompensa
-                        </p>
-                        <div className="grid grid-cols-4 gap-2">
-                          {[0.3, 0.5, 0.7, 1].map((v) => (
-                            <button
-                              key={v}
-                              disabled={busy}
-                              onClick={() => review(r.id, true, v)}
-                              className="rounded-xl bg-emerald-500/90 px-2 py-2 text-xs font-semibold text-white disabled:opacity-50"
-                            >
-                              R$ {v.toFixed(2).replace(".", ",")}
-                            </button>
-                          ))}
-                        </div>
-                        <button
-                          onClick={() => setRewardFor(null)}
-                          className="mt-2 w-full rounded-xl bg-white/5 px-3 py-2 text-xs font-semibold text-muted-foreground"
-                        >
-                          Cancelar
-                        </button>
-                      </div>
-                    ) : (
-                      <div className="mt-3 flex gap-2">
-                        <button
-                          disabled={busy}
-                          onClick={() =>
-                            taskType === "compartilhamento"
-                              ? setRewardFor(r.id)
-                              : review(r.id, true)
-                          }
-                          className="flex-1 rounded-xl bg-emerald-500/90 px-3 py-2 text-xs font-semibold text-white disabled:opacity-50"
-                        >
-                          Aprovar
-                        </button>
-                        <button
-                          disabled={busy}
-                          onClick={() => review(r.id, false)}
-                          className="flex-1 rounded-xl bg-red-500/90 px-3 py-2 text-xs font-semibold text-white disabled:opacity-50"
-                        >
-                          Reprovar
-                        </button>
-                      </div>
-                    )}
-                  </>
+                  <div className="mt-3 flex gap-2">
+                    <button
+                      disabled={busy}
+                      onClick={() => review(r.id, true)}
+                      className="flex-1 rounded-xl bg-emerald-500/90 px-3 py-2 text-xs font-semibold text-white disabled:opacity-50"
+                    >
+                      Aprovar
+                    </button>
+                    <button
+                      disabled={busy}
+                      onClick={() => review(r.id, false)}
+                      className="flex-1 rounded-xl bg-red-500/90 px-3 py-2 text-xs font-semibold text-white disabled:opacity-50"
+                    >
+                      Reprovar
+                    </button>
+                  </div>
                 )}
 
               </div>
