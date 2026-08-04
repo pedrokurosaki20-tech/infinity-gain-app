@@ -1,11 +1,13 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Bell, ChevronRight } from "lucide-react";
+import { ChevronRight } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { BalanceCard } from "@/components/BalanceCard";
 import { DailyCheckin } from "@/components/DailyCheckin";
 import { Logo } from "@/components/Logo";
+import { NotificationBell } from "@/components/NotificationCenter";
 import { PromoCarousel } from "@/components/PromoCarousel";
 import { tasks } from "@/lib/tasks";
+
 
 export const Route = createFileRoute("/dashboard")({
   head: () => ({
@@ -25,12 +27,8 @@ function Dashboard() {
     <AppShell>
       <header className="flex items-center justify-between">
         <Logo size="sm" />
-        <button
-          className="glass grid h-10 w-10 place-items-center rounded-full"
-          aria-label="Notificações"
-        >
-          <Bell size={18} />
-        </button>
+        <NotificationBell />
+
       </header>
 
       <section className="mt-6 animate-fade-up">
