@@ -5,6 +5,9 @@ import { AppShell } from "@/components/AppShell";
 import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/admin/tasks/$type")({
+  beforeLoad: ({ params }) => {
+    if (params.type !== "rcs") throw redirect({ to: "/admin/sharing" });
+  },
   head: () => ({
     meta: [
       { title: "Validar Tarefas — Infinity Gain" },
