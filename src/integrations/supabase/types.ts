@@ -92,6 +92,45 @@ export type Database = {
         }
         Relationships: []
       }
+      notifications: {
+        Row: {
+          body: string
+          category: string
+          created_at: string
+          icon: string | null
+          id: string
+          link: string | null
+          priority: string
+          read_at: string | null
+          title: string
+          user_id: string
+        }
+        Insert: {
+          body?: string
+          category?: string
+          created_at?: string
+          icon?: string | null
+          id?: string
+          link?: string | null
+          priority?: string
+          read_at?: string | null
+          title: string
+          user_id: string
+        }
+        Update: {
+          body?: string
+          category?: string
+          created_at?: string
+          icon?: string | null
+          id?: string
+          link?: string | null
+          priority?: string
+          read_at?: string | null
+          title?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           account_status: Database["public"]["Enums"]["account_status"]
@@ -509,6 +548,14 @@ export type Database = {
           updated_at: string
         }[]
       }
+      admin_list_users_basic: {
+        Args: never
+        Returns: {
+          email: string
+          id: string
+          name: string
+        }[]
+      }
       admin_reset_checkin: { Args: { _user_id: string }; Returns: undefined }
       admin_review_referral: {
         Args: { _action: string; _id: string; _reason?: string }
@@ -529,6 +576,18 @@ export type Database = {
           _title: string
         }
         Returns: string
+      }
+      admin_send_notification: {
+        Args: {
+          _body: string
+          _category?: string
+          _created_at?: string
+          _icon?: string
+          _priority?: string
+          _title: string
+          _user_id?: string
+        }
+        Returns: number
       }
       admin_set_account_status: {
         Args: {
@@ -561,6 +620,7 @@ export type Database = {
         Args: { _amount: number; _period: string; _target: number }
         Returns: undefined
       }
+      clear_notifications: { Args: never; Returns: undefined }
       credit_balance: {
         Args: {
           _amount: number
@@ -577,6 +637,19 @@ export type Database = {
           _user_id: string
         }
         Returns: boolean
+      }
+      mark_all_notifications_read: { Args: never; Returns: undefined }
+      notify_user: {
+        Args: {
+          _body: string
+          _category: string
+          _icon?: string
+          _link?: string
+          _priority?: string
+          _title: string
+          _user_id: string
+        }
+        Returns: string
       }
       referral_stats: {
         Args: never
