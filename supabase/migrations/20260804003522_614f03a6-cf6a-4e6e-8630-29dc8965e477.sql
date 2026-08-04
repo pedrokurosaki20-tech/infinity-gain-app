@@ -1,0 +1,1 @@
+DROP FUNCTION IF EXISTS public.review_task_submission(uuid, boolean, text);

@@ -592,20 +592,15 @@ export type Database = {
         Args: { _amount: number; _pix_key: string; _pix_type: string }
         Returns: string
       }
-      review_task_submission:
-        | {
-            Args: { _approve: boolean; _id: string; _reason?: string }
-            Returns: undefined
-          }
-        | {
-            Args: {
-              _amount?: number
-              _approve: boolean
-              _id: string
-              _reason?: string
-            }
-            Returns: undefined
-          }
+      review_task_submission: {
+        Args: {
+          _amount?: number
+          _approve: boolean
+          _id: string
+          _reason?: string
+        }
+        Returns: undefined
+      }
       review_withdrawal: {
         Args: {
           _id: string
