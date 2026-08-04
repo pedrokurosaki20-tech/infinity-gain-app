@@ -27,12 +27,8 @@ function Dashboard() {
     <AppShell>
       <header className="flex items-center justify-between">
         <Logo size="sm" />
-        <button
-          className="glass grid h-10 w-10 place-items-center rounded-full"
-          aria-label="Notificações"
-        >
-          <Bell size={18} />
-        </button>
+        <NotificationBell />
+
       </header>
 
       <section className="mt-6 animate-fade-up">
