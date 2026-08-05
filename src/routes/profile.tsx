@@ -130,7 +130,7 @@ function ProfilePage() {
       {isAdmin && (
         <section className="mt-6">
           <Link
-            to="/admin"
+            to="/admin/dashboard"
             className="glass flex w-full items-center justify-between rounded-2xl px-4 py-4 text-left transition hover:bg-white/[0.06]"
           >
             <span className="flex items-center gap-3">

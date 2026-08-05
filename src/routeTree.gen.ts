@@ -25,6 +25,7 @@ import { Route as TaskSlugRouteImport } from './routes/task.$slug'
 import { Route as AdminSharingRouteImport } from './routes/admin.sharing'
 import { Route as AdminReferralsRouteImport } from './routes/admin.referrals'
 import { Route as AdminNotificationsRouteImport } from './routes/admin.notifications'
+import { Route as AdminDashboardRouteImport } from './routes/admin.dashboard'
 import { Route as AdminCheckinRouteImport } from './routes/admin.checkin'
 import { Route as AdminTasksTypeRouteImport } from './routes/admin.tasks.$type'
 
@@ -108,6 +109,11 @@ const AdminNotificationsRoute = AdminNotificationsRouteImport.update({
   path: '/notifications',
   getParentRoute: () => AdminRouteRoute,
 } as any)
+const AdminDashboardRoute = AdminDashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => AdminRouteRoute,
+} as any)
 const AdminCheckinRoute = AdminCheckinRouteImport.update({
   id: '/checkin',
   path: '/checkin',
@@ -131,6 +137,7 @@ export interface FileRoutesByFullPath {
   '/wallet': typeof WalletRoute
   '/withdraw': typeof WithdrawRouteWithChildren
   '/admin/checkin': typeof AdminCheckinRoute
+  '/admin/dashboard': typeof AdminDashboardRoute
   '/admin/notifications': typeof AdminNotificationsRoute
   '/admin/referrals': typeof AdminReferralsRoute
   '/admin/sharing': typeof AdminSharingRoute
@@ -150,6 +157,7 @@ export interface FileRoutesByTo {
   '/wallet': typeof WalletRoute
   '/withdraw': typeof WithdrawRouteWithChildren
   '/admin/checkin': typeof AdminCheckinRoute
+  '/admin/dashboard': typeof AdminDashboardRoute
   '/admin/notifications': typeof AdminNotificationsRoute
   '/admin/referrals': typeof AdminReferralsRoute
   '/admin/sharing': typeof AdminSharingRoute
@@ -171,6 +179,7 @@ export interface FileRoutesById {
   '/wallet': typeof WalletRoute
   '/withdraw': typeof WithdrawRouteWithChildren
   '/admin/checkin': typeof AdminCheckinRoute
+  '/admin/dashboard': typeof AdminDashboardRoute
   '/admin/notifications': typeof AdminNotificationsRoute
   '/admin/referrals': typeof AdminReferralsRoute
   '/admin/sharing': typeof AdminSharingRoute
@@ -193,6 +202,7 @@ export interface FileRouteTypes {
     | '/wallet'
     | '/withdraw'
     | '/admin/checkin'
+    | '/admin/dashboard'
     | '/admin/notifications'
     | '/admin/referrals'
     | '/admin/sharing'
@@ -212,6 +222,7 @@ export interface FileRouteTypes {
     | '/wallet'
     | '/withdraw'
     | '/admin/checkin'
+    | '/admin/dashboard'
     | '/admin/notifications'
     | '/admin/referrals'
     | '/admin/sharing'
@@ -232,6 +243,7 @@ export interface FileRouteTypes {
     | '/wallet'
     | '/withdraw'
     | '/admin/checkin'
+    | '/admin/dashboard'
     | '/admin/notifications'
     | '/admin/referrals'
     | '/admin/sharing'
@@ -369,6 +381,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminNotificationsRouteImport
       parentRoute: typeof AdminRouteRoute
     }
+    '/admin/dashboard': {
+      id: '/admin/dashboard'
+      path: '/dashboard'
+      fullPath: '/admin/dashboard'
+      preLoaderRoute: typeof AdminDashboardRouteImport
+      parentRoute: typeof AdminRouteRoute
+    }
     '/admin/checkin': {
       id: '/admin/checkin'
       path: '/checkin'
@@ -388,6 +407,7 @@ declare module '@tanstack/react-router' {
 
 interface AdminRouteRouteChildren {
   AdminCheckinRoute: typeof AdminCheckinRoute
+  AdminDashboardRoute: typeof AdminDashboardRoute
   AdminNotificationsRoute: typeof AdminNotificationsRoute
   AdminReferralsRoute: typeof AdminReferralsRoute
   AdminSharingRoute: typeof AdminSharingRoute
@@ -397,6 +417,7 @@ interface AdminRouteRouteChildren {
 
 const AdminRouteRouteChildren: AdminRouteRouteChildren = {
   AdminCheckinRoute: AdminCheckinRoute,
+  AdminDashboardRoute: AdminDashboardRoute,
   AdminNotificationsRoute: AdminNotificationsRoute,
   AdminReferralsRoute: AdminReferralsRoute,
   AdminSharingRoute: AdminSharingRoute,
@@ -436,13 +457,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
