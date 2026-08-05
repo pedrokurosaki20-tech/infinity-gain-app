@@ -176,7 +176,7 @@ function AdminDashboardPage() {
         value: data.withdrawals.pending + data.withdrawals.processing,
         to: "/admin" as const,
       },
-      { label: "Tarefas aguardando análise", value: data.tasks.pending_total, to: "/admin/sharing" as const },
+      { label: "Tarefas aguardando análise", value: data.tasks.pending_total, to: "/admin/sharing" },
       { label: "Convites suspeitos de fraude", value: data.referrals.suspicious, to: "/admin/referrals" as const },
       { label: "Usuários bloqueados/suspensos (7 dias)", value: data.blocked_recent.length, to: "/admin/referrals" as const },
     ];
@@ -389,7 +389,7 @@ function Alerts({ alerts }: { alerts: { label: string; value: number; to: string
         {alerts.map((a) => (
           <Link
             key={a.label}
-            to={a.to}
+            to={a.to as never}
             className="glass flex items-center justify-between rounded-2xl px-3.5 py-2.5"
           >
             <span className="text-xs text-muted-foreground">{a.label}</span>
