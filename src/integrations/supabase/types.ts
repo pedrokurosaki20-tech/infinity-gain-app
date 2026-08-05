@@ -514,6 +514,10 @@ export type Database = {
           user_id: string
         }[]
       }
+      admin_dashboard_metrics: {
+        Args: { _from?: string; _to?: string }
+        Returns: Json
+      }
       admin_list_referrals: {
         Args: never
         Returns: {

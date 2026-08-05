@@ -196,6 +196,7 @@ function AdminPage() {
       </header>
 
       <nav className="mt-5 flex gap-2 overflow-x-auto pb-1">
+        <Link to="/admin/dashboard" className="glass shrink-0 rounded-full px-3.5 py-1.5 text-xs font-semibold text-muted-foreground">Dashboard</Link>
         <span className="shrink-0 rounded-full bg-brand-gradient px-3.5 py-1.5 text-xs font-semibold text-white shadow-glow">Saques</span>
         <Link to="/admin/tasks/$type" params={{ type: "rcs" }} className="glass shrink-0 rounded-full px-3.5 py-1.5 text-xs font-semibold text-muted-foreground">Tarefas RCS</Link>
         <Link to="/admin/sharing" className="glass shrink-0 rounded-full px-3.5 py-1.5 text-xs font-semibold text-muted-foreground">Compartilhamentos</Link>
