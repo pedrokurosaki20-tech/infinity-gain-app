@@ -1,37 +1,21 @@
-## Root cause
+# Capturas e gravações de tela: confirmação
 
-The Vite dev log shows the real failure:
+## Situação atual
 
-```
-Serialization error: Seroval Error (specific: 1)
-  value: Symbol(react.forward_ref)
-```
+O Infinity Gain é uma aplicação web aberta no navegador do celular. Navegadores não oferecem nenhum mecanismo para bloquear print ou gravação de tela (isso só existe em apps nativos Android/iOS, via FLAG_SECURE ou equivalente).
 
-`src/routes/task.$slug.tsx` has:
+Portanto:
 
-```ts
-loader: ({ params }) => {
-  const task = getTask(params.slug);
-  if (!task) throw notFound();
-  return { task };
-},
-```
+- Os usuários **podem** tirar print e gravar a tela do saldo, da carteira, do histórico e da solicitação/comprovante de saque.
+- Não existe nada no código do projeto que tente impedir isso.
+- Nenhuma tela usa proteção anti-captura, marca d'água ou ofuscação.
 
-`task` includes `icon: LucideIcon`, which is a React `forwardRef` component. TanStack Start serializes loader data with Seroval to send it to the client for hydration. Seroval cannot serialize React components, so SSR crashes. The `/api/status` 500/502 the runtime overlay complains about is a downstream symptom (client polls `/api/status` after the blank screen), not the cause.
+Ou seja, o material de prova social (print do saldo, print do saque aprovado) já é possível hoje, sem nenhuma alteração.
 
-## Fix
+## Ação
 
-Keep the loader small and serializable: return only the slug (or a plain-serializable subset), and resolve the full `Task` (with `icon`) on the client via `getTask` — icons are React components and belong in the component tree, not in serialized loader data.
+Nenhuma mudança de código necessária. O comportamento desejado já é o comportamento atual.
 
-Change in `src/routes/task.$slug.tsx`:
+## Observação de segurança
 
-1. `loader` returns `{ slug: params.slug, title, short }` (plain strings) after validating `getTask` exists. Keep `throw notFound()` when missing.
-2. `head` reads from the plain-string `loaderData` (already does — no icon needed).
-3. `TaskDetail` calls `getTask(slug)` locally to obtain the full `Task` (including `icon`). No serialization involved.
-
-No other files need changes. `src/lib/tasks.ts` stays as-is.
-
-## Verification
-
-- Reload `/task/treinamento-ia` — page renders, no Seroval error in the Vite log, no blank screen, no `/api/status` 500 overlay.
-- Reload each task slug (`rcs`, `compartilhamento`, `sistema-email`, `indique-ganhe`) and an invalid slug (still shows `TaskNotFound`).
+Prints do histórico de saque expõem a chave PIX cadastrada (CPF ou telefone). Vale orientar os usuários, no Centro de Ajuda, a cobrir esse dado antes de publicar nas redes. Se quiser, isso pode virar uma tarefa futura (aviso na tela de saque ou mascaramento automático da chave no comprovante).
