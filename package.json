@@ -9,7 +9,9 @@
     "build:dev": "vite build --mode development",
     "preview": "vite preview",
     "lint": "eslint .",
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "security:db": "node scripts/check-migrations-security.mjs",
+    "security:deps": "npm audit --audit-level=high"
   },
   "dependencies": {
     "@hapi/boom": "^10.0.1",
