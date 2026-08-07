@@ -13,7 +13,7 @@ export type ReceiptData = {
 };
 
 export const RECEIPT_W = 1080;
-export const RECEIPT_H = 1500;
+export const RECEIPT_H = 1660;
 
 const BLUE = "#1E5EFF";
 const PINK = "#FF66C4";
