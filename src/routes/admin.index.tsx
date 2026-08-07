@@ -358,6 +358,16 @@ function AdminWithdrawalCard({
           Motivo enviado ao usuário: {row.rejection_reason}
         </p>
       )}
+
+      {row.status === "completed" && (
+        <div className="mt-3">
+          <WithdrawReceipt
+            item={row}
+            userName={row.profile?.name ?? null}
+            title="Comprovante do usuário"
+          />
+        </div>
+      )}
     </div>
   );
 }
