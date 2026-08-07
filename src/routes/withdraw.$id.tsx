@@ -33,6 +33,7 @@ function WithdrawDetailPage() {
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [userName, setUserName] = useState<string | null>(null);
 
   useEffect(() => {
     let active = true;
@@ -53,7 +54,19 @@ function WithdrawDetailPage() {
       setLoading(false);
     }
 
+    async function loadName() {
+      const { data: u } = await supabase.auth.getUser();
+      if (!u.user) return;
+      const { data: p } = await supabase
+        .from("profiles")
+        .select("name")
+        .eq("id", u.user.id)
+        .maybeSingle();
+      if (active) setUserName(p?.name ?? null);
+    }
+
     load();
+    loadName();
 
     const channel = supabase
       .channel(`withdrawal:${id}`)
