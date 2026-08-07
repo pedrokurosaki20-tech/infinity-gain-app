@@ -138,7 +138,7 @@ export async function drawReceipt(
   y += 60;
 
   // Status pill
-  const pillW = 300;
+  const pillW = 440;
   const pillH = 62;
   roundRect(ctx, cx - pillW / 2, y, pillW, pillH, 31);
   ctx.fillStyle = "rgba(34,197,94,0.14)";
