@@ -2,6 +2,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { ArrowLeft, Copy, Loader2, ShieldCheck } from "lucide-react";
 import { useEffect, useState } from "react";
 import { AppShell } from "@/components/AppShell";
+import { WithdrawReceipt } from "@/components/WithdrawReceipt";
 import { supabase } from "@/integrations/supabase/client";
 import {
   BRL,
@@ -32,6 +33,7 @@ function WithdrawDetailPage() {
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [userName, setUserName] = useState<string | null>(null);
 
   useEffect(() => {
     let active = true;
@@ -52,7 +54,19 @@ function WithdrawDetailPage() {
       setLoading(false);
     }
 
+    async function loadName() {
+      const { data: u } = await supabase.auth.getUser();
+      if (!u.user) return;
+      const { data: p } = await supabase
+        .from("profiles")
+        .select("name")
+        .eq("id", u.user.id)
+        .maybeSingle();
+      if (active) setUserName(p?.name ?? null);
+    }
+
     load();
+    loadName();
 
     const channel = supabase
       .channel(`withdrawal:${id}`)
@@ -163,6 +177,12 @@ function WithdrawDetailPage() {
       <div className="mt-4">
         <WithdrawTracking item={item} />
       </div>
+
+      {item.status === "completed" && (
+        <div className="mt-4">
+          <WithdrawReceipt item={item} userName={userName} />
+        </div>
+      )}
 
       <section className="mt-4 animate-fade-up">
         <div className="glass rounded-3xl p-5">

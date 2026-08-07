@@ -2,6 +2,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { ArrowLeft, ShieldCheck, RefreshCw, Search } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { AppShell } from "@/components/AppShell";
+import { WithdrawReceipt } from "@/components/WithdrawReceipt";
 import { supabase } from "@/integrations/supabase/client";
 import {
   WITHDRAWAL_SELECT,
@@ -357,6 +358,16 @@ function AdminWithdrawalCard({
         <p className="mt-2 text-[11px] text-red-400">
           Motivo enviado ao usuário: {row.rejection_reason}
         </p>
+      )}
+
+      {row.status === "completed" && (
+        <div className="mt-3">
+          <WithdrawReceipt
+            item={row}
+            userName={row.profile?.name ?? null}
+            title="Comprovante do usuário"
+          />
+        </div>
       )}
     </div>
   );
