@@ -178,6 +178,12 @@ function WithdrawDetailPage() {
         <WithdrawTracking item={item} />
       </div>
 
+      {item.status === "completed" && (
+        <div className="mt-4">
+          <WithdrawReceipt item={item} userName={userName} />
+        </div>
+      )}
+
       <section className="mt-4 animate-fade-up">
         <div className="glass rounded-3xl p-5">
           <h2 className="text-sm font-bold">Resumo</h2>
