@@ -2,6 +2,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { ArrowLeft, Copy, Loader2, ShieldCheck } from "lucide-react";
 import { useEffect, useState } from "react";
 import { AppShell } from "@/components/AppShell";
+import { WithdrawReceipt } from "@/components/WithdrawReceipt";
 import { supabase } from "@/integrations/supabase/client";
 import {
   BRL,
